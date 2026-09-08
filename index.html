@@ -1,20 +1,838 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>たしざん</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif;
+        text-align: center;
+        background-color: #f0f8ff;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        overflow-x: hidden;
+        min-height: 100vh;
+    }
+    h1 {
+        color: #ff8c00;
+        font-size: 32px;
+        margin: 8px 0 20px;
+    }
+    .layout {
+        display: grid;
+        grid-template-columns: 156px minmax(0, 760px) 180px;
+        justify-content: center;
+        align-items: start;
+        gap: 16px;
+        max-width: 1120px;
+        margin: 0 auto;
+    }
+    .game-area {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 28px 20px 32px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        position: relative;
+        min-width: 0;
+    }
+    .message {
+        font-size: 24px;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 12px;
+        min-height: 64px;
+    }
+    .kastens {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 18px;
+        margin: 18px auto 8px;
+        flex-wrap: wrap;
+    }
+    .kasten-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .kasten {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .kasten-row {
+        display: flex;
+        justify-content: flex-start;
+        gap: 6px;
+    }
+    .plus {
+        font-size: 48px;
+        font-weight: bold;
+        color: #ff4081;
+        line-height: 1;
+        padding-bottom: 28px;
+    }
+    .box {
+        width: 52px;
+        height: 52px;
+        border: 3px solid #4caf50;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e8f5e9;
+        transition: background-color 0.2s, transform 0.15s, border-color 0.2s;
+    }
+    .box.shake,
+    .equation.shake,
+    .kastens.shake {
+        animation: shake 0.45s ease-in-out;
+    }
+    .ball {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        box-shadow: inset -4px -4px 8px rgba(0,0,0,0.2);
+    }
+    .ball.landed {
+        animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .ball.flying {
+        position: fixed;
+        margin: 0;
+        z-index: 1000;
+        pointer-events: none;
+        will-change: transform;
+        animation: none;
+    }
+    .num-chip {
+        position: fixed;
+        margin: 0;
+        z-index: 1000;
+        pointer-events: none;
+        will-change: transform;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: #ff4081;
+        color: #fff;
+        font-size: 26px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 12px rgba(255, 64, 129, 0.35);
+    }
+    .red { background-color: #ff5252; }
+    .blue { background-color: #448aff; }
 
-[653 lines collapsed]
+    .game-area.no-grid .box {
+        border-color: transparent;
+        background-color: transparent;
+    }
+    .game-area.no-balls .ball {
+        visibility: hidden;
+    }
+    .game-area.no-balls .box:has(.red) {
+        background-color: #ffcdd2;
+        border-color: #e57373;
+    }
+    .game-area.no-balls .box:has(.blue) {
+        background-color: #bbdefb;
+        border-color: #64b5f6;
+    }
+    .game-area.no-grid.no-balls .box:has(.red),
+    .game-area.no-grid.no-balls .box:has(.blue) {
+        background-color: transparent;
+        border-color: transparent;
+    }
+    .game-area.no-grid.no-balls .kastens,
+    .game-area.no-grid.no-balls .plus {
+        display: none;
+    }
+    .game-area.no-grid.no-balls .equation {
+        font-size: 64px;
+        min-height: 90px;
+        margin: 36px 0 20px;
+    }
 
+    @keyframes pop {
+        0% { transform: scale(0); }
+        100% { transform: scale(1); }
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-8px) rotate(-2deg); }
+        40% { transform: translateX(8px) rotate(2deg); }
+        60% { transform: translateX(-6px); }
+        80% { transform: translateX(6px); }
+    }
+
+    .equation {
+        font-size: 42px;
+        font-weight: bold;
+        color: #ff4081;
+        margin: 12px 0 8px;
+        min-height: 56px;
+        letter-spacing: 4px;
+        transition: font-size 0.2s, margin 0.2s;
+    }
+    .eq-red { color: #ff5252; }
+    .eq-blue { color: #448aff; }
+    .eq-sum { color: #ff4081; }
+    .eq-blank {
+        color: #90a4ae;
+        display: inline-block;
+        min-width: 1.1em;
+    }
+
+    .choices {
+        margin-top: 8px;
+    }
+    .choices-label {
+        font-size: 22px;
+        font-weight: bold;
+        color: #1565c0;
+        margin-bottom: 14px;
+    }
+    .choice-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        max-width: 520px;
+        margin: 0 auto;
+    }
+    .choice-btn {
+        width: 48px;
+        height: 48px;
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+        transition: transform 0.15s, filter 0.15s;
+    }
+    .choice-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.08);
+    }
+    .choice-btn:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+    }
+    .choice-btn:disabled {
+        cursor: default;
+        opacity: 0.55;
+    }
+
+    .next-btn {
+        background-color: #ff9800;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 24px;
+        font-weight: bold;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        transition: all 0.2s;
+        margin-top: 8px;
+        font-family: inherit;
+    }
+    .next-btn:hover {
+        background-color: #f57c00;
+        transform: translateY(-2px);
+    }
+    .next-btn:active {
+        transform: translateY(2px);
+        box-shadow: none;
+    }
+    .hidden {
+        display: none !important;
+    }
+
+    .controls {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 18px 14px 20px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        text-align: left;
+    }
+    .controls-title {
+        font-size: 15px;
+        font-weight: bold;
+        color: #546e7a;
+        margin: 0 0 14px;
+        text-align: center;
+        letter-spacing: 0.04em;
+    }
+    .ctrl-group {
+        margin-bottom: 18px;
+    }
+    .ctrl-group:last-child {
+        margin-bottom: 0;
+    }
+    .ctrl-label {
+        font-size: 18px;
+        font-weight: bold;
+        color: #37474f;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+    .ctrl-btns {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .ctrl-btn {
+        border: 2px solid #b0bec5;
+        background: #eceff1;
+        color: #455a64;
+        border-radius: 12px;
+        padding: 10px 8px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: inherit;
+    }
+    .ctrl-btn.active {
+        background: #1565c0;
+        border-color: #1565c0;
+        color: #fff;
+    }
+    .ctrl-btn:hover:not(.active):not(:disabled) {
+        background: #cfd8dc;
+    }
+    .ctrl-btn:disabled {
+        opacity: 0.45;
+        cursor: default;
+    }
+    .move-btn {
+        font-size: 14px;
+        padding: 9px 6px;
+        line-height: 1.3;
+    }
+    .fix-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 8px;
+    }
+    .fix-btn {
+        border: 2px solid transparent;
+        color: #fff;
+        border-radius: 10px;
+        padding: 8px 0;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: inherit;
+        opacity: 0.55;
+    }
+    .fix-btn.active {
+        opacity: 1;
+        box-shadow: 0 0 0 2px #1565c0, 0 0 0 4px #fff;
+        transform: scale(1.06);
+    }
+    .fix-btn:hover:not(.active) {
+        opacity: 0.85;
+    }
+    .fix-btn[data-n="1"] { background-color: #42a5f5; }
+    .fix-btn[data-n="2"] { background-color: #66bb6a; }
+    .fix-btn[data-n="3"] { background-color: #ffa726; }
+    .fix-btn[data-n="4"] { background-color: #ab47bc; }
+    .fix-btn[data-n="5"] { background-color: #ef5350; }
+    .fix-btn[data-n="6"] { background-color: #26c6da; }
+    .fix-btn[data-n="7"] { background-color: #8d6e63; }
+    .fix-btn[data-n="8"] { background-color: #ec407a; }
+    .fix-btn[data-n="9"] { background-color: #7e57c2; }
+    .choice-btn[data-n="1"], .choice-btn[data-n="10"] { background-color: #42a5f5; }
+    .choice-btn[data-n="2"], .choice-btn[data-n="11"] { background-color: #66bb6a; }
+    .choice-btn[data-n="3"], .choice-btn[data-n="12"] { background-color: #ffa726; }
+    .choice-btn[data-n="4"], .choice-btn[data-n="13"] { background-color: #ab47bc; }
+    .choice-btn[data-n="5"], .choice-btn[data-n="14"] { background-color: #ef5350; }
+    .choice-btn[data-n="6"], .choice-btn[data-n="15"] { background-color: #26c6da; }
+    .choice-btn[data-n="7"], .choice-btn[data-n="16"] { background-color: #8d6e63; }
+    .choice-btn[data-n="8"], .choice-btn[data-n="17"] { background-color: #ec407a; }
+    .choice-btn[data-n="9"], .choice-btn[data-n="18"] { background-color: #7e57c2; }
+
+    @media (max-width: 980px) {
+        .layout {
+            grid-template-columns: 1fr;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+        }
+        .controls-title,
+        .fix-full,
+        .move-full {
+            grid-column: 1 / -1;
+        }
+        .ctrl-group {
+            margin-bottom: 0;
+        }
+    }
+</style>
+</head>
+<body>
+
+    <h1>🍎 たしざん 🍏</h1>
+
+    <div class="layout">
+        <aside class="controls" aria-label="ひだりの数">
+            <p class="controls-title">ひだりの数</p>
+            <div class="ctrl-group fix-full">
+                <button type="button" class="ctrl-btn active" id="random-left-btn">ランダム</button>
+                <div class="fix-grid" id="fix-grid"></div>
+            </div>
+        </aside>
+
+        <div class="game-area" id="game-area">
+            <div id="message" class="message">あわせて いくつかな？</div>
+
+            <div class="kastens" id="kastens"></div>
+
+            <div id="equation" class="equation"></div>
+
+            <div id="choices" class="choices">
+                <div class="choices-label">こたえは？</div>
+                <div class="choice-row" id="choice-row"></div>
+            </div>
+
+            <button id="next-btn" class="next-btn hidden">つぎのもんだい！</button>
+        </div>
+
+        <aside class="controls" aria-label="表示のきりかえ">
+            <p class="controls-title">ステップアップ</p>
+            <div class="ctrl-group">
+                <div class="ctrl-label">格子</div>
+                <div class="ctrl-btns">
+                    <button type="button" class="ctrl-btn active" data-setting="grid" data-value="on">あり</button>
+                    <button type="button" class="ctrl-btn" data-setting="grid" data-value="off">なし</button>
+                </div>
+            </div>
+            <div class="ctrl-group">
+                <div class="ctrl-label">球</div>
+                <div class="ctrl-btns">
+                    <button type="button" class="ctrl-btn active" data-setting="balls" data-value="on">あり</button>
+                    <button type="button" class="ctrl-btn" data-setting="balls" data-value="off">なし</button>
+                </div>
+            </div>
+            <div class="ctrl-group move-full">
+                <div class="ctrl-label">移動</div>
+                <div class="ctrl-btns">
+                    <button type="button" class="ctrl-btn move-btn active" data-move="rtl">みぎ → ひだり</button>
+                    <button type="button" class="ctrl-btn move-btn" data-move="ltr">ひだり → みぎ</button>
+                    <button type="button" class="ctrl-btn move-btn" data-move="small-large">ちいさい → おおきい</button>
+                    <button type="button" class="ctrl-btn move-btn" data-move="large-small">おおきい → ちいさい</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+<script>
+    const gameArea = document.getElementById('game-area');
+    const kastensEl = document.getElementById('kastens');
+    const messageEl = document.getElementById('message');
+    const equationEl = document.getElementById('equation');
+    const nextBtn = document.getElementById('next-btn');
+    const choicesEl = document.getElementById('choices');
+    const choiceRow = document.getElementById('choice-row');
+    const fixGrid = document.getElementById('fix-grid');
+    const randomLeftBtn = document.getElementById('random-left-btn');
+
+    let leftNum = 1;
+    let rightNum = 1;
+    let fixedLeft = null;
+    let busy = false;
+    let solved = false;
+    let showGrid = true;
+    let showBalls = true;
+    let moveMode = 'rtl';
+    let leftBoxes = [];
+    let rightBoxes = [];
+
+    function wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function randDigit() {
+        return Math.floor(Math.random() * 9) + 1;
+    }
+
+    function setChoicesEnabled(enabled) {
+        choiceRow.querySelectorAll('.choice-btn').forEach((btn) => {
+            btn.disabled = !enabled;
+        });
+    }
+
+    function applyDisplayMode() {
+        if (!showBalls) showGrid = false;
+        gameArea.classList.toggle('no-grid', !showGrid);
+        gameArea.classList.toggle('no-balls', !showBalls);
+        document.querySelectorAll('.ctrl-btn[data-setting]').forEach((btn) => {
+            const on = btn.dataset.setting === 'grid' ? showGrid : showBalls;
+            btn.classList.toggle('active', (btn.dataset.value === 'on') === on);
+            if (btn.dataset.setting === 'grid') btn.disabled = !showBalls;
+        });
+        randomLeftBtn.classList.toggle('active', fixedLeft === null);
+        fixGrid.querySelectorAll('.fix-btn').forEach((btn) => {
+            btn.classList.toggle('active', Number(btn.dataset.n) === fixedLeft);
+        });
+        document.querySelectorAll('.move-btn').forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.move === moveMode);
+        });
+        refreshEquation();
+    }
+
+    function refreshEquation(sumValue = null) {
+        const rightPart = `<span class="eq-blue">${rightNum}</span>`;
+        const leftPart = `<span class="eq-red">${leftNum}</span>`;
+        if (solved && sumValue === null) {
+            equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-sum">${leftNum + rightNum}</span>`;
+            return;
+        }
+        if (sumValue !== null) {
+            equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-sum">${sumValue}</span>`;
+            return;
+        }
+        equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-blank">□</span>`;
+    }
+
+    function makeBox() {
+        const box = document.createElement('div');
+        box.className = 'box';
+        return box;
+    }
+
+    function buildKasten(count, colorClass) {
+        const wrap = document.createElement('div');
+        wrap.className = 'kasten';
+        const topRow = document.createElement('div');
+        topRow.className = 'kasten-row';
+        const bottomRow = document.createElement('div');
+        bottomRow.className = 'kasten-row';
+        const boxes = [];
+
+        for (let i = 0; i < 5; i++) {
+            const box = makeBox();
+            bottomRow.appendChild(box);
+            boxes.push(box);
+        }
+        for (let i = 0; i < 5; i++) {
+            const box = makeBox();
+            topRow.appendChild(box);
+            boxes.push(box);
+        }
+
+        wrap.appendChild(topRow);
+        wrap.appendChild(bottomRow);
+
+        for (let i = 0; i < count; i++) {
+            const ball = document.createElement('div');
+            ball.className = `ball ${colorClass} landed`;
+            boxes[i].appendChild(ball);
+        }
+        return { el: wrap, boxes };
+    }
+
+    function renderKastens() {
+        kastensEl.innerHTML = '';
+        const left = buildKasten(leftNum, 'red');
+        const right = buildKasten(rightNum, 'blue');
+        leftBoxes = left.boxes;
+        rightBoxes = right.boxes;
+
+        const leftWrap = document.createElement('div');
+        leftWrap.className = 'kasten-wrap';
+        leftWrap.appendChild(left.el);
+
+        const plus = document.createElement('div');
+        plus.className = 'plus';
+        plus.textContent = '+';
+
+        const rightWrap = document.createElement('div');
+        rightWrap.className = 'kasten-wrap';
+        rightWrap.appendChild(right.el);
+
+        kastensEl.appendChild(leftWrap);
+        kastensEl.appendChild(plus);
+        kastensEl.appendChild(rightWrap);
+    }
+
+    function promptMessage() {
+        return `あか の <strong>${leftNum}</strong> と あお の <strong>${rightNum}</strong>。<br>あわせて いくつ？`;
+    }
+
+    function initGame() {
+        busy = false;
+        solved = false;
+        leftNum = fixedLeft === null ? randDigit() : fixedLeft;
+        rightNum = randDigit();
+
+        messageEl.innerHTML = promptMessage();
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+        renderKastens();
+        applyDisplayMode();
+    }
+
+    function resolveMoveDir() {
+        if (moveMode === 'ltr') return 'ltr';
+        if (moveMode === 'small-large') {
+            if (leftNum < rightNum) return 'ltr';
+            if (rightNum < leftNum) return 'rtl';
+            return 'rtl';
+        }
+        if (moveMode === 'large-small') {
+            if (leftNum > rightNum) return 'ltr';
+            if (rightNum > leftNum) return 'rtl';
+            return 'rtl';
+        }
+        return 'rtl';
+    }
+
+    function combineMessage(dir) {
+        if (dir === 'rtl') return 'あおだま が ひだり に あつまるよ！';
+        return 'あかだま が みぎ に あつまるよ！';
+    }
+
+    function spawnFlyingBall(ball) {
+        const rect = ball.getBoundingClientRect();
+        const fly = document.createElement('div');
+        fly.className = ball.className.replace('landed', 'flying');
+        fly.style.left = `${rect.left}px`;
+        fly.style.top = `${rect.top}px`;
+        document.body.appendChild(fly);
+        return fly;
+    }
+
+    async function flyBallToBox(fly, box) {
+        const from = fly.getBoundingClientRect();
+        const to = box.getBoundingClientRect();
+        const dx = to.left + (to.width - from.width) / 2 - from.left;
+        const dy = to.top + (to.height - from.height) / 2 - from.top;
+        await fly.animate([
+            { transform: 'translate(0, 0) scale(1)' },
+            { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 40}px) scale(1.06)` },
+            { transform: `translate(${dx}px, ${dy}px) scale(1)` }
+        ], {
+            duration: 1000,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            fill: 'forwards'
+        }).finished;
+
+        const color = fly.classList.contains('red') ? 'red' : 'blue';
+        const landed = document.createElement('div');
+        landed.className = `ball ${color} landed`;
+        box.appendChild(landed);
+        fly.remove();
+    }
+
+    function moveOrderBoxes(boxes) {
+        const bottom = boxes.slice(0, 5);
+        const top = boxes.slice(5, 10);
+        return [...top].reverse().concat([...bottom].reverse());
+    }
+
+    async function animateCombine() {
+        if (!showBalls) return;
+        const dir = resolveMoveDir();
+        const sourceBoxes = dir === 'rtl' ? rightBoxes : leftBoxes;
+        const destBoxes = dir === 'rtl' ? leftBoxes : rightBoxes;
+        const sourceBalls = moveOrderBoxes(sourceBoxes)
             .map((box) => box.querySelector('.ball'))
             .filter(Boolean);
         const emptyDest = destBoxes.filter((box) => !box.querySelector('.ball'));
         const moveCount = Math.min(sourceBalls.length, emptyDest.length);
-        const jobs = sourceBalls.map((ball, i) => {
-            const target = i < emptyDest.length
-                ? emptyDest[i]
-                : sourceBoxes[i - emptyDest.length];
+
         const jobs = sourceBalls.slice(0, moveCount).map((ball, i) => {
             const fly = spawnFlyingBall(ball);
             ball.remove();
-            return { fly, target, delay: i * 40 };
             return { fly, target: emptyDest[i], delay: i * 40 };
         });
-        await Promise.all(jobs.map(async ({ fly, target, delay }) => {
 
-[173 lines collapsed]
+        await Promise.all(jobs.map(async ({ fly, target, delay }) => {
+            await wait(delay);
+            await flyBallToBox(fly, target);
+        }));
+    }
+
+    function spawnFlyingNumber(fromEl, value) {
+        const rect = fromEl.getBoundingClientRect();
+        const chip = document.createElement('div');
+        chip.className = 'num-chip';
+        chip.textContent = String(value);
+        chip.style.left = `${rect.left + (rect.width - 56) / 2}px`;
+        chip.style.top = `${rect.top + (rect.height - 56) / 2}px`;
+        document.body.appendChild(chip);
+        return chip;
+    }
+
+    function flyFromTo(el, targetEl) {
+        const from = el.getBoundingClientRect();
+        const to = targetEl.getBoundingClientRect();
+        const dx = to.left + (to.width - from.width) / 2 - from.left;
+        const dy = to.top + (to.height - from.height) / 2 - from.top;
+        return el.animate([
+            { transform: 'translate(0, 0) scale(1)' },
+            { transform: `translate(${dx * 0.55}px, ${dy * 0.45 - 70}px) scale(1.12)` },
+            { transform: `translate(${dx}px, ${dy}px) scale(1)` }
+        ], {
+            duration: 520,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            fill: 'forwards'
+        }).finished;
+    }
+
+    async function spillElement(el, targetEl) {
+        const from = el.getBoundingClientRect();
+        const target = targetEl.getBoundingClientRect();
+        const towardX = target.right - from.left - from.width / 2 + 12;
+        const towardY = target.top - from.top;
+        const fallX = towardX + 50 + Math.random() * 30;
+        const fallY = window.innerHeight - from.top + 40;
+
+        await el.animate([
+            { transform: 'translate(0, 0) rotate(0deg) scale(1)' },
+            { transform: `translate(${towardX}px, ${towardY - 20}px) rotate(25deg) scale(1.05)` }
+        ], {
+            duration: 360,
+            easing: 'ease-out',
+            fill: 'forwards'
+        }).finished;
+
+        await el.animate([
+            { transform: `translate(${towardX}px, ${towardY - 20}px) rotate(25deg) scale(1.05)` },
+            { transform: `translate(${fallX}px, ${fallY}px) rotate(420deg) scale(0.85)` }
+        ], {
+            duration: 760,
+            easing: 'cubic-bezier(0.55, 0.09, 0.68, 0.2)',
+            fill: 'forwards'
+        }).finished;
+
+        el.remove();
+    }
+
+    async function onChoose(count, button) {
+        if (busy) return;
+        busy = true;
+        setChoicesEnabled(false);
+
+        const answer = leftNum + rightNum;
+        const chip = spawnFlyingNumber(button, count);
+        const blank = equationEl.querySelector('.eq-blank') || equationEl;
+
+        if (count === answer) {
+            const dir = resolveMoveDir();
+            messageEl.innerHTML = combineMessage(dir);
+            await Promise.all([
+                flyFromTo(chip, blank).then(() => chip.remove()),
+                animateCombine()
+            ]);
+            solved = true;
+            messageEl.innerHTML = '<span style="color:#ff4081; font-size:32px;">🎉 大せいかい！ 🎉</span>';
+            refreshEquation(count);
+            choicesEl.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            busy = false;
+            return;
+        }
+
+        if (count > answer) {
+            messageEl.innerHTML = `わあっ！ <strong>おおすぎるよ！</strong><br>${leftNum} + ${rightNum} は ${count} より ちいさいよ`;
+            await spillElement(chip, blank);
+            equationEl.classList.add('shake');
+            kastensEl.classList.add('shake');
+        } else {
+            messageEl.innerHTML = `まだ <strong>たりないよ！</strong><br>${leftNum} + ${rightNum} は ${count} より おおきいよ`;
+            await flyFromTo(chip, blank);
+            chip.remove();
+            refreshEquation(count);
+            equationEl.classList.add('shake');
+            kastensEl.classList.add('shake');
+        }
+
+        await wait(1400);
+        equationEl.classList.remove('shake');
+        kastensEl.classList.remove('shake');
+        document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+        messageEl.innerHTML = promptMessage();
+        refreshEquation();
+        setChoicesEnabled(true);
+        busy = false;
+    }
+
+    function buildChoiceButtons() {
+        choiceRow.innerHTML = '';
+        for (let n = 1; n <= 18; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'choice-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => onChoose(n, btn));
+            choiceRow.appendChild(btn);
+        }
+    }
+
+    function buildFixButtons() {
+        fixGrid.innerHTML = '';
+        for (let n = 1; n <= 9; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'fix-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => {
+                if (fixedLeft === n) return;
+                fixedLeft = n;
+                initGame();
+            });
+            fixGrid.appendChild(btn);
+        }
+    }
+
+    randomLeftBtn.addEventListener('click', () => {
+        if (fixedLeft === null) return;
+        fixedLeft = null;
+        initGame();
+    });
+
+    document.querySelectorAll('.ctrl-btn[data-setting]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const on = btn.dataset.value === 'on';
+            if (btn.dataset.setting === 'grid') showGrid = on;
+            if (btn.dataset.setting === 'balls') showBalls = on;
+            applyDisplayMode();
+            if (!busy && !solved) {
+                messageEl.innerHTML = promptMessage();
+            }
+        });
+    });
+
+    document.querySelectorAll('.move-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            moveMode = btn.dataset.move;
+            applyDisplayMode();
+        });
+    });
+
+    nextBtn.addEventListener('click', initGame);
+    buildFixButtons();
+    buildChoiceButtons();
+    initGame();
+</script>
+
+</body>
+</html>
