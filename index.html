@@ -1,0 +1,20 @@
+
+[653 lines collapsed]
+
+            .map((box) => box.querySelector('.ball'))
+            .filter(Boolean);
+        const emptyDest = destBoxes.filter((box) => !box.querySelector('.ball'));
+        const moveCount = Math.min(sourceBalls.length, emptyDest.length);
+        const jobs = sourceBalls.map((ball, i) => {
+            const target = i < emptyDest.length
+                ? emptyDest[i]
+                : sourceBoxes[i - emptyDest.length];
+        const jobs = sourceBalls.slice(0, moveCount).map((ball, i) => {
+            const fly = spawnFlyingBall(ball);
+            ball.remove();
+            return { fly, target, delay: i * 40 };
+            return { fly, target: emptyDest[i], delay: i * 40 };
+        });
+        await Promise.all(jobs.map(async ({ fly, target, delay }) => {
+
+[173 lines collapsed]
