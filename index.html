@@ -23,12 +23,19 @@
     }
     .layout {
         display: grid;
-        grid-template-columns: 156px minmax(0, 760px) 180px;
+        grid-template-columns: 216px minmax(520px, 1fr) 180px;
         justify-content: center;
         align-items: start;
         gap: 16px;
-        max-width: 1120px;
+        max-width: 1180px;
+        width: 100%;
         margin: 0 auto;
+    }
+    .left-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
     }
     .game-area {
         background-color: #ffffff;
@@ -37,6 +44,7 @@
         box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         position: relative;
         min-width: 0;
+        width: 100%;
     }
     .message {
         font-size: 24px;
@@ -89,6 +97,7 @@
     }
     .box.shake,
     .equation.shake,
+    .change-eq.shake,
     .kastens.shake {
         animation: shake 0.45s ease-in-out;
     }
@@ -97,11 +106,40 @@
         height: 36px;
         border-radius: 50%;
         box-shadow: inset -4px -4px 8px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .ball-num {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: inherit;
+        line-height: 1;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+        pointer-events: none;
     }
     .ball.landed {
         animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .ball.flying {
+    .ball.pico {
+        animation: picoBall 0.4s ease-in-out infinite;
+        z-index: 2;
+    }
+    .box.pico {
+        animation: picoBox 0.4s ease-in-out infinite;
+        border-color: #ff9800 !important;
+        background-color: #fff8e1 !important;
+    }
+    .ball.flying,
+    .fruit-chip {
         position: fixed;
         margin: 0;
         z-index: 1000;
@@ -159,6 +197,9 @@
         min-height: 90px;
         margin: 36px 0 20px;
     }
+    .game-area.no-grid.no-balls .hint-row {
+        display: none !important;
+    }
 
     @keyframes pop {
         0% { transform: scale(0); }
@@ -170,6 +211,42 @@
         40% { transform: translateX(8px) rotate(2deg); }
         60% { transform: translateX(-6px); }
         80% { transform: translateX(6px); }
+    }
+    @keyframes picoBall {
+        0%, 100% { transform: scale(1); filter: brightness(1); box-shadow: inset -4px -4px 8px rgba(0,0,0,0.2); }
+        50% { transform: scale(1.28); filter: brightness(1.35); box-shadow: 0 0 0 4px #fff59d, 0 0 16px 6px #ffeb3b; }
+    }
+    @keyframes picoBox {
+        0%, 100% { transform: scale(1); box-shadow: none; }
+        50% { transform: scale(1.08); box-shadow: 0 0 0 3px #ffcc80, 0 0 12px #ff9800; }
+    }
+    @keyframes tree-bloom {
+        0%, 100% { transform: scale(1); }
+        40% { transform: scale(1.08); }
+        70% { transform: scale(0.96); }
+    }
+    @keyframes sparkle {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.35); }
+    }
+    @keyframes grass-grow {
+        0% { transform: translateX(-50%) scaleY(0); }
+        70% { transform: translateX(-50%) scaleY(1.15); }
+        100% { transform: translateX(-50%) scaleY(1); }
+    }
+    @keyframes bloom-pop {
+        0% { transform: translateX(-50%) scale(0); }
+        80% { transform: translateX(-50%) scale(1.25); }
+        100% { transform: translateX(-50%) scale(1); }
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.55; transform: scale(0.85); }
+        50% { opacity: 1; transform: scale(1.15); }
+    }
+    @keyframes star-pop {
+        0% { transform: scale(0); }
+        80% { transform: scale(1.5); }
+        100% { transform: scale(1); }
     }
 
     .equation {
@@ -188,6 +265,489 @@
         color: #90a4ae;
         display: inline-block;
         min-width: 1.1em;
+    }
+
+    .enshu-block {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #eceff1;
+    }
+    .hunt-block,
+    .shift-block,
+    .change-block,
+    .count-block {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #eceff1;
+    }
+    .enshu-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+
+    .drill-panel {
+        text-align: center;
+    }
+    .drill-head {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        min-height: 40px;
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+    .drill-title {
+        grid-column: 2;
+        font-size: 20px;
+        font-weight: bold;
+        color: #555;
+        margin: 0;
+        white-space: nowrap;
+    }
+    .drill-actions {
+        grid-column: 3;
+        justify-self: end;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        align-items: center;
+    }
+    .print-meta {
+        display: none;
+    }
+    .drill-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 460px;
+        margin: 0 auto 12px;
+        max-height: 58vh;
+        overflow-y: auto;
+        padding: 4px 4px 8px;
+    }
+    .drill-list.hunt-board {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: none;
+        width: 100%;
+        gap: 6px 20px;
+        max-height: 64vh;
+    }
+    .hunt-board .drill-item {
+        font-size: 22px;
+        min-height: 44px;
+        justify-content: flex-start;
+        gap: 8px;
+        min-width: 0;
+        flex-wrap: nowrap;
+        letter-spacing: 1px;
+    }
+    .hunt-board .drill-item-eq {
+        min-width: 0;
+        flex: 1;
+        white-space: nowrap;
+    }
+    .hunt-eq-btn {
+        border: none;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        font-weight: bold;
+        font-family: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        cursor: pointer;
+        text-align: left;
+        white-space: nowrap;
+    }
+    .hunt-eq-btn:disabled {
+        cursor: default;
+    }
+    .treasure-prize {
+        width: 36px;
+        height: 32px;
+        flex-shrink: 0;
+        display: inline-block;
+        line-height: 0;
+    }
+    .treasure-prize svg {
+        display: block;
+    }
+    .drill-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        font-size: 32px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        min-height: 52px;
+    }
+    .drill-item.shake {
+        animation: shake 0.45s ease-in-out;
+    }
+    .drill-item-eq {
+        min-width: 7.2em;
+        text-align: left;
+    }
+    .drill-item.focused .eq-blank-btn {
+        background: #fff8e1;
+        box-shadow: 0 0 0 3px #ffcc80;
+        color: #ff9800;
+    }
+    .eq-blank-btn {
+        border: none;
+        background: #eceff1;
+        color: #90a4ae;
+        font-size: inherit;
+        font-weight: bold;
+        font-family: inherit;
+        min-width: 1.15em;
+        line-height: 1.15;
+        padding: 0 4px;
+        border-radius: 8px;
+        cursor: pointer;
+        letter-spacing: 0;
+    }
+    .eq-blank-btn:hover:not(:disabled) {
+        background: #fff8e1;
+    }
+    .eq-blank-btn:disabled {
+        cursor: default;
+    }
+    .drill-hint-mini {
+        font-size: 15px;
+        padding: 6px 12px;
+        border-radius: 16px;
+        letter-spacing: 0;
+        box-shadow: 0 3px 0 #f9a825;
+        flex-shrink: 0;
+    }
+    .drill-hint-mini:active:not(:disabled) {
+        box-shadow: 0 1px 0 #f9a825;
+    }
+    .drill-mark {
+        font-size: 16px;
+        letter-spacing: 0;
+        color: #ff4081;
+        min-width: 5.5em;
+        text-align: left;
+        flex-shrink: 0;
+    }
+    .drill-mark.wrong {
+        color: #e53935;
+    }
+    .drill-done {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ff4081;
+        margin: 12px 0 0;
+    }
+    .hint-btn.back-btn {
+        background-color: #90caf9;
+        color: #0d47a1;
+        box-shadow: 0 4px 0 #42a5f5;
+        margin-top: 6px;
+    }
+    .hint-btn.back-btn:active:not(:disabled) {
+        box-shadow: 0 2px 0 #42a5f5;
+    }
+
+    .game-area.in-drill-list .message,
+    .game-area.in-drill-list .kastens,
+    .game-area.in-drill-list .equation,
+    .game-area.in-drill-list .hint-row,
+    .game-area.in-drill-list .next-btn,
+    .game-area.in-drill-list .back-btn {
+        display: none !important;
+    }
+    .game-area.in-drill-hint .drill-panel,
+    .game-area.in-drill-hint .choices,
+    .game-area.in-drill-hint .next-btn {
+        display: none !important;
+    }
+
+    .game-area.in-shift {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .game-area.in-shift .message { order: 1; }
+    .game-area.in-shift .equation { order: 2; }
+    .game-area.in-shift .kastens { order: 3; }
+    .game-area.in-shift .shift-panel { order: 4; }
+    .game-area.in-shift .next-btn { order: 5; }
+    .game-area.in-shift .hint-row,
+    .game-area.in-shift .back-btn,
+    .game-area.in-shift .drill-panel,
+    .game-area.in-shift .choices {
+        display: none !important;
+    }
+
+    .shift-panel {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        margin-top: 6px;
+        width: 100%;
+    }
+    .game-area.in-shift .shift-panel {
+        display: flex;
+    }
+    .shift-arrows {
+        display: flex;
+        justify-content: center;
+        gap: 28px;
+    }
+    .shift-arrow {
+        width: 92px;
+        height: 68px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.15s, filter 0.15s;
+        font-family: inherit;
+        padding: 8px 10px;
+    }
+    .shift-arrow svg {
+        width: 68px;
+        height: 44px;
+        display: block;
+    }
+    .shift-arrow.to-right {
+        background: #ffcdd2;
+        box-shadow: 0 4px 0 #e57373;
+        color: #c62828;
+    }
+    .shift-arrow.to-left {
+        background: #bbdefb;
+        box-shadow: 0 4px 0 #64b5f6;
+        color: #1565c0;
+    }
+    .shift-arrow:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+    .shift-arrow:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #e57373;
+    }
+    .shift-arrow.to-left:active:not(:disabled) {
+        box-shadow: 0 2px 0 #64b5f6;
+    }
+    .shift-arrow:disabled {
+        cursor: default;
+        opacity: 0.4;
+    }
+    .shift-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .shift-done {
+        background-color: #66bb6a;
+        color: #fff;
+        border: none;
+        padding: 12px 36px;
+        font-size: 22px;
+        font-weight: bold;
+        border-radius: 28px;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #43a047;
+        font-family: inherit;
+        transition: transform 0.15s;
+    }
+    .shift-done:hover:not(:disabled) {
+        transform: translateY(-2px);
+    }
+    .shift-done:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #43a047;
+    }
+    .shift-done:disabled {
+        cursor: default;
+        opacity: 0.45;
+    }
+
+    .change-ops {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+    .change-ops .ctrl-btn {
+        font-size: 16px;
+        padding: 8px 4px;
+    }
+    .change-ops .ctrl-btn.change-random {
+        grid-column: 1 / -1;
+        font-size: 18px;
+        padding: 10px 8px;
+    }
+    .change-panel {
+        display: none;
+        width: 100%;
+        text-align: center;
+    }
+    .change-eqs {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin: 8px 0 4px;
+    }
+    .change-eq {
+        font-size: 38px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        color: #ff4081;
+        min-height: 52px;
+    }
+    .change-caption {
+        font-size: 16px;
+        font-weight: bold;
+        color: #78909c;
+        margin: 0;
+        letter-spacing: 0.04em;
+    }
+
+    .game-area.in-change-quiz {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .game-area.in-change-quiz .change-panel {
+        display: block;
+        order: 1;
+    }
+    .game-area.in-change-quiz .hint-row { order: 2; }
+    .game-area.in-change-quiz .choices { order: 3; }
+    .game-area.in-change-quiz .next-btn { order: 4; }
+    .game-area.in-change-quiz .message,
+    .game-area.in-change-quiz .kastens,
+    .game-area.in-change-quiz .equation,
+    .game-area.in-change-quiz .shift-panel,
+    .game-area.in-change-quiz .drill-panel,
+    .game-area.in-change-quiz .back-btn {
+        display: none !important;
+    }
+    .game-area.in-change-quiz.change-solved .message {
+        display: block !important;
+        order: 0;
+    }
+
+    .game-area.in-change-hint {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .game-area.in-change-hint .message { order: 1; }
+    .game-area.in-change-hint .equation { order: 2; }
+    .game-area.in-change-hint .kastens { order: 3; }
+    .game-area.in-change-hint .hint-row { order: 4; }
+    .game-area.in-change-hint .back-btn { order: 5; }
+    .game-area.in-change-hint .next-btn { order: 6; }
+    .game-area.in-change-hint .change-panel,
+    .game-area.in-change-hint .choices,
+    .game-area.in-change-hint .shift-panel,
+    .game-area.in-change-hint .drill-panel {
+        display: none !important;
+    }
+
+    .game-area.in-count .shift-panel,
+    .game-area.in-count .change-panel,
+    .game-area.in-count .drill-panel,
+    .game-area.in-count .back-btn {
+        display: none !important;
+    }
+
+    .hint-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin: 4px 0 10px;
+        flex-wrap: wrap;
+    }
+    .hint-btn {
+        background-color: #ffd54f;
+        color: #5d4037;
+        border: none;
+        padding: 10px 28px;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #f9a825;
+        transition: transform 0.15s, filter 0.15s;
+        font-family: inherit;
+    }
+    .hint-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+    .hint-btn:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #f9a825;
+    }
+    .hint-btn:disabled {
+        cursor: default;
+        opacity: 0.45;
+    }
+    .hint-btn.drill-print,
+    .hint-btn.drill-quit {
+        padding: 5px 10px;
+        font-size: 14px;
+        line-height: 1.2;
+        border-radius: 16px;
+        white-space: nowrap;
+        box-shadow: 0 3px 0 #42a5f5;
+    }
+    .hint-btn.drill-print {
+        background-color: #a5d6a7;
+        color: #1b5e20;
+        box-shadow: 0 3px 0 #66bb6a;
+    }
+    .hint-btn.drill-print:active:not(:disabled) {
+        box-shadow: 0 1px 0 #66bb6a;
+    }
+    .hint-btn.drill-quit:active:not(:disabled) {
+        box-shadow: 0 1px 0 #42a5f5;
+    }
+    .hint-btn.count-continue {
+        background-color: #81d4fa;
+        color: #01579b;
+        box-shadow: 0 4px 0 #29b6f6;
+    }
+    .hint-btn.count-continue:active:not(:disabled) {
+        box-shadow: 0 2px 0 #29b6f6;
+    }
+    .hint-btn.drill-hint-mini {
+        font-size: 13px;
+        padding: 4px 8px;
+        border-radius: 14px;
+        letter-spacing: 0;
+        box-shadow: 0 3px 0 #f9a825;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+    .hint-btn.drill-hint-mini:active:not(:disabled) {
+        box-shadow: 0 1px 0 #f9a825;
+    }
+    .reset-hint-btn {
+        background-color: #90caf9;
+        color: #0d47a1;
+        box-shadow: 0 4px 0 #42a5f5;
+    }
+    .reset-hint-btn:active:not(:disabled) {
+        box-shadow: 0 2px 0 #42a5f5;
     }
 
     .choices {
@@ -273,6 +833,37 @@
         text-align: center;
         letter-spacing: 0.04em;
     }
+    .side-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        margin: 0 0 14px;
+        border-bottom: 2px solid #eceff1;
+    }
+    .side-tab {
+        border: none;
+        background: transparent;
+        color: #90a4ae;
+        font-size: 15px;
+        font-weight: bold;
+        font-family: inherit;
+        padding: 2px 0 8px;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+    .side-tab:hover:not(.active) {
+        color: #607d8b;
+    }
+    #fix-left-tab.active {
+        color: #e53935;
+        border-bottom-color: #e53935;
+    }
+    #fix-right-tab.active {
+        color: #1565c0;
+        border-bottom-color: #1565c0;
+    }
     .ctrl-group {
         margin-bottom: 18px;
     }
@@ -301,11 +892,20 @@
         font-weight: bold;
         cursor: pointer;
         font-family: inherit;
+        width: 100%;
     }
     .ctrl-btn.active {
         background: #1565c0;
         border-color: #1565c0;
         color: #fff;
+    }
+    .ctrl-btn.le10-btn.active {
+        background: #00897b;
+        border-color: #00897b;
+    }
+    .ctrl-btn.le5-btn.active {
+        background: #ef6c00;
+        border-color: #ef6c00;
     }
     .ctrl-btn:hover:not(.active):not(:disabled) {
         background: #cfd8dc;
@@ -325,7 +925,14 @@
         gap: 6px;
         margin-top: 8px;
     }
-    .fix-btn {
+    .sum-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+        margin-top: 8px;
+    }
+    .fix-btn,
+    .sum-btn {
         border: 2px solid transparent;
         color: #fff;
         border-radius: 10px;
@@ -336,49 +943,395 @@
         font-family: inherit;
         opacity: 0.55;
     }
-    .fix-btn.active {
+    .sum-btn {
+        font-size: 14px;
+        padding: 6px 0;
+        border-radius: 8px;
+    }
+    .fix-btn.active,
+    .sum-btn.active {
         opacity: 1;
         box-shadow: 0 0 0 2px #1565c0, 0 0 0 4px #fff;
         transform: scale(1.06);
     }
-    .fix-btn:hover:not(.active) {
+    .fix-btn:hover:not(.active),
+    .sum-btn:hover:not(.active) {
         opacity: 0.85;
     }
-    .fix-btn[data-n="1"] { background-color: #42a5f5; }
-    .fix-btn[data-n="2"] { background-color: #66bb6a; }
-    .fix-btn[data-n="3"] { background-color: #ffa726; }
-    .fix-btn[data-n="4"] { background-color: #ab47bc; }
-    .fix-btn[data-n="5"] { background-color: #ef5350; }
-    .fix-btn[data-n="6"] { background-color: #26c6da; }
-    .fix-btn[data-n="7"] { background-color: #8d6e63; }
-    .fix-btn[data-n="8"] { background-color: #ec407a; }
-    .fix-btn[data-n="9"] { background-color: #7e57c2; }
+    .fix-btn[data-n="1"], .sum-btn[data-n="1"], .sum-btn[data-n="10"],
     .choice-btn[data-n="1"], .choice-btn[data-n="10"] { background-color: #42a5f5; }
+    .fix-btn[data-n="2"], .sum-btn[data-n="2"], .sum-btn[data-n="11"],
     .choice-btn[data-n="2"], .choice-btn[data-n="11"] { background-color: #66bb6a; }
+    .fix-btn[data-n="3"], .sum-btn[data-n="3"], .sum-btn[data-n="12"],
     .choice-btn[data-n="3"], .choice-btn[data-n="12"] { background-color: #ffa726; }
+    .fix-btn[data-n="4"], .sum-btn[data-n="4"], .sum-btn[data-n="13"],
     .choice-btn[data-n="4"], .choice-btn[data-n="13"] { background-color: #ab47bc; }
+    .fix-btn[data-n="5"], .sum-btn[data-n="5"], .sum-btn[data-n="14"],
     .choice-btn[data-n="5"], .choice-btn[data-n="14"] { background-color: #ef5350; }
+    .fix-btn[data-n="6"], .sum-btn[data-n="6"], .sum-btn[data-n="15"],
     .choice-btn[data-n="6"], .choice-btn[data-n="15"] { background-color: #26c6da; }
+    .fix-btn[data-n="7"], .sum-btn[data-n="7"], .sum-btn[data-n="16"],
     .choice-btn[data-n="7"], .choice-btn[data-n="16"] { background-color: #8d6e63; }
+    .fix-btn[data-n="8"], .sum-btn[data-n="8"], .sum-btn[data-n="17"],
     .choice-btn[data-n="8"], .choice-btn[data-n="17"] { background-color: #ec407a; }
+    .fix-btn[data-n="9"], .sum-btn[data-n="9"], .sum-btn[data-n="18"],
     .choice-btn[data-n="9"], .choice-btn[data-n="18"] { background-color: #7e57c2; }
+    .sum-btn[data-n="19"] { background-color: #42a5f5; }
+    .sum-btn[data-n="20"] { background-color: #66bb6a; }
+
+    .grove {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 16px 12px 18px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .grove-title {
+        font-size: 15px;
+        font-weight: bold;
+        color: #546e7a;
+        margin: 0 0 10px;
+        letter-spacing: 0.04em;
+    }
+    .harvest-meter {
+        font-size: 18px;
+        font-weight: bold;
+        color: #37474f;
+        margin-bottom: 6px;
+    }
+    .harvest-meter strong {
+        color: #e53935;
+        font-size: 22px;
+    }
+    .harvest-meter.done strong {
+        color: #43a047;
+    }
+    .streak-caption {
+        font-size: 14px;
+        font-weight: bold;
+        color: #546e7a;
+        margin: 0;
+    }
+    .streak-caption strong {
+        color: #1565c0;
+        font-size: 18px;
+    }
+    .sky {
+        position: relative;
+        height: 228px;
+        border-radius: 16px;
+        background: linear-gradient(#e3f2fd 0%, #fff8e1 78%, #c8e6c9 78%, #a5d6a7 100%);
+        overflow: hidden;
+        margin-bottom: 12px;
+        transition: background 0.6s ease;
+    }
+    .sky.starry {
+        background: linear-gradient(#90caf9 0%, #e3f2fd 42%, #fff8e1 78%, #c8e6c9 78%, #a5d6a7 100%);
+    }
+    .sky.starry-deep {
+        background: linear-gradient(#1a237e 0%, #5c6bc0 48%, #ffe0b2 78%, #c8e6c9 78%, #a5d6a7 100%);
+    }
+    .star-field {
+        position: absolute;
+        inset: 0 0 24% 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+    .sky-star {
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        background: #fffde7;
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        filter: drop-shadow(0 0 3px #fff59d);
+        animation: twinkle 1.6s ease-in-out infinite;
+    }
+    .sky-star.just-grew {
+        animation: star-pop 0.45s ease, twinkle 1.6s ease-in-out 0.45s infinite;
+    }
+    .sky.bloom .canopy {
+        animation: tree-bloom 0.7s ease;
+    }
+    .tree {
+        position: absolute;
+        left: 50%;
+        bottom: 16px;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 2;
+    }
+    .canopy {
+        position: relative;
+        width: 148px;
+        height: 122px;
+        background: radial-gradient(circle at 40% 40%, #66bb6a, #2e7d32 58%, #1b5e20);
+        border-radius: 50% 50% 46% 46%;
+        box-shadow: inset -10px -12px 0 rgba(0,0,0,0.08);
+        z-index: 2;
+        transform-origin: 50% 100%;
+    }
+    .trunk {
+        width: 20px;
+        height: 48px;
+        margin-top: -8px;
+        background: linear-gradient(90deg, #8d6e63, #6d4c41);
+        border-radius: 4px;
+        z-index: 1;
+    }
+    .meadow {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 26%;
+        z-index: 4;
+        pointer-events: none;
+    }
+    .grass {
+        position: absolute;
+        bottom: 6px;
+        width: 12px;
+        transform: translateX(-50%);
+        transform-origin: 50% 100%;
+    }
+    .grass.just-grew {
+        animation: grass-grow 0.5s ease;
+    }
+    .grass-blade {
+        width: 8px;
+        height: 100%;
+        margin: 0 auto;
+        background: linear-gradient(#9ccc65, #558b2f);
+        border-radius: 80% 20% 50% 50%;
+        box-shadow: 3px 2px 0 -1px #7cb342;
+    }
+    .bloom {
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        width: 8px;
+        height: 8px;
+        margin-left: 0;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: #ff80ab;
+        box-shadow:
+            0 -5px 0 #f48fb1,
+            5px 0 0 #f06292,
+            0 5px 0 #ec407a,
+            -5px 0 0 #f48fb1;
+    }
+    .bloom.hue-1 {
+        background: #fff59d;
+        box-shadow:
+            0 -5px 0 #ffe082,
+            5px 0 0 #ffd54f,
+            0 5px 0 #ffca28,
+            -5px 0 0 #ffe082;
+    }
+    .bloom.hue-2 {
+        background: #ce93d8;
+        box-shadow:
+            0 -5px 0 #e1bee7,
+            5px 0 0 #ba68c8,
+            0 5px 0 #ab47bc,
+            -5px 0 0 #e1bee7;
+    }
+    .bloom.just-grew {
+        animation: bloom-pop 0.45s ease;
+    }
+    .tree-apple {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #ff8a80, #e53935 58%, #b71c1c);
+        box-shadow: inset -2px -2px 0 rgba(0,0,0,0.12);
+        z-index: 4;
+    }
+    .tree-apple.golden {
+        background: radial-gradient(circle at 30% 30%, #fff59d, #ffd54f 45%, #ff8f00);
+        box-shadow: 0 0 8px rgba(255, 213, 79, 0.9);
+        animation: sparkle 1.2s ease-in-out infinite;
+    }
+    .fruit-chip {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #ff8a80, #e53935 58%, #b71c1c);
+        box-shadow: 0 4px 10px rgba(229, 57, 53, 0.35);
+    }
+    .fruit-chip.golden {
+        background: radial-gradient(circle at 30% 30%, #fff59d, #ffd54f 45%, #ff8f00);
+        box-shadow: 0 0 12px rgba(255, 213, 79, 0.9);
+    }
 
     @media (max-width: 980px) {
         .layout {
             grid-template-columns: 1fr;
         }
-        .controls {
+        .step-panel {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px 16px;
         }
-        .controls-title,
-        .fix-full,
-        .move-full {
+        .step-panel .controls-title,
+        .step-panel .move-full {
             grid-column: 1 / -1;
         }
-        .ctrl-group {
+        .step-panel .ctrl-group {
             margin-bottom: 0;
+        }
+        .settings-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+        }
+        .settings-panel .settings-block + .settings-block {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        .settings-panel .enshu-block,
+        .settings-panel .hunt-block,
+        .settings-panel .shift-block,
+        .settings-panel .change-block,
+        .settings-panel .count-block {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #eceff1;
+        }
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+    @media print {
+        html, body {
+            background: #fff !important;
+            padding: 0;
+            margin: 0;
+            color: #222;
+        }
+        body.print-drill {
+            padding: 14mm 16mm 16mm;
+        }
+        body.print-drill h1,
+        body.print-drill .grove,
+        body.print-drill .settings-panel,
+        body.print-drill .step-panel,
+        body.print-drill .message,
+        body.print-drill .kastens,
+        body.print-drill .equation,
+        body.print-drill .hint-row,
+        body.print-drill .back-btn,
+        body.print-drill .choices,
+        body.print-drill .next-btn,
+        body.print-drill .shift-panel,
+        body.print-drill .change-panel,
+        body.print-drill .drill-head,
+        body.print-drill .drill-hint-mini,
+        body.print-drill .drill-mark,
+        body.print-drill .drill-done,
+        body.print-drill .eq-fill,
+        body.print-drill .treasure-prize {
+            display: none !important;
+        }
+        body.print-drill .layout {
+            display: block;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+        }
+        body.print-drill .left-stack {
+            display: none !important;
+        }
+        body.print-drill .game-area {
+            box-shadow: none;
+            padding: 0;
+            width: 100%;
+            background: none;
+            border-radius: 0;
+        }
+        body.print-drill .drill-panel,
+        body.print-drill .drill-panel.hidden,
+        body.print-drill .game-area.in-drill-hint .drill-panel {
+            display: block !important;
+        }
+        body.print-drill .print-meta {
+            display: block;
+            text-align: left;
+            margin: 0 0 10mm;
+        }
+        body.print-drill .print-date {
+            display: block;
+            font-size: 22pt;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            margin: 0 0 4mm;
+            color: #222;
+            white-space: nowrap;
+        }
+        body.print-drill .print-settings {
+            display: block;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0;
+            color: #333;
+        }
+        body.print-drill .drill-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16mm 14mm;
+            max-width: none;
+            max-height: none;
+            overflow: visible;
+            margin: 0;
+            padding: 0;
+        }
+        body.print-drill .drill-list.print-few {
+            grid-template-columns: 1fr;
+            max-width: 130mm;
+            margin: 0 auto;
+            gap: 18mm;
+        }
+        body.print-drill .drill-item {
+            display: block;
+            min-height: 22mm;
+            font-size: 22pt;
+            letter-spacing: 0.08em;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            justify-content: flex-start;
+        }
+        body.print-drill .print-few .drill-item {
+            font-size: 28pt;
+            min-height: 28mm;
+        }
+        body.print-drill .drill-list.print-many {
+            gap: 8mm 12mm;
+        }
+        body.print-drill .print-many .drill-item {
+            font-size: 18pt;
+            min-height: 16mm;
+        }
+        body.print-drill .drill-list.hunt-board {
+            max-width: none;
+            max-height: none;
+            overflow: visible;
+        }
+        body.print-drill .drill-item-eq {
+            min-width: 0;
+            text-align: left;
+        }
+        body.print-drill .eq-red,
+        body.print-drill .eq-blue {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
     }
 </style>
@@ -388,13 +1341,68 @@
     <h1>🍎 たしざん 🍏</h1>
 
     <div class="layout">
-        <aside class="controls" aria-label="ひだりの数">
-            <p class="controls-title">ひだりの数</p>
-            <div class="ctrl-group fix-full">
-                <button type="button" class="ctrl-btn active" id="random-left-btn">ランダム</button>
-                <div class="fix-grid" id="fix-grid"></div>
+        <div class="left-stack">
+        <aside class="grove" aria-label="きょうのしゅうかく">
+            <p class="grove-title">ぼくのき</p>
+            <div class="sky" id="tree-sky">
+                <div class="star-field" id="star-field"></div>
+                <div class="tree">
+                    <div class="canopy" id="canopy"></div>
+                    <div class="trunk"></div>
+                </div>
+                <div class="meadow" id="meadow"></div>
+            </div>
+            <div class="harvest-meter" id="harvest-meter">きょうのりんご <strong>0</strong> / 30</div>
+            <p class="streak-caption" id="streak-caption">れんぞく <strong>0</strong> 日</p>
+        </aside>
+        <aside class="controls settings-panel" aria-label="もんだいの設定">
+            <div class="settings-block">
+                <p class="controls-title">ごうけいの数</p>
+                <div class="ctrl-group">
+                    <button type="button" class="ctrl-btn active" id="random-sum-btn">ランダム</button>
+                    <div class="sum-grid" id="sum-grid"></div>
+                    <button type="button" class="ctrl-btn le10-btn" id="le10-btn" style="margin-top:8px;">10以下</button>
+                    <button type="button" class="ctrl-btn le5-btn" id="le5-btn" style="margin-top:8px;">5以下</button>
+                </div>
+            </div>
+            <div class="settings-block">
+                <div class="side-tabs">
+                    <button type="button" class="side-tab active" id="fix-left-tab">ひだりの数</button>
+                    <button type="button" class="side-tab" id="fix-right-tab">みぎの数</button>
+                </div>
+                <div class="ctrl-group">
+                    <button type="button" class="ctrl-btn active" id="random-left-btn">ランダム</button>
+                    <div class="fix-grid" id="fix-grid"></div>
+                </div>
+            </div>
+            <div class="settings-block enshu-block">
+                <p class="controls-title">えんしゅうの数</p>
+                <div class="enshu-grid" id="enshu-grid"></div>
+            </div>
+            <div class="settings-block hunt-block">
+                <p class="controls-title">たからさがし</p>
+                <div class="sum-grid" id="hunt-grid"></div>
+            </div>
+            <div class="settings-block shift-block">
+                <p class="controls-title">わけなおし</p>
+                <button type="button" class="ctrl-btn" id="shift-start-btn">はじめる</button>
+            </div>
+            <div class="settings-block change-block">
+                <p class="controls-title">ひとつへんか</p>
+                <div class="change-ops" id="change-ops">
+                    <button type="button" class="ctrl-btn change-random" data-change="random">ランダム</button>
+                    <button type="button" class="ctrl-btn" data-change="left+1">左+1</button>
+                    <button type="button" class="ctrl-btn" data-change="left-1">左-1</button>
+                    <button type="button" class="ctrl-btn" data-change="right+1">右+1</button>
+                    <button type="button" class="ctrl-btn" data-change="right-1">右-1</button>
+                </div>
+            </div>
+            <div class="settings-block count-block">
+                <p class="controls-title">かぞえ足し</p>
+                <button type="button" class="ctrl-btn" id="count-start-btn">はじめる</button>
             </div>
         </aside>
+        </div>
 
         <div class="game-area" id="game-area">
             <div id="message" class="message">あわせて いくつかな？</div>
@@ -402,6 +1410,65 @@
             <div class="kastens" id="kastens"></div>
 
             <div id="equation" class="equation"></div>
+
+            <div class="hint-row" id="hint-row">
+                <button type="button" id="hint-btn" class="hint-btn">💡 ヒント</button>
+                <button type="button" id="count-anim-start-btn" class="hint-btn hidden">はじめる</button>
+                <button type="button" id="count-continue-btn" class="hint-btn count-continue hidden">つづける</button>
+                <button type="button" id="reset-hint-btn" class="hint-btn reset-hint-btn hidden">もういちど</button>
+                <button type="button" id="count-quit-btn" class="hint-btn reset-hint-btn drill-quit hidden">やめる</button>
+            </div>
+            <button type="button" id="back-btn" class="hint-btn back-btn hidden">もどる</button>
+
+            <div id="shift-panel" class="shift-panel">
+                <div class="shift-arrows">
+                    <button type="button" class="shift-arrow to-right" id="shift-to-right" aria-label="みぎへ うつす">
+                        <svg viewBox="0 0 72 44" aria-hidden="true">
+                            <path d="M8 36 C12 10, 44 6, 58 14" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                            <path d="M46 6 L64 16 L48 26" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button type="button" class="shift-arrow to-left" id="shift-to-left" aria-label="ひだりへ うつす">
+                        <svg viewBox="0 0 72 44" aria-hidden="true">
+                            <path d="M64 36 C60 10, 28 6, 14 14" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                            <path d="M26 6 L8 16 L24 26" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="shift-actions">
+                    <button type="button" class="shift-done" id="shift-done-btn">かんせい</button>
+                    <button type="button" id="shift-quit-btn" class="hint-btn reset-hint-btn drill-quit">やめる</button>
+                </div>
+            </div>
+
+            <div id="change-panel" class="change-panel">
+                <div class="drill-head">
+                    <p class="drill-title" id="change-title">ひとつへんか</p>
+                    <div class="drill-actions">
+                        <button type="button" id="change-quit-btn" class="hint-btn reset-hint-btn drill-quit">やめる</button>
+                    </div>
+                </div>
+                <div class="change-eqs">
+                    <div class="change-eq" id="change-eq-from"></div>
+                    <p class="change-caption" id="change-caption">つぎは？</p>
+                    <div class="change-eq" id="change-eq-to"></div>
+                </div>
+            </div>
+
+            <div id="drill-panel" class="drill-panel hidden">
+                <div class="print-meta">
+                    <p class="print-date" id="print-date"></p>
+                    <p class="print-settings" id="print-settings"></p>
+                </div>
+                <div class="drill-head">
+                    <p class="drill-title" id="drill-title">えんしゅう</p>
+                    <div class="drill-actions">
+                        <button type="button" id="drill-print-btn" class="hint-btn drill-print">いんさつ</button>
+                        <button type="button" id="drill-quit-btn" class="hint-btn reset-hint-btn drill-quit">やめる</button>
+                    </div>
+                </div>
+                <div id="drill-list" class="drill-list"></div>
+            </div>
 
             <div id="choices" class="choices">
                 <div class="choices-label">こたえは？</div>
@@ -411,7 +1478,7 @@
             <button id="next-btn" class="next-btn hidden">つぎのもんだい！</button>
         </div>
 
-        <aside class="controls" aria-label="表示のきりかえ">
+        <aside class="controls step-panel" aria-label="表示のきりかえ">
             <p class="controls-title">ステップアップ</p>
             <div class="ctrl-group">
                 <div class="ctrl-label">格子</div>
@@ -430,16 +1497,42 @@
             <div class="ctrl-group move-full">
                 <div class="ctrl-label">移動</div>
                 <div class="ctrl-btns">
-                    <button type="button" class="ctrl-btn move-btn active" data-move="rtl">みぎ → ひだり</button>
-                    <button type="button" class="ctrl-btn move-btn" data-move="ltr">ひだり → みぎ</button>
-                    <button type="button" class="ctrl-btn move-btn" data-move="small-large">ちいさい → おおきい</button>
+                    <button type="button" class="ctrl-btn move-btn active" data-move="small-large">ちいさい → おおきい</button>
                     <button type="button" class="ctrl-btn move-btn" data-move="large-small">おおきい → ちいさい</button>
+                    <button type="button" class="ctrl-btn move-btn" data-move="rtl">みぎ → ひだり</button>
+                    <button type="button" class="ctrl-btn move-btn" data-move="ltr">ひだり → みぎ</button>
                 </div>
             </div>
         </aside>
     </div>
 
 <script>
+    const HARVEST_GOAL = 30;
+    const GRASS_MAX = 10;
+    const FLOWER_MAX = 10;
+    const STAR_MAX = 24;
+    const GOLDEN_EVERY = 10;
+    const STORAGE_KEY = 'tashizan-kai-v1';
+    const APPLE_SPOTS = [
+        { x: 14, y: 36 }, { x: 32, y: 16 }, { x: 50, y: 8 }, { x: 68, y: 14 }, { x: 84, y: 30 },
+        { x: 8, y: 52 }, { x: 26, y: 44 }, { x: 44, y: 32 }, { x: 62, y: 36 }, { x: 78, y: 46 },
+        { x: 18, y: 64 }, { x: 36, y: 54 }, { x: 54, y: 48 }, { x: 72, y: 58 }, { x: 88, y: 56 },
+        { x: 12, y: 22 }, { x: 40, y: 22 }, { x: 58, y: 20 }, { x: 76, y: 24 }, { x: 92, y: 40 },
+        { x: 22, y: 30 }, { x: 48, y: 62 }, { x: 64, y: 70 }, { x: 30, y: 72 }, { x: 82, y: 68 },
+        { x: 6, y: 38 }, { x: 38, y: 40 }, { x: 56, y: 74 }, { x: 70, y: 8 }, { x: 90, y: 22 }
+    ];
+    const GRASS_SPOTS = [
+        { x: 7, h: 18 }, { x: 17, h: 24 }, { x: 27, h: 16 }, { x: 37, h: 21 },
+        { x: 63, h: 19 }, { x: 73, h: 23 }, { x: 83, h: 15 }, { x: 92, h: 20 },
+        { x: 12, h: 14 }, { x: 78, h: 17 }
+    ];
+    const STAR_SPOTS = [
+        { x: 8, y: 10 }, { x: 22, y: 6 }, { x: 36, y: 14 }, { x: 52, y: 5 }, { x: 68, y: 12 }, { x: 84, y: 8 },
+        { x: 12, y: 28 }, { x: 28, y: 22 }, { x: 44, y: 30 }, { x: 60, y: 18 }, { x: 76, y: 26 }, { x: 90, y: 20 },
+        { x: 6, y: 44 }, { x: 20, y: 38 }, { x: 34, y: 46 }, { x: 50, y: 36 }, { x: 66, y: 42 }, { x: 82, y: 34 },
+        { x: 16, y: 16 }, { x: 40, y: 8 }, { x: 58, y: 24 }, { x: 72, y: 6 }, { x: 88, y: 40 }, { x: 30, y: 34 }
+    ];
+
     const gameArea = document.getElementById('game-area');
     const kastensEl = document.getElementById('kastens');
     const messageEl = document.getElementById('message');
@@ -448,31 +1541,382 @@
     const choicesEl = document.getElementById('choices');
     const choiceRow = document.getElementById('choice-row');
     const fixGrid = document.getElementById('fix-grid');
+    const sumGrid = document.getElementById('sum-grid');
     const randomLeftBtn = document.getElementById('random-left-btn');
+    const fixLeftTab = document.getElementById('fix-left-tab');
+    const fixRightTab = document.getElementById('fix-right-tab');
+    const randomSumBtn = document.getElementById('random-sum-btn');
+    const le10Btn = document.getElementById('le10-btn');
+    const le5Btn = document.getElementById('le5-btn');
+    const hintBtn = document.getElementById('hint-btn');
+    const resetHintBtn = document.getElementById('reset-hint-btn');
+    const backBtn = document.getElementById('back-btn');
+    const enshuGrid = document.getElementById('enshu-grid');
+    const huntGrid = document.getElementById('hunt-grid');
+    const shiftStartBtn = document.getElementById('shift-start-btn');
+    const shiftToRightBtn = document.getElementById('shift-to-right');
+    const shiftToLeftBtn = document.getElementById('shift-to-left');
+    const shiftDoneBtn = document.getElementById('shift-done-btn');
+    const shiftQuitBtn = document.getElementById('shift-quit-btn');
+    const changeOps = document.getElementById('change-ops');
+    const changeTitle = document.getElementById('change-title');
+    const changeEqFrom = document.getElementById('change-eq-from');
+    const changeEqTo = document.getElementById('change-eq-to');
+    const changeCaption = document.getElementById('change-caption');
+    const changeQuitBtn = document.getElementById('change-quit-btn');
+    const countStartBtn = document.getElementById('count-start-btn');
+    const countAnimStartBtn = document.getElementById('count-anim-start-btn');
+    const countContinueBtn = document.getElementById('count-continue-btn');
+    const countQuitBtn = document.getElementById('count-quit-btn');
+    const drillPanel = document.getElementById('drill-panel');
+    const drillTitle = document.getElementById('drill-title');
+    const drillList = document.getElementById('drill-list');
+    const drillQuitBtn = document.getElementById('drill-quit-btn');
+    const drillPrintBtn = document.getElementById('drill-print-btn');
+    const printDateEl = document.getElementById('print-date');
+    const printSettingsEl = document.getElementById('print-settings');
+    const treeSky = document.getElementById('tree-sky');
+    const canopy = document.getElementById('canopy');
+    const meadow = document.getElementById('meadow');
+    const starField = document.getElementById('star-field');
+    const harvestMeter = document.getElementById('harvest-meter');
+    const streakCaption = document.getElementById('streak-caption');
 
     let leftNum = 1;
     let rightNum = 1;
-    let fixedLeft = null;
+    let fixedDigit = null;
+    let fixTarget = 'left';
+
+    function fixedLeft() {
+        return fixTarget === 'left' ? fixedDigit : null;
+    }
+
+    function fixedRight() {
+        return fixTarget === 'right' ? fixedDigit : null;
+    }
+    let sumMode = 'random';
+    let selectedSums = new Set();
     let busy = false;
     let solved = false;
     let showGrid = true;
     let showBalls = true;
-    let moveMode = 'rtl';
+    let moveMode = 'small-large';
     let leftBoxes = [];
     let rightBoxes = [];
+    let hintPhase = 0;
+    let lastLeft = null;
+    let lastRight = null;
+    let drillCount = null;
+    let drillView = 'list';
+    let drillItems = [];
+    let drillFocus = null;
+    let huntTarget = null;
+    let huntView = 'list';
+    let huntItems = [];
+    let huntFocus = null;
+    let shiftMode = false;
+    let shiftGoalLeft = null;
+    let changeMode = false;
+    let changeOpSelected = null;
+    let changeOp = null;
+    let changeView = 'quiz';
+    let changeStartL = 3;
+    let changeStartR = 5;
+    let changeNewL = 4;
+    let changeNewR = 4;
+    let changeBlank = 'right';
+    let changeAnswer = 4;
+    let countMode = false;
+    let countPhase = 'idle';
+    let countShown = 0;
+    let apples = [];
+    let solves = 0;
+    let harvestDone = false;
+    let streak = 0;
+    let lastHarvestDate = '';
 
     function wait(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    function dateKey(date = new Date()) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function shiftDateKey(days) {
+        const date = new Date();
+        date.setDate(date.getDate() + days);
+        return dateKey(date);
+    }
+
+    function loadState() {
+        let saved = null;
+        try {
+            saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        } catch (err) {
+            saved = null;
+        }
+        const today = dateKey();
+        const yesterday = shiftDateKey(-1);
+        streak = Number(saved && saved.streak) || 0;
+        lastHarvestDate = (saved && saved.lastHarvestDate) || '';
+        if (lastHarvestDate !== today && lastHarvestDate !== yesterday) {
+            streak = 0;
+        }
+        if (saved && saved.playDate === today) {
+            apples = Array.isArray(saved.apples) ? saved.apples.slice(0, HARVEST_GOAL) : [];
+            solves = Math.max(Number(saved.solves) || apples.length, apples.length);
+            harvestDone = solves >= HARVEST_GOAL;
+        } else {
+            apples = [];
+            solves = 0;
+            harvestDone = false;
+        }
+    }
+
+    function saveState() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                playDate: dateKey(),
+                apples,
+                solves,
+                harvestDone,
+                streak,
+                lastHarvestDate
+            }));
+        } catch (err) {
+            /* ignore quota / private mode */
+        }
+    }
+
+    function grassCount() {
+        return Math.min(GRASS_MAX, Math.max(0, solves - HARVEST_GOAL));
+    }
+
+    function flowerCount() {
+        return Math.min(FLOWER_MAX, Math.max(0, solves - HARVEST_GOAL - GRASS_MAX));
+    }
+
+    function starCount() {
+        return Math.min(STAR_MAX, Math.max(0, solves - HARVEST_GOAL - GRASS_MAX - FLOWER_MAX));
+    }
+
+    function renderTree() {
+        canopy.querySelectorAll('.tree-apple').forEach((el) => el.remove());
+        apples.slice(0, HARVEST_GOAL).forEach((apple, i) => {
+            const spot = APPLE_SPOTS[i];
+            const el = document.createElement('div');
+            el.className = 'tree-apple' + (apple.golden ? ' golden' : '');
+            el.style.left = `${spot.x}%`;
+            el.style.top = `${spot.y}%`;
+            canopy.appendChild(el);
+        });
+    }
+
+    function renderMeadow() {
+        meadow.innerHTML = '';
+        const grasses = grassCount();
+        const flowers = flowerCount();
+        for (let i = 0; i < grasses; i++) {
+            const wrap = document.createElement('div');
+            wrap.className = 'grass';
+            wrap.style.left = `${GRASS_SPOTS[i].x}%`;
+            wrap.style.height = `${GRASS_SPOTS[i].h}px`;
+            const blade = document.createElement('div');
+            blade.className = 'grass-blade';
+            wrap.appendChild(blade);
+            if (i < flowers) {
+                const bloom = document.createElement('div');
+                bloom.className = `bloom hue-${i % 3}`;
+                wrap.appendChild(bloom);
+            }
+            meadow.appendChild(wrap);
+        }
+    }
+
+    function renderStars() {
+        starField.innerHTML = '';
+        const n = starCount();
+        treeSky.classList.toggle('starry', n > 0 && n < 8);
+        treeSky.classList.toggle('starry-deep', n >= 8);
+        for (let i = 0; i < n; i++) {
+            const star = document.createElement('div');
+            star.className = 'sky-star';
+            star.style.left = `${STAR_SPOTS[i].x}%`;
+            star.style.top = `${STAR_SPOTS[i].y}%`;
+            star.style.animationDelay = `${(i % 7) * 0.18}s`;
+            starField.appendChild(star);
+        }
+    }
+
+    function popLast(selector) {
+        const els = treeSky.querySelectorAll(selector);
+        const last = els[els.length - 1];
+        if (!last) return;
+        last.classList.remove('just-grew');
+        void last.offsetWidth;
+        last.classList.add('just-grew');
+    }
+
+    function renderHarvestMeter() {
+        harvestMeter.classList.toggle('done', harvestDone);
+        if (solves <= HARVEST_GOAL) {
+            harvestMeter.innerHTML = `きょうのりんご <strong>${Math.min(apples.length, HARVEST_GOAL)}</strong> / ${HARVEST_GOAL}`;
+        } else if (solves <= HARVEST_GOAL + GRASS_MAX) {
+            harvestMeter.innerHTML = `きょうのくさ <strong>${grassCount()}</strong> / ${GRASS_MAX}`;
+        } else if (solves <= HARVEST_GOAL + GRASS_MAX + FLOWER_MAX) {
+            harvestMeter.innerHTML = `きょうのはな <strong>${flowerCount()}</strong> / ${FLOWER_MAX}`;
+        } else {
+            harvestMeter.innerHTML = `きょうのほし <strong>${starCount()}</strong>`;
+        }
+        streakCaption.innerHTML = `れんぞく <strong>${streak}</strong> 日`;
+    }
+
+    function refreshOrchard(grew) {
+        renderTree();
+        renderMeadow();
+        renderStars();
+        renderHarvestMeter();
+        if (grew === 'grass') popLast('.grass');
+        if (grew === 'flower') popLast('.bloom');
+        if (grew === 'star') popLast('.sky-star');
+    }
+
+    function nextAppleSlot() {
+        let index = apples.length;
+        if (index >= HARVEST_GOAL) {
+            const plain = apples.findIndex((apple) => !apple.golden);
+            index = plain >= 0 ? plain : HARVEST_GOAL - 1;
+        }
+        let slot = canopy.querySelectorAll('.tree-apple')[index];
+        if (!slot) {
+            const spot = APPLE_SPOTS[index] || APPLE_SPOTS[0];
+            slot = document.createElement('div');
+            slot.className = 'tree-apple';
+            slot.style.left = `${spot.x}%`;
+            slot.style.top = `${spot.y}%`;
+            slot.style.visibility = 'hidden';
+            canopy.appendChild(slot);
+        }
+        return slot;
+    }
+
+    function fruitStartEl() {
+        if (changeMode && changeView === 'quiz') {
+            return changeEqTo.querySelector('.eq-sum') || changeEqTo;
+        }
+        const balls = kastensEl.querySelectorAll('.ball');
+        if (showBalls && balls.length) return balls[balls.length - 1];
+        return equationEl.querySelector('.eq-sum') || equationEl;
+    }
+
+    async function animateFruitToTree(golden) {
+        const fromEl = fruitStartEl();
+        const slot = nextAppleSlot();
+        const rect = fromEl.getBoundingClientRect();
+        const chip = document.createElement('div');
+        chip.className = 'fruit-chip' + (golden ? ' golden' : '');
+        chip.style.left = `${rect.left + (rect.width - 36) / 2}px`;
+        chip.style.top = `${rect.top + (rect.height - 36) / 2}px`;
+        document.body.appendChild(chip);
+        await flyFromTo(chip, slot);
+        chip.remove();
+        slot.remove();
+    }
+
+    function collectApple(golden) {
+        if (apples.length < HARVEST_GOAL) {
+            apples.push({ golden });
+            return;
+        }
+        if (golden) {
+            const plain = apples.findIndex((apple) => !apple.golden);
+            if (plain >= 0) apples[plain].golden = true;
+        }
+    }
+
+    function completeHarvest() {
+        const today = dateKey();
+        const yesterday = shiftDateKey(-1);
+        harvestDone = true;
+        if (lastHarvestDate !== today) {
+            streak = lastHarvestDate === yesterday ? streak + 1 : 1;
+            lastHarvestDate = today;
+        }
+        treeSky.classList.remove('bloom');
+        void treeSky.offsetWidth;
+        treeSky.classList.add('bloom');
+        wait(800).then(() => treeSky.classList.remove('bloom'));
+    }
+
+    function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
     function randDigit() {
-        return Math.floor(Math.random() * 9) + 1;
+        return randInt(1, 9);
     }
 
     function setChoicesEnabled(enabled) {
         choiceRow.querySelectorAll('.choice-btn').forEach((btn) => {
             btn.disabled = !enabled;
         });
+    }
+
+    function updateHintButton() {
+        const inHint = isHintView();
+        const inChangeHint = changeMode && changeView === 'hint';
+        const inChangeQuiz = changeMode && changeView === 'quiz';
+        const inPanel = drillCount !== null || huntTarget !== null;
+        hintBtn.textContent = hintPhase === 1 ? '💡 もっとヒント' : '💡 ヒント';
+        hintBtn.disabled = busy || solved || !showBalls || hintPhase >= 2;
+        hintBtn.classList.toggle('hidden', solved || !showBalls || shiftMode || countMode || inChangeHint || (inChangeQuiz && !changeOp));
+        resetHintBtn.disabled = busy;
+        resetHintBtn.classList.toggle('hidden', solved || !showBalls || shiftMode || inChangeQuiz || (countMode ? countPhase !== 'done' : hintPhase === 0));
+        backBtn.disabled = busy;
+        backBtn.classList.toggle('hidden', !(inHint || inChangeHint));
+        if (countAnimStartBtn) {
+            countAnimStartBtn.classList.toggle('hidden', !countMode || solved || !showBalls || countPhase !== 'idle');
+            countAnimStartBtn.disabled = busy;
+        }
+        if (countContinueBtn) {
+            countContinueBtn.classList.toggle('hidden', !countMode || solved || !showBalls || countPhase !== 'labeled');
+            countContinueBtn.disabled = busy;
+        }
+        if (countQuitBtn) {
+            countQuitBtn.classList.toggle('hidden', !countMode);
+            countQuitBtn.disabled = false;
+        }
+        drillPanel.classList.toggle('hidden', !inPanel || inHint);
+        gameArea.classList.toggle('in-drill-list', inPanel && !inHint);
+        gameArea.classList.toggle('in-drill-hint', inHint);
+        gameArea.classList.toggle('in-change-quiz', inChangeQuiz);
+        gameArea.classList.toggle('in-change-hint', inChangeHint);
+        gameArea.classList.toggle('change-solved', inChangeQuiz && solved);
+        gameArea.classList.toggle('in-count', countMode);
+        if (enshuGrid) {
+            enshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+                btn.classList.toggle('active', drillCount === Number(btn.dataset.n));
+            });
+        }
+        if (huntGrid) {
+            huntGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+                btn.classList.toggle('active', huntTarget === Number(btn.dataset.n));
+            });
+        }
+        if (shiftStartBtn) shiftStartBtn.classList.toggle('active', shiftMode);
+        if (countStartBtn) countStartBtn.classList.toggle('active', countMode);
+        gameArea.classList.toggle('in-shift', shiftMode);
+        if (shiftMode) updateShiftButtons();
+        if (changeOps) {
+            changeOps.querySelectorAll('[data-change]').forEach((btn) => {
+                btn.classList.toggle('active', changeMode && btn.dataset.change === changeOpSelected);
+            });
+        }
+        updateChoiceRange();
     }
 
     function applyDisplayMode() {
@@ -484,19 +1928,40 @@
             btn.classList.toggle('active', (btn.dataset.value === 'on') === on);
             if (btn.dataset.setting === 'grid') btn.disabled = !showBalls;
         });
-        randomLeftBtn.classList.toggle('active', fixedLeft === null);
+        fixLeftTab.classList.toggle('active', fixTarget === 'left');
+        fixRightTab.classList.toggle('active', fixTarget === 'right');
+        randomLeftBtn.classList.toggle('active', fixedDigit === null);
         fixGrid.querySelectorAll('.fix-btn').forEach((btn) => {
-            btn.classList.toggle('active', Number(btn.dataset.n) === fixedLeft);
+            btn.classList.toggle('active', Number(btn.dataset.n) === fixedDigit);
+        });
+        randomSumBtn.classList.toggle('active', sumMode === 'random' && selectedSums.size === 0);
+        le10Btn.classList.toggle('active', sumMode === 'le10');
+        le5Btn.classList.toggle('active', sumMode === 'le5');
+        sumGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+            btn.classList.toggle('active', selectedSums.has(Number(btn.dataset.n)));
         });
         document.querySelectorAll('.move-btn').forEach((btn) => {
             btn.classList.toggle('active', btn.dataset.move === moveMode);
         });
         refreshEquation();
+        updateHintButton();
+    }
+
+    function updateChoiceRange() {
+        if (!choiceRow) return;
+        choiceRow.querySelectorAll('.choice-btn').forEach((btn) => {
+            const n = Number(btn.dataset.n);
+            btn.classList.toggle('hidden', changeMode && n > 9);
+        });
     }
 
     function refreshEquation(sumValue = null) {
         const rightPart = `<span class="eq-blue">${rightNum}</span>`;
         const leftPart = `<span class="eq-red">${leftNum}</span>`;
+        if (shiftMode || changeMode) {
+            equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-sum">${leftNum + rightNum}</span>`;
+            return;
+        }
         if (solved && sumValue === null) {
             equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-sum">${leftNum + rightNum}</span>`;
             return;
@@ -573,11 +2038,1052 @@
         return `あか の <strong>${leftNum}</strong> と あお の <strong>${rightNum}</strong>。<br>あわせて いくつ？`;
     }
 
-    function initGame() {
+    function pairFitsSum(l, r) {
+        const s = l + r;
+        if (selectedSums.size > 0) return selectedSums.has(s);
+        if (sumMode === 'le10') return s <= 10;
+        if (sumMode === 'le5') return s <= 5;
+        return true;
+    }
+
+    function choosePair(pairs) {
+        let choices = pairs;
+        if (lastLeft !== null && pairs.length > 1) {
+            const filtered = pairs.filter(([l, r]) => l !== lastLeft || r !== lastRight);
+            if (filtered.length) choices = filtered;
+        }
+        const picked = choices[randInt(0, choices.length - 1)];
+        lastLeft = picked[0];
+        lastRight = picked[1];
+        return picked;
+    }
+
+    function uniquePairs(pairs) {
+        const seen = new Set();
+        const unique = [];
+        for (const [l, r] of pairs) {
+            if (l < 1 || r < 1 || l > 9 || r > 9) continue;
+            const key = `${l}+${r}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            unique.push([l, r]);
+        }
+        return unique;
+    }
+
+    function shuffleInPlace(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = randInt(0, i);
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function collectPairs() {
+        const MIN = 1;
+        const MAX = 9;
+        const pairs = [];
+        const lefts = fixedLeft() === null
+            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
+            : [fixedLeft()];
+        const rights = fixedRight() === null
+            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
+            : [fixedRight()];
+
+        for (const l of lefts) {
+            for (const r of rights) {
+                if (pairFitsSum(l, r)) pairs.push([l, r]);
+            }
+        }
+
+        if (pairs.length === 0 && fixedDigit !== null) {
+            for (const l of lefts) {
+                for (const r of rights) {
+                    pairs.push([l, r]);
+                }
+            }
+        }
+
+        if (pairs.length === 0 && (selectedSums.size > 0 || sumMode === 'le10' || sumMode === 'le5')) {
+            for (let l = MIN; l <= MAX; l++) {
+                for (let r = MIN; r <= MAX; r++) {
+                    if (pairFitsSum(l, r)) pairs.push([l, r]);
+                }
+            }
+        }
+
+        if (pairs.length === 0 && selectedSums.size > 0) {
+            for (const sum of selectedSums) {
+                for (let l = MIN; l <= MAX; l++) {
+                    const r = sum - l;
+                    if (r >= MIN && r <= MAX) pairs.push([l, r]);
+                }
+            }
+        }
+
+        if (pairs.length === 0) {
+            pairs.push([
+                fixedLeft() === null ? randDigit() : fixedLeft(),
+                fixedRight() === null ? randDigit() : fixedRight()
+            ]);
+        }
+        return uniquePairs(pairs);
+    }
+
+    function pickUniqueSet(n) {
+        const pool = shuffleInPlace(collectPairs());
+        return pool.slice(0, Math.max(1, Math.min(n, pool.length)));
+    }
+
+    function allAddendPairs() {
+        const MIN = 1;
+        const MAX = 9;
+        const lefts = fixedLeft() === null
+            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
+            : [fixedLeft()];
+        const rights = fixedRight() === null
+            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
+            : [fixedRight()];
+        const pairs = [];
+        for (const l of lefts) {
+            for (const r of rights) {
+                pairs.push([l, r]);
+            }
+        }
+        const unique = uniquePairs(pairs);
+        if (unique.length) return unique;
+        const fallback = [];
+        for (let l = MIN; l <= MAX; l++) {
+            for (let r = MIN; r <= MAX; r++) {
+                fallback.push([l, r]);
+            }
+        }
+        return uniquePairs(fallback);
+    }
+
+    function pickHuntSet(target, n = 20) {
+        const bands = new Map();
+        for (const [l, r] of allAddendPairs()) {
+            const dist = Math.abs(l + r - target);
+            if (!bands.has(dist)) bands.set(dist, []);
+            bands.get(dist).push([l, r]);
+        }
+        const picked = [];
+        const distances = [...bands.keys()].sort((a, b) => a - b);
+        for (const dist of distances) {
+            if (picked.length >= n) break;
+            const band = shuffleInPlace(bands.get(dist));
+            picked.push(...band);
+        }
+        return shuffleInPlace(picked.slice(0, Math.max(1, Math.min(n, picked.length))));
+    }
+
+    function pickAddends() {
+        return choosePair(collectPairs());
+    }
+
+    function refreshProblems() {
+        if (countMode) {
+            startCount();
+            return;
+        }
+        if (changeMode) {
+            startChange(changeOpSelected);
+            return;
+        }
+        if (shiftMode) {
+            startShift();
+            return;
+        }
+        if (huntTarget !== null) {
+            startHunt(huntTarget);
+            return;
+        }
+        if (drillCount !== null) {
+            startDrill(drillCount);
+            return;
+        }
+        initGame();
+    }
+
+    function isDrillList() {
+        return drillCount !== null && drillView === 'list';
+    }
+
+    function isDrillHint() {
+        return drillCount !== null && drillView === 'hint';
+    }
+
+    function isHuntList() {
+        return huntTarget !== null && huntView === 'list';
+    }
+
+    function isHuntHint() {
+        return huntTarget !== null && huntView === 'hint';
+    }
+
+    function isHintView() {
+        return isDrillHint() || isHuntHint();
+    }
+
+    function isListView() {
+        return isDrillList() || isHuntList();
+    }
+
+    function startDrill(n) {
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        huntTarget = null;
+        huntItems = [];
+        huntFocus = null;
+        huntView = 'list';
+        drillCount = n;
+        drillView = 'list';
+        drillFocus = null;
         busy = false;
         solved = false;
-        leftNum = fixedLeft === null ? randDigit() : fixedLeft;
-        rightNum = randDigit();
+        hintPhase = 0;
+        drillItems = pickUniqueSet(n).map(([l, r]) => ({
+            left: l,
+            right: r,
+            solved: false
+        }));
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.add('hidden');
+        setChoicesEnabled(true);
+        renderDrillList();
+        applyDisplayMode();
+    }
+
+    function quitActivity() {
+        if (busy && !countMode) return;
+        document.querySelectorAll('.ball.flying').forEach((el) => el.remove());
+        busy = false;
+        drillCount = null;
+        drillView = 'list';
+        drillItems = [];
+        drillFocus = null;
+        huntTarget = null;
+        huntView = 'list';
+        huntItems = [];
+        huntFocus = null;
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        initGame();
+    }
+
+    function startHunt(target) {
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        drillCount = null;
+        drillItems = [];
+        drillFocus = null;
+        drillView = 'list';
+        huntTarget = target;
+        huntView = 'list';
+        huntFocus = null;
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        huntItems = pickHuntSet(target, 20).map(([l, r]) => ({
+            left: l,
+            right: r,
+            revealed: false
+        }));
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.add('hidden');
+        renderHuntList();
+        applyDisplayMode();
+    }
+
+    function treasureHTML() {
+        return `<span class="treasure-prize" title="たから">
+            <svg viewBox="0 0 40 36" width="36" height="32" aria-hidden="true">
+                <path d="M7 16h26l-2-9H9z" fill="#ffa726" stroke="#e65100" stroke-width="1.6" stroke-linejoin="round"/>
+                <rect x="5" y="16" width="30" height="16" rx="3" fill="#ef6c00" stroke="#e65100" stroke-width="1.6"/>
+                <rect x="5" y="20" width="30" height="3" fill="#ffd54f"/>
+                <circle cx="20" cy="26" r="3.2" fill="#fff59d" stroke="#f9a825" stroke-width="1.2"/>
+                <path d="M20 8l2.1 4.2 4.6.4-3.5 3 1 4.5L20 18.4 15.8 20l1-4.5-3.5-3 4.6-.4z" fill="#ffeb3b" stroke="#ff8f00" stroke-width="0.8"/>
+            </svg>
+        </span>`;
+    }
+
+    async function revealHuntItem(index) {
+        const item = huntItems[index];
+        if (!item || item.revealed || busy) return;
+        huntFocus = index;
+        item.revealed = true;
+        const isTreasure = item.left + item.right === huntTarget;
+        if (isTreasure) {
+            busy = true;
+            await grantSolveReward();
+            busy = false;
+        }
+        renderHuntList();
+        applyDisplayMode();
+    }
+
+    function selectDrillItem(index) {
+        if (busy) return;
+        const item = drillItems[index];
+        if (!item || item.solved) return;
+        drillFocus = index;
+        leftNum = item.left;
+        rightNum = item.right;
+        solved = false;
+        renderDrillList();
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+    }
+
+    function openItemHint(index) {
+        if (busy) return;
+        const hunting = huntTarget !== null;
+        const items = hunting ? huntItems : drillItems;
+        const item = items[index];
+        if (!item) return;
+        if (!hunting && item.solved) return;
+        if (hunting) {
+            huntFocus = index;
+            huntView = 'hint';
+        } else {
+            drillFocus = index;
+            drillView = 'hint';
+        }
+        leftNum = item.left;
+        rightNum = item.right;
+        solved = false;
+        hintPhase = 0;
+        choicesEl.classList.add('hidden');
+        messageEl.innerHTML = promptMessage();
+        renderKastens();
+        applyDisplayMode();
+    }
+
+    function backToList() {
+        if (busy) return;
+        if (changeMode) {
+            backToChangeQuiz();
+            return;
+        }
+        hintPhase = 0;
+        solved = false;
+        document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+        choicesEl.classList.add('hidden');
+        if (huntTarget !== null) {
+            huntView = 'list';
+            renderHuntList();
+        } else {
+            drillView = 'list';
+            renderDrillList();
+        }
+        applyDisplayMode();
+    }
+
+    function drillSettingsLabel() {
+        let sumLabel = 'ランダム';
+        if (selectedSums.size > 0) {
+            sumLabel = [...selectedSums].sort((a, b) => a - b).join(',');
+        } else if (sumMode === 'le10') {
+            sumLabel = '10以下';
+        } else if (sumMode === 'le5') {
+            sumLabel = '5以下';
+        }
+        let sideLabel = '左右ランダム';
+        if (fixedDigit !== null) {
+            sideLabel = fixTarget === 'left'
+                ? `左 ${fixedDigit}固定`
+                : `右 ${fixedDigit}固定`;
+        }
+        return `合計 ${sumLabel}、${sideLabel}`;
+    }
+
+    function updatePrintMeta() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        printDateEl.textContent = `${y}/${m}/${d}　計算練習`;
+        if (huntTarget !== null) {
+            let sideLabel = '左右ランダム';
+            if (fixedDigit !== null) {
+                sideLabel = fixTarget === 'left'
+                    ? `左 ${fixedDigit}固定`
+                    : `右 ${fixedDigit}固定`;
+            }
+            printSettingsEl.textContent = `たから ${huntTarget}、${sideLabel}`;
+        } else {
+            printSettingsEl.textContent = drillSettingsLabel();
+        }
+    }
+
+    function renderDrillList() {
+        updatePrintMeta();
+        const solvedCount = drillItems.filter((item) => item.solved).length;
+        drillTitle.textContent = `えんしゅう  ${solvedCount} / ${drillItems.length}`;
+        drillList.classList.remove('hunt-board');
+        drillList.classList.toggle('print-few', drillItems.length <= 4);
+        drillList.classList.toggle('print-many', drillItems.length >= 11);
+        drillList.innerHTML = '';
+        drillItems.forEach((item, i) => {
+            const row = document.createElement('div');
+            const focused = drillFocus === i && !item.solved;
+            row.className = 'drill-item' + (item.solved ? ' correct' : '') + (focused ? ' focused' : '');
+            const eq = document.createElement('div');
+            eq.className = 'drill-item-eq';
+            const leftPart = `<span class="eq-red">${item.left}</span>`;
+            const rightPart = `<span class="eq-blue">${item.right}</span>`;
+            if (item.solved) {
+                eq.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-fill eq-sum">${item.left + item.right}</span>`;
+            } else {
+                eq.innerHTML = `${leftPart} + ${rightPart} = <button type="button" class="eq-fill eq-blank-btn">□</button>`;
+                const blank = eq.querySelector('.eq-blank-btn');
+                blank.addEventListener('click', () => selectDrillItem(i));
+            }
+            row.appendChild(eq);
+            if (item.solved) {
+                const mark = document.createElement('span');
+                mark.className = 'drill-mark';
+                mark.textContent = 'せいかい！';
+                row.appendChild(mark);
+            } else {
+                const hint = document.createElement('button');
+                hint.type = 'button';
+                hint.className = 'hint-btn drill-hint-mini';
+                hint.textContent = '💡 ヒント';
+                hint.disabled = !showBalls;
+                hint.addEventListener('click', () => openItemHint(i));
+                row.appendChild(hint);
+            }
+            drillList.appendChild(row);
+        });
+        if (drillItems.length && solvedCount === drillItems.length) {
+            const done = document.createElement('p');
+            done.className = 'drill-done';
+            done.textContent = 'ぜんぶ できたよ！';
+            drillList.appendChild(done);
+            choicesEl.classList.add('hidden');
+        }
+    }
+
+    function renderHuntList() {
+        updatePrintMeta();
+        const treasures = huntItems.filter((item) => item.left + item.right === huntTarget);
+        const found = treasures.filter((item) => item.revealed).length;
+        drillTitle.textContent = `たから ${huntTarget}　${found} / ${treasures.length}`;
+        drillList.classList.add('hunt-board');
+        drillList.classList.toggle('print-few', huntItems.length <= 4);
+        drillList.classList.toggle('print-many', huntItems.length >= 11);
+        drillList.innerHTML = '';
+        huntItems.forEach((item, i) => {
+            const sum = item.left + item.right;
+            const isTreasure = sum === huntTarget;
+            const row = document.createElement('div');
+            row.className = 'drill-item' + (item.revealed && isTreasure ? ' correct' : '');
+            const eq = document.createElement('div');
+            eq.className = 'drill-item-eq';
+            const leftPart = `<span class="eq-red">${item.left}</span>`;
+            const rightPart = `<span class="eq-blue">${item.right}</span>`;
+            if (item.revealed) {
+                eq.innerHTML = `${leftPart} + ${rightPart}<span class="eq-fill"> = <span class="eq-sum">${sum}</span></span>`;
+            } else {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'hunt-eq-btn';
+                btn.innerHTML = `${leftPart} + ${rightPart}`;
+                btn.addEventListener('click', () => revealHuntItem(i));
+                eq.appendChild(btn);
+            }
+            row.appendChild(eq);
+            if (item.revealed && isTreasure) {
+                row.insertAdjacentHTML('beforeend', treasureHTML());
+            }
+            const hint = document.createElement('button');
+            hint.type = 'button';
+            hint.className = 'hint-btn drill-hint-mini';
+            hint.textContent = '💡 ヒント';
+            hint.disabled = !showBalls;
+            hint.addEventListener('click', () => openItemHint(i));
+            row.appendChild(hint);
+            drillList.appendChild(row);
+        });
+        if (treasures.length && found === treasures.length) {
+            const done = document.createElement('p');
+            done.className = 'drill-done';
+            done.style.gridColumn = '1 / -1';
+            done.textContent = 'たからを ぜんぶ みつけたよ！';
+            drillList.appendChild(done);
+        }
+    }
+
+    function clearShiftMode() {
+        shiftMode = false;
+        shiftGoalLeft = null;
+    }
+
+    function shiftPrompt() {
+        return `ひだりを <strong class="eq-red">${shiftGoalLeft}</strong> にしてね`;
+    }
+
+    function pickShiftGoal(startL, startR) {
+        const sum = startL + startR;
+        const options = [];
+        for (let l = 0; l <= 10; l++) {
+            const r = sum - l;
+            if (r < 0 || r > 10) continue;
+            if (l === startL) continue;
+            options.push(l);
+        }
+        const preferred = options.filter((l) => {
+            const r = sum - l;
+            return l >= 1 && l <= 9 && r >= 1 && r <= 9;
+        });
+        const nearby = preferred.filter((l) => Math.abs(l - startL) <= 2);
+        const pool = nearby.length ? nearby : (preferred.length ? preferred : options);
+        if (!pool.length) return null;
+        return pool[randInt(0, pool.length - 1)];
+    }
+
+    function pickShiftStart() {
+        const pairs = shuffleInPlace(collectPairs().slice());
+        for (const [l, r] of pairs) {
+            const goal = pickShiftGoal(l, r);
+            if (goal != null) return [l, r, goal];
+        }
+        return [3, 5, 2];
+    }
+
+    function updateShiftButtons() {
+        if (!shiftToRightBtn) return;
+        const canRight = !busy && !solved && leftNum > 0 && rightNum < 10;
+        const canLeft = !busy && !solved && rightNum > 0 && leftNum < 10;
+        shiftToRightBtn.disabled = !canRight;
+        shiftToLeftBtn.disabled = !canLeft;
+        shiftDoneBtn.disabled = busy || solved;
+    }
+
+    function startShift() {
+        clearChangeMode();
+        clearCountMode();
+        drillCount = null;
+        drillItems = [];
+        drillFocus = null;
+        drillView = 'list';
+        huntTarget = null;
+        huntItems = [];
+        huntFocus = null;
+        huntView = 'list';
+        shiftMode = true;
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        const picked = pickShiftStart();
+        leftNum = picked[0];
+        rightNum = picked[1];
+        shiftGoalLeft = picked[2];
+        lastLeft = leftNum;
+        lastRight = rightNum;
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.add('hidden');
+        messageEl.innerHTML = shiftPrompt();
+        renderKastens();
+        applyDisplayMode();
+    }
+
+    function lastFilledBox(boxes) {
+        for (let i = boxes.length - 1; i >= 0; i--) {
+            if (hasBall(boxes[i])) return boxes[i];
+        }
+        return null;
+    }
+
+    function firstEmptyBox(boxes) {
+        return boxes.find((box) => !hasBall(box)) || null;
+    }
+
+    async function shiftOne(toRight) {
+        if (!shiftMode || busy || solved) return;
+        const srcBoxes = toRight ? leftBoxes : rightBoxes;
+        const destBoxes = toRight ? rightBoxes : leftBoxes;
+        if (toRight) {
+            if (leftNum <= 0 || rightNum >= 10) return;
+        } else if (rightNum <= 0 || leftNum >= 10) {
+            return;
+        }
+
+        busy = true;
+        updateShiftButtons();
+        updateHintButton();
+
+        if (showBalls) {
+            const src = lastFilledBox(srcBoxes);
+            const dest = firstEmptyBox(destBoxes);
+            if (src && dest) {
+                const ball = src.querySelector('.ball');
+                const fly = spawnFlyingBall(ball);
+                ball.remove();
+                await flyBallToBox(fly, dest, toRight ? 'blue' : 'red');
+            }
+        }
+
+        if (toRight) {
+            leftNum -= 1;
+            rightNum += 1;
+        } else {
+            leftNum += 1;
+            rightNum -= 1;
+        }
+        if (!showBalls) renderKastens();
+        refreshEquation();
+        busy = false;
+        messageEl.innerHTML = shiftPrompt();
+        applyDisplayMode();
+    }
+
+    async function completeShift() {
+        if (!shiftMode || busy || solved) return;
+        if (leftNum !== shiftGoalLeft) {
+            busy = true;
+            updateShiftButtons();
+            messageEl.innerHTML = `まだ <strong>ちがうよ</strong><br>${shiftPrompt()}`;
+            equationEl.classList.add('shake');
+            kastensEl.classList.add('shake');
+            await wait(900);
+            equationEl.classList.remove('shake');
+            kastensEl.classList.remove('shake');
+            messageEl.innerHTML = shiftPrompt();
+            busy = false;
+            applyDisplayMode();
+            return;
+        }
+        busy = true;
+        updateShiftButtons();
+        solved = true;
+        const { wasComplete, golden, grew } = await grantSolveReward();
+        messageEl.innerHTML = rewardMessage(wasComplete, golden, grew);
+        nextBtn.classList.remove('hidden');
+        busy = false;
+        applyDisplayMode();
+    }
+
+    function clearChangeMode() {
+        changeMode = false;
+        changeOpSelected = null;
+        changeOp = null;
+        changeView = 'quiz';
+    }
+
+    function changeOpLabel(op) {
+        if (op === 'left+1') return 'ひだりを 1 ふやす';
+        if (op === 'left-1') return 'ひだりを 1 へらす';
+        if (op === 'right+1') return 'みぎを 1 ふやす';
+        if (op === 'right-1') return 'みぎを 1 へらす';
+        return 'ひとつへんか';
+    }
+
+    function applyChangeOp(op, l, r) {
+        let newL = l;
+        let newR = r;
+        let blank = 'right';
+        let answer = r;
+        if (op === 'left+1') {
+            newL = l + 1;
+            newR = r - 1;
+            blank = 'right';
+            answer = newR;
+        } else if (op === 'left-1') {
+            newL = l - 1;
+            newR = r + 1;
+            blank = 'right';
+            answer = newR;
+        } else if (op === 'right+1') {
+            newL = l - 1;
+            newR = r + 1;
+            blank = 'left';
+            answer = newL;
+        } else if (op === 'right-1') {
+            newL = l + 1;
+            newR = r - 1;
+            blank = 'left';
+            answer = newL;
+        } else {
+            return null;
+        }
+        if (newL < 1 || newL > 9 || newR < 1 || newR > 9) return null;
+        return { newL, newR, blank, answer };
+    }
+
+    function validOpsForPair(l, r) {
+        return ['left+1', 'left-1', 'right+1', 'right-1'].filter((op) => applyChangeOp(op, l, r));
+    }
+
+    function pickChangeProblem(selected) {
+        const pairs = shuffleInPlace(collectPairs().slice());
+        const ops = selected === 'random'
+            ? ['left+1', 'left-1', 'right+1', 'right-1']
+            : [selected];
+        const candidates = [];
+        for (const [l, r] of pairs) {
+            for (const op of ops) {
+                const spec = applyChangeOp(op, l, r);
+                if (!spec) continue;
+                if (lastLeft === l && lastRight === r && changeOp === op) continue;
+                candidates.push({ l, r, op, spec });
+            }
+        }
+        if (!candidates.length) {
+            for (const [l, r] of pairs) {
+                for (const op of ops) {
+                    const spec = applyChangeOp(op, l, r);
+                    if (spec) candidates.push({ l, r, op, spec });
+                }
+            }
+        }
+        if (!candidates.length) return null;
+        return candidates[randInt(0, candidates.length - 1)];
+    }
+
+    function coloredEq(l, r, sum, blankSide, filled) {
+        const leftPart = blankSide === 'left' && !filled
+            ? `<span class="eq-blank">□</span>`
+            : `<span class="eq-red">${l}</span>`;
+        const rightPart = blankSide === 'right' && !filled
+            ? `<span class="eq-blank">□</span>`
+            : `<span class="eq-blue">${r}</span>`;
+        return `${leftPart} + ${rightPart} = <span class="eq-sum">${sum}</span>`;
+    }
+
+    function renderChangeQuiz() {
+        const sum = changeStartL + changeStartR;
+        changeTitle.textContent = 'ひとつへんか';
+        changeCaption.textContent = changeOpLabel(changeOp);
+        changeEqFrom.innerHTML = coloredEq(changeStartL, changeStartR, sum, null, true);
+        changeEqTo.innerHTML = coloredEq(changeNewL, changeNewR, sum, changeBlank, solved);
+    }
+
+    function startChange(selected) {
+        clearShiftMode();
+        clearCountMode();
+        drillCount = null;
+        drillItems = [];
+        drillFocus = null;
+        drillView = 'list';
+        huntTarget = null;
+        huntItems = [];
+        huntFocus = null;
+        huntView = 'list';
+        const picked = pickChangeProblem(selected);
+        if (!picked) {
+            changeMode = true;
+            changeOpSelected = selected;
+            changeView = 'quiz';
+            solved = false;
+            busy = false;
+            hintPhase = 0;
+            nextBtn.classList.add('hidden');
+            choicesEl.classList.add('hidden');
+            changeTitle.textContent = 'ひとつへんか';
+            changeCaption.textContent = '';
+            changeEqFrom.textContent = '';
+            changeEqTo.textContent = 'この せってい では できないよ';
+            applyDisplayMode();
+            return;
+        }
+        changeMode = true;
+        changeOpSelected = selected;
+        changeOp = picked.op;
+        changeView = 'quiz';
+        changeStartL = picked.l;
+        changeStartR = picked.r;
+        changeNewL = picked.spec.newL;
+        changeNewR = picked.spec.newR;
+        changeBlank = picked.spec.blank;
+        changeAnswer = picked.spec.answer;
+        leftNum = changeStartL;
+        rightNum = changeStartR;
+        lastLeft = changeStartL;
+        lastRight = changeStartR;
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+        renderChangeQuiz();
+        applyDisplayMode();
+    }
+
+    function changeMovesToRight() {
+        return changeOp === 'left-1' || changeOp === 'right+1';
+    }
+
+    async function playChangeHintAnim() {
+        leftNum = changeStartL;
+        rightNum = changeStartR;
+        messageEl.innerHTML = changeOpLabel(changeOp);
+        renderKastens();
+        refreshEquation();
+        if (!showBalls) {
+            leftNum = changeNewL;
+            rightNum = changeNewR;
+            refreshEquation();
+            hintPhase = 2;
+            return;
+        }
+        const toRight = changeMovesToRight();
+        const srcBoxes = toRight ? leftBoxes : rightBoxes;
+        const destBoxes = toRight ? rightBoxes : leftBoxes;
+        const src = lastFilledBox(srcBoxes);
+        const dest = firstEmptyBox(destBoxes);
+        const ball = src ? src.querySelector('.ball') : null;
+        if (!ball || !dest) {
+            leftNum = changeNewL;
+            rightNum = changeNewR;
+            refreshEquation();
+            hintPhase = 2;
+            return;
+        }
+        await blinkPico([ball]);
+        const fly = spawnFlyingBall(ball);
+        ball.remove();
+        await flyBallToBox(fly, dest, toRight ? 'blue' : 'red');
+        leftNum = changeNewL;
+        rightNum = changeNewR;
+        refreshEquation();
+        hintPhase = 2;
+    }
+
+    async function openChangeHint() {
+        if (!changeMode || busy || solved || !showBalls) return;
+        changeView = 'hint';
+        hintPhase = 0;
+        choicesEl.classList.add('hidden');
+        busy = true;
+        applyDisplayMode();
+        await playChangeHintAnim();
+        busy = false;
+        applyDisplayMode();
+    }
+
+    async function replayChangeHint() {
+        if (!changeMode || changeView !== 'hint' || busy || solved) return;
+        hintPhase = 0;
+        busy = true;
+        applyDisplayMode();
+        await playChangeHintAnim();
+        busy = false;
+        applyDisplayMode();
+    }
+
+    function backToChangeQuiz() {
+        hintPhase = 0;
+        leftNum = changeStartL;
+        rightNum = changeStartR;
+        changeView = 'quiz';
+        document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+        if (!solved) {
+            choicesEl.classList.remove('hidden');
+            setChoicesEnabled(true);
+        }
+        renderChangeQuiz();
+        applyDisplayMode();
+    }
+
+    async function onChangeChoose(count, button) {
+        if (solved || changeView !== 'quiz') return;
+        busy = true;
+        setChoicesEnabled(false);
+        updateHintButton();
+        const blank = changeEqTo.querySelector('.eq-blank') || changeEqTo;
+        const chip = spawnFlyingNumber(button, count);
+        if (count === changeAnswer) {
+            await flyFromTo(chip, blank).then(() => chip.remove());
+            solved = true;
+            renderChangeQuiz();
+            const { wasComplete, golden, grew } = await grantSolveReward();
+            messageEl.innerHTML = rewardMessage(wasComplete, golden, grew);
+            choicesEl.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            busy = false;
+            applyDisplayMode();
+            return;
+        }
+        if (count > changeAnswer) {
+            await spillElement(chip, blank);
+        } else {
+            await flyFromTo(chip, blank);
+            chip.remove();
+        }
+        changeEqTo.classList.add('shake');
+        await wait(1400);
+        changeEqTo.classList.remove('shake');
+        document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+        setChoicesEnabled(true);
+        busy = false;
+        applyDisplayMode();
+    }
+
+    function clearCountMode() {
+        countMode = false;
+        countPhase = 'idle';
+        countShown = 0;
+    }
+
+    function pickCountPair() {
+        const pairs = [];
+        for (let small = 1; small <= 3; small++) {
+            for (let large = small + 1; large <= 9; large++) {
+                if (large + small > 10) continue;
+                pairs.push([large, small]);
+            }
+        }
+        let choices = pairs;
+        if (lastLeft !== null && pairs.length > 1) {
+            const filtered = pairs.filter(([large, small]) => {
+                const same = (lastLeft === large && lastRight === small)
+                    || (lastLeft === small && lastRight === large);
+                return !same;
+            });
+            if (filtered.length) choices = filtered;
+        }
+        const [large, small] = choices[randInt(0, choices.length - 1)];
+        if (Math.random() < 0.5) return [large, small];
+        return [small, large];
+    }
+
+    function setBallNumber(ball, n) {
+        if (!ball) return;
+        const target = ball.classList.contains('ball') ? ball : ball.querySelector('.ball');
+        if (!target) return;
+        let num = target.querySelector('.ball-num');
+        if (!num) {
+            num = document.createElement('span');
+            num.className = 'ball-num';
+            target.appendChild(num);
+        }
+        num.textContent = String(n);
+    }
+
+    function countRoles() {
+        if (leftNum > rightNum) {
+            return {
+                destBoxes: leftBoxes,
+                srcBoxes: rightBoxes,
+                larger: leftNum,
+                smaller: rightNum
+            };
+        }
+        return {
+            destBoxes: rightBoxes,
+            srcBoxes: leftBoxes,
+            larger: rightNum,
+            smaller: leftNum
+        };
+    }
+
+    async function beginCountLabel() {
+        if (!countMode || busy || solved || countPhase !== 'idle') return;
+        busy = true;
+        setChoicesEnabled(false);
+        updateHintButton();
+        const { destBoxes, larger } = countRoles();
+        const startBox = lastFilledBox(destBoxes);
+        const startBall = startBox ? startBox.querySelector('.ball') : null;
+        if (startBall && showBalls) {
+            messageEl.innerHTML = `<strong>${larger}</strong> から かぞえよう`;
+            await blinkPico([startBall]);
+            if (!countMode) return;
+            setBallNumber(startBall, larger);
+        }
+        countShown = larger;
+        countPhase = 'labeled';
+        busy = false;
+        if (!solved) setChoicesEnabled(true);
+        applyDisplayMode();
+    }
+
+    async function continueCountMoves() {
+        if (!countMode || busy || solved || countPhase !== 'labeled') return;
+        busy = true;
+        setChoicesEnabled(false);
+        updateHintButton();
+        const { destBoxes, srcBoxes } = countRoles();
+        let n = countShown;
+        while (countMode && !solved) {
+            const src = lastFilledBox(srcBoxes);
+            const dest = firstEmptyBox(destBoxes);
+            const ball = src ? src.querySelector('.ball') : null;
+            if (!ball || !dest) break;
+            n += 1;
+            const fly = spawnFlyingBall(ball);
+            ball.remove();
+            await flyBallToBox(fly, dest, null, n);
+            countShown = n;
+            if (!countMode || solved) break;
+            if (!lastFilledBox(srcBoxes) || !firstEmptyBox(destBoxes)) break;
+            await wait(1000);
+        }
+        countPhase = 'done';
+        hintPhase = 2;
+        busy = false;
+        messageEl.innerHTML = promptMessage();
+        if (!solved) setChoicesEnabled(true);
+        applyDisplayMode();
+    }
+
+    function resetCountBoard() {
+        document.querySelectorAll('.ball.flying').forEach((el) => el.remove());
+        countPhase = 'idle';
+        countShown = 0;
+        hintPhase = 0;
+        renderKastens();
+        refreshEquation();
+        messageEl.innerHTML = promptMessage();
+    }
+
+    function startCount() {
+        if (busy) return;
+        document.querySelectorAll('.ball.flying').forEach((el) => el.remove());
+        drillCount = null;
+        drillItems = [];
+        drillFocus = null;
+        drillView = 'list';
+        huntTarget = null;
+        huntItems = [];
+        huntFocus = null;
+        huntView = 'list';
+        clearShiftMode();
+        clearChangeMode();
+        countMode = true;
+        countPhase = 'idle';
+        countShown = 0;
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        const picked = pickCountPair();
+        leftNum = picked[0];
+        rightNum = picked[1];
+        lastLeft = leftNum;
+        lastRight = rightNum;
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+        messageEl.innerHTML = promptMessage();
+        renderKastens();
+        applyDisplayMode();
+    }
+
+    function initGame() {
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        [leftNum, rightNum] = pickAddends();
 
         messageEl.innerHTML = promptMessage();
         nextBtn.classList.add('hidden');
@@ -610,14 +3116,14 @@
     function spawnFlyingBall(ball) {
         const rect = ball.getBoundingClientRect();
         const fly = document.createElement('div');
-        fly.className = ball.className.replace('landed', 'flying');
+        fly.className = ball.className.replace('landed', 'flying').replace('pico', '').trim();
         fly.style.left = `${rect.left}px`;
         fly.style.top = `${rect.top}px`;
         document.body.appendChild(fly);
         return fly;
     }
 
-    async function flyBallToBox(fly, box) {
+    async function flyBallToBox(fly, box, colorOverride = null, label = null) {
         const from = fly.getBoundingClientRect();
         const to = box.getBoundingClientRect();
         const dx = to.left + (to.width - from.width) / 2 - from.left;
@@ -632,9 +3138,15 @@
             fill: 'forwards'
         }).finished;
 
-        const color = fly.classList.contains('red') ? 'red' : 'blue';
+        const color = colorOverride || (fly.classList.contains('red') ? 'red' : 'blue');
         const landed = document.createElement('div');
         landed.className = `ball ${color} landed`;
+        if (label != null) {
+            const num = document.createElement('span');
+            num.className = 'ball-num';
+            num.textContent = String(label);
+            landed.appendChild(num);
+        }
         box.appendChild(landed);
         fly.remove();
     }
@@ -645,11 +3157,163 @@
         return [...top].reverse().concat([...bottom].reverse());
     }
 
+    function hasBall(box) {
+        return Boolean(box.querySelector('.ball'));
+    }
+
+    function emptyBoxes(boxes) {
+        return boxes.filter((box) => !hasBall(box));
+    }
+
+    function filledBoxes(boxes) {
+        return boxes.filter(hasBall);
+    }
+
+    function getRoles() {
+        if (leftNum >= rightNum) {
+            return {
+                destBoxes: leftBoxes,
+                srcBoxes: rightBoxes,
+                larger: leftNum,
+                smaller: rightNum
+            };
+        }
+        return {
+            destBoxes: rightBoxes,
+            srcBoxes: leftBoxes,
+            larger: rightNum,
+            smaller: leftNum
+        };
+    }
+
+    function hintKind() {
+        const sum = leftNum + rightNum;
+        const larger = Math.max(leftNum, rightNum);
+        if (sum <= 5) return 'to-larger';
+        if (sum <= 10 && larger <= 4) return 'make5';
+        if (sum <= 10) return 'to-larger';
+        return 'make10';
+    }
+
+    function pickSrcBoxes(srcBoxes, count) {
+        if (count <= 0) return [];
+        const topRightFirst = [...filledBoxes(srcBoxes.slice(5, 10))].reverse();
+        const bottomRightFirst = [...filledBoxes(srcBoxes.slice(0, 5))].reverse();
+        return [...topRightFirst, ...bottomRightFirst].slice(0, count);
+    }
+
+    async function blinkPico(els) {
+        if (!els.length) return;
+        els.forEach((el) => el.classList.add('pico'));
+        await wait(2000);
+        els.forEach((el) => el.classList.remove('pico'));
+    }
+
+    async function moveBallsTo(srcBoxList, destBoxList) {
+        const count = Math.min(srcBoxList.length, destBoxList.length);
+        const jobs = [];
+        for (let i = 0; i < count; i++) {
+            const ball = srcBoxList[i].querySelector('.ball');
+            if (!ball) continue;
+            const fly = spawnFlyingBall(ball);
+            ball.remove();
+            jobs.push({ fly, target: destBoxList[i], delay: i * 80 });
+        }
+        await Promise.all(jobs.map(async ({ fly, target, delay }) => {
+            await wait(delay);
+            await flyBallToBox(fly, target);
+        }));
+    }
+
+    async function hintMoveAllToLarger() {
+        const { destBoxes, srcBoxes } = getRoles();
+        const moving = filledBoxes(srcBoxes);
+        const dest = emptyBoxes(destBoxes);
+        messageEl.innerHTML = 'すくないほう の たま が うごくよ！';
+        await blinkPico(moving.map((box) => box.querySelector('.ball')).filter(Boolean));
+        await moveBallsTo(moving, dest);
+        hintPhase = 2;
+    }
+
+    async function hintMake5First() {
+        const { destBoxes, srcBoxes } = getRoles();
+        const holes = emptyBoxes(destBoxes.slice(0, 5));
+        const moving = pickSrcBoxes(srcBoxes, holes.length);
+        messageEl.innerHTML = 'まず したの あきます を うめよう';
+        await blinkPico(holes);
+        messageEl.innerHTML = 'みぎはし の たま が うごくよ！';
+        await blinkPico(moving.map((box) => box.querySelector('.ball')).filter(Boolean));
+        await moveBallsTo(moving, holes);
+        hintPhase = filledBoxes(srcBoxes).length ? 1 : 2;
+    }
+
+    async function hintMake10First() {
+        const { destBoxes, srcBoxes, smaller } = getRoles();
+        const holes = emptyBoxes(destBoxes.slice(5, 10));
+        const moving = pickSrcBoxes(srcBoxes, holes.length);
+        messageEl.innerHTML = 'まず うえの あきます を うめて<br>10 をつくろう';
+        await blinkPico(holes);
+        messageEl.innerHTML = smaller >= 6
+            ? 'うえの みぎ から たま が うごくよ！'
+            : 'みぎはし の たま が うごくよ！';
+        await blinkPico(moving.map((box) => box.querySelector('.ball')).filter(Boolean));
+        await moveBallsTo(moving, holes);
+        hintPhase = 2;
+    }
+
+    async function hintMoveRemaining() {
+        const { destBoxes, srcBoxes } = getRoles();
+        const remaining = filledBoxes(srcBoxes);
+        const dest = emptyBoxes(destBoxes);
+        if (!remaining.length || !dest.length) {
+            hintPhase = 2;
+            return;
+        }
+        messageEl.innerHTML = 'のこりの たま も いこう！';
+        await blinkPico(remaining.map((box) => box.querySelector('.ball')).filter(Boolean));
+        await moveBallsTo(remaining, dest);
+        hintPhase = 2;
+    }
+
+    async function onHint() {
+        if (countMode) return;
+        if (changeMode) {
+            await openChangeHint();
+            return;
+        }
+        if (busy || solved || !showBalls || hintPhase >= 2) return;
+        busy = true;
+        setChoicesEnabled(false);
+        updateHintButton();
+
+        const kind = hintKind();
+        if (hintPhase === 0) {
+            if (kind === 'to-larger') await hintMoveAllToLarger();
+            else if (kind === 'make5') await hintMake5First();
+            else await hintMake10First();
+        } else {
+            await hintMoveRemaining();
+        }
+
+        messageEl.innerHTML = promptMessage();
+        busy = false;
+        if (!isHintView()) setChoicesEnabled(true);
+        updateHintButton();
+    }
+
     async function animateCombine() {
         if (!showBalls) return;
-        const dir = resolveMoveDir();
-        const sourceBoxes = dir === 'rtl' ? rightBoxes : leftBoxes;
-        const destBoxes = dir === 'rtl' ? leftBoxes : rightBoxes;
+        let sourceBoxes;
+        let destBoxes;
+        if (hintPhase > 0) {
+            const roles = getRoles();
+            sourceBoxes = roles.srcBoxes;
+            destBoxes = roles.destBoxes;
+        } else {
+            const dir = resolveMoveDir();
+            sourceBoxes = dir === 'rtl' ? rightBoxes : leftBoxes;
+            destBoxes = dir === 'rtl' ? leftBoxes : rightBoxes;
+        }
         const sourceBalls = moveOrderBoxes(sourceBoxes)
             .map((box) => box.querySelector('.ball'))
             .filter(Boolean);
@@ -724,28 +3388,152 @@
         el.remove();
     }
 
-    async function onChoose(count, button) {
-        if (busy) return;
+    async function grantSolveReward() {
+        const wasComplete = harvestDone;
+        const prevSolves = solves;
+        solves += 1;
+        const golden = solves % GOLDEN_EVERY === 0;
+        const canPlace = apples.length < HARVEST_GOAL;
+        const canReplace = golden && apples.some((apple) => !apple.golden);
+        if (canPlace || canReplace) {
+            await animateFruitToTree(golden);
+            collectApple(golden);
+        }
+        if (!wasComplete && solves >= HARVEST_GOAL) {
+            completeHarvest();
+        }
+        let grew = '';
+        if (prevSolves >= HARVEST_GOAL + GRASS_MAX + FLOWER_MAX && prevSolves < HARVEST_GOAL + GRASS_MAX + FLOWER_MAX + STAR_MAX) {
+            grew = 'star';
+        } else if (prevSolves >= HARVEST_GOAL + GRASS_MAX && prevSolves < HARVEST_GOAL + GRASS_MAX + FLOWER_MAX) {
+            grew = 'flower';
+        } else if (prevSolves >= HARVEST_GOAL && prevSolves < HARVEST_GOAL + GRASS_MAX) {
+            grew = 'grass';
+        }
+        saveState();
+        refreshOrchard(grew);
+        return { wasComplete, golden, grew };
+    }
+
+    function rewardMessage(wasComplete, golden, grew) {
+        if (!wasComplete && harvestDone) {
+            return golden
+                ? '<span style="color:#ff4081; font-size:32px;">🎉 しゅうかく かんせい！ 🎉</span><br>きんのりんご も なったよ！'
+                : '<span style="color:#ff4081; font-size:32px;">🎉 きょうのしゅうかく かんせい！ 🎉</span>';
+        }
+        if (golden) return '<span style="color:#ff8f00; font-size:32px;">✨ きんのりんご！ ✨</span>';
+        if (grew === 'grass') return '<span style="color:#43a047; font-size:32px;">🌱 くさが はえたよ！</span>';
+        if (grew === 'flower') return '<span style="color:#ec407a; font-size:32px;">🌸 はなが さいたよ！</span>';
+        if (grew === 'star') return '<span style="color:#5c6bc0; font-size:32px;">⭐ ほしが できたよ！</span>';
+        return '<span style="color:#ff4081; font-size:32px;">🎉 大せいかい！ 🎉</span>';
+    }
+
+    async function onDrillChoose(count, button) {
+        const index = drillFocus;
+        const item = index != null ? drillItems[index] : null;
+        if (!item || item.solved) return;
         busy = true;
         setChoicesEnabled(false);
+        const answer = item.left + item.right;
+        const row = drillList.querySelectorAll('.drill-item')[index];
+        const blank = row ? row.querySelector('.eq-blank-btn') : null;
+        let mark = row ? row.querySelector('.drill-mark') : null;
+        if (row && !mark) {
+            mark = document.createElement('span');
+            mark.className = 'drill-mark';
+            row.appendChild(mark);
+        }
+        const chip = spawnFlyingNumber(button, count);
+        const target = blank || button;
+
+        if (count === answer) {
+            await flyFromTo(chip, target).then(() => chip.remove());
+            item.solved = true;
+            lastLeft = item.left;
+            lastRight = item.right;
+            await grantSolveReward();
+            drillFocus = null;
+            renderDrillList();
+            choicesEl.classList.add('hidden');
+            busy = false;
+            applyDisplayMode();
+            return;
+        }
+
+        if (mark) {
+            mark.classList.add('wrong');
+            mark.textContent = count > answer ? 'おおすぎるよ' : 'たりないよ';
+        }
+        if (count > answer) {
+            await spillElement(chip, target);
+        } else {
+            await flyFromTo(chip, target);
+            chip.remove();
+        }
+        if (row) row.classList.add('shake');
+        await wait(1400);
+        if (row) row.classList.remove('shake');
+        document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+        if (mark) {
+            mark.classList.remove('wrong');
+            mark.textContent = '';
+        }
+        setChoicesEnabled(true);
+        busy = false;
+    }
+
+    async function onChoose(count, button) {
+        if (busy) return;
+        if (shiftMode) return;
+        if (changeMode) {
+            await onChangeChoose(count, button);
+            return;
+        }
+        if (isHintView()) return;
+        if (isDrillList()) {
+            await onDrillChoose(count, button);
+            return;
+        }
+        busy = true;
+        setChoicesEnabled(false);
+        updateHintButton();
 
         const answer = leftNum + rightNum;
         const chip = spawnFlyingNumber(button, count);
         const blank = equationEl.querySelector('.eq-blank') || equationEl;
 
         if (count === answer) {
-            const dir = resolveMoveDir();
+            if (countMode) {
+                await flyFromTo(chip, blank).then(() => chip.remove());
+                solved = true;
+                hintPhase = 2;
+                const { wasComplete, golden, grew } = await grantSolveReward();
+                refreshEquation(count);
+                messageEl.innerHTML = rewardMessage(wasComplete, golden, grew);
+                choicesEl.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                busy = false;
+                updateHintButton();
+                return;
+            }
+            const dir = hintPhase > 0
+                ? (leftNum >= rightNum ? 'rtl' : 'ltr')
+                : resolveMoveDir();
             messageEl.innerHTML = combineMessage(dir);
             await Promise.all([
                 flyFromTo(chip, blank).then(() => chip.remove()),
                 animateCombine()
             ]);
             solved = true;
-            messageEl.innerHTML = '<span style="color:#ff4081; font-size:32px;">🎉 大せいかい！ 🎉</span>';
+            hintPhase = 2;
+            const { wasComplete, golden, grew } = await grantSolveReward();
             refreshEquation(count);
+            messageEl.innerHTML = rewardMessage(wasComplete, golden, grew);
+
             choicesEl.classList.add('hidden');
             nextBtn.classList.remove('hidden');
             busy = false;
+            updateHintButton();
             return;
         }
 
@@ -771,6 +3559,7 @@
         refreshEquation();
         setChoicesEnabled(true);
         busy = false;
+        updateHintButton();
     }
 
     function buildChoiceButtons() {
@@ -795,27 +3584,174 @@
             btn.dataset.n = String(n);
             btn.textContent = String(n);
             btn.addEventListener('click', () => {
-                if (fixedLeft === n) return;
-                fixedLeft = n;
-                initGame();
+                if (fixedDigit === n) return;
+                fixedDigit = n;
+                refreshProblems();
             });
             fixGrid.appendChild(btn);
         }
     }
 
+    function buildSumButtons() {
+        sumGrid.innerHTML = '';
+        for (let n = 1; n <= 18; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => {
+                if (selectedSums.has(n)) {
+                    selectedSums.delete(n);
+                    if (selectedSums.size === 0) sumMode = 'random';
+                } else {
+                    selectedSums.add(n);
+                    sumMode = 'picks';
+                }
+                refreshProblems();
+            });
+            sumGrid.appendChild(btn);
+        }
+    }
+
+    function buildEnshuButtons() {
+        enshuGrid.innerHTML = '';
+        for (let n = 1; n <= 20; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => startDrill(n));
+            enshuGrid.appendChild(btn);
+        }
+    }
+
+    function buildHuntButtons() {
+        huntGrid.innerHTML = '';
+        for (let n = 1; n <= 18; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => startHunt(n));
+            huntGrid.appendChild(btn);
+        }
+    }
+
+    function setFixTarget(side) {
+        if (fixTarget === side) return;
+        fixTarget = side;
+        if (fixedDigit === null) {
+            applyDisplayMode();
+            return;
+        }
+        refreshProblems();
+    }
+
+    fixLeftTab.addEventListener('click', () => setFixTarget('left'));
+    fixRightTab.addEventListener('click', () => setFixTarget('right'));
+
     randomLeftBtn.addEventListener('click', () => {
-        if (fixedLeft === null) return;
-        fixedLeft = null;
-        initGame();
+        if (fixedDigit === null) return;
+        fixedDigit = null;
+        refreshProblems();
     });
+
+    randomSumBtn.addEventListener('click', () => {
+        if (sumMode === 'random' && selectedSums.size === 0) return;
+        sumMode = 'random';
+        selectedSums.clear();
+        refreshProblems();
+    });
+
+    le10Btn.addEventListener('click', () => {
+        if (sumMode === 'le10') return;
+        sumMode = 'le10';
+        selectedSums.clear();
+        refreshProblems();
+    });
+
+    le5Btn.addEventListener('click', () => {
+        if (sumMode === 'le5') return;
+        sumMode = 'le5';
+        selectedSums.clear();
+        refreshProblems();
+    });
+
+    async function resetHintToStart() {
+        if (countMode) {
+            if (busy || solved) return;
+            resetCountBoard();
+            applyDisplayMode();
+            return;
+        }
+        if (changeMode) {
+            await replayChangeHint();
+            return;
+        }
+        if (busy || solved || hintPhase === 0) return;
+        hintPhase = 0;
+        messageEl.innerHTML = promptMessage();
+        if (!isHintView()) setChoicesEnabled(true);
+        renderKastens();
+        applyDisplayMode();
+    }
+
+    hintBtn.addEventListener('click', onHint);
+    resetHintBtn.addEventListener('click', resetHintToStart);
+    backBtn.addEventListener('click', backToList);
+    drillQuitBtn.addEventListener('click', quitActivity);
+    drillPrintBtn.addEventListener('click', printDrill);
+    shiftStartBtn.addEventListener('click', startShift);
+    shiftToRightBtn.addEventListener('click', () => shiftOne(true));
+    shiftToLeftBtn.addEventListener('click', () => shiftOne(false));
+    shiftDoneBtn.addEventListener('click', completeShift);
+    shiftQuitBtn.addEventListener('click', quitActivity);
+    changeQuitBtn.addEventListener('click', quitActivity);
+    changeOps.querySelectorAll('[data-change]').forEach((btn) => {
+        btn.addEventListener('click', () => startChange(btn.dataset.change));
+    });
+    countStartBtn.addEventListener('click', () => startCount());
+    countAnimStartBtn.addEventListener('click', () => beginCountLabel());
+    countContinueBtn.addEventListener('click', () => continueCountMoves());
+    countQuitBtn.addEventListener('click', quitActivity);
+
+    function printDrill() {
+        updatePrintMeta();
+        document.body.classList.add('print-drill');
+        const done = () => {
+            document.body.classList.remove('print-drill');
+            window.removeEventListener('afterprint', done);
+        };
+        window.addEventListener('afterprint', done);
+        window.print();
+    }
 
     document.querySelectorAll('.ctrl-btn[data-setting]').forEach((btn) => {
         btn.addEventListener('click', () => {
             const on = btn.dataset.value === 'on';
             if (btn.dataset.setting === 'grid') showGrid = on;
-            if (btn.dataset.setting === 'balls') showBalls = on;
+            if (btn.dataset.setting === 'balls') {
+                showBalls = on;
+                if (on) showGrid = true;
+            }
             applyDisplayMode();
-            if (!busy && !solved) {
+            if (isHuntList()) renderHuntList();
+            else if (isDrillList()) renderDrillList();
+            if (changeMode) {
+                if (changeView === 'quiz' && !solved) renderChangeQuiz();
+                if (changeView === 'hint' && !busy) renderKastens();
+            } else if (countMode) {
+                if (!busy && !solved) {
+                    renderKastens();
+                    messageEl.innerHTML = promptMessage();
+                }
+            } else if (shiftMode) {
+                if (!busy) renderKastens();
+                if (!solved) messageEl.innerHTML = shiftPrompt();
+            } else if (!busy && !solved && !isListView()) {
                 messageEl.innerHTML = promptMessage();
             }
         });
@@ -828,8 +3764,18 @@
         });
     });
 
-    nextBtn.addEventListener('click', initGame);
+    nextBtn.addEventListener('click', () => {
+        if (countMode) startCount();
+        else if (changeMode) startChange(changeOpSelected);
+        else if (shiftMode) startShift();
+        else initGame();
+    });
+    loadState();
+    refreshOrchard();
     buildFixButtons();
+    buildSumButtons();
+    buildEnshuButtons();
+    buildHuntButtons();
     buildChoiceButtons();
     initGame();
 </script>
