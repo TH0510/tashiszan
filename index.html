@@ -1168,7 +1168,7 @@
         box-shadow: 0 0 12px rgba(255, 213, 79, 0.9);
     }
 
-    @media (max-width: 980px) {
+    @media screen and (max-width: 980px) {
         .layout {
             grid-template-columns: 1fr;
         }
@@ -1210,128 +1210,144 @@
         size: A4 portrait;
         margin: 0;
     }
+    /* iPad/Safari は @media print を無視して画面を撮ることがあるので、
+       いんさつ中は画面上も問題用紙レイアウトにする */
+    body.print-drill {
+        background: #fff !important;
+        padding: 14mm 16mm 16mm;
+        margin: 0;
+        color: #222;
+        overflow: visible !important;
+        min-height: 0 !important;
+        height: auto !important;
+    }
+    body.print-drill h1,
+    body.print-drill .grove,
+    body.print-drill .settings-panel,
+    body.print-drill .step-panel,
+    body.print-drill .message,
+    body.print-drill .kastens,
+    body.print-drill .equation,
+    body.print-drill .hint-row,
+    body.print-drill .back-btn,
+    body.print-drill .choices,
+    body.print-drill .next-btn,
+    body.print-drill .shift-panel,
+    body.print-drill .change-panel,
+    body.print-drill .drill-head,
+    body.print-drill .drill-hint-mini,
+    body.print-drill .drill-mark,
+    body.print-drill .drill-done,
+    body.print-drill .eq-fill,
+    body.print-drill .treasure-prize {
+        display: none !important;
+    }
+    body.print-drill .layout {
+        display: block;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+    body.print-drill .left-stack {
+        display: none !important;
+    }
+    body.print-drill .game-area {
+        box-shadow: none;
+        padding: 0;
+        width: 100%;
+        background: none;
+        border-radius: 0;
+    }
+    body.print-drill .drill-panel,
+    body.print-drill .drill-panel.hidden,
+    body.print-drill .game-area.in-drill-hint .drill-panel {
+        display: block !important;
+    }
+    body.print-drill .print-meta {
+        display: block;
+        text-align: left;
+        margin: 0 0 10mm;
+    }
+    body.print-drill .print-date {
+        display: block;
+        font-size: 22pt;
+        font-weight: bold;
+        letter-spacing: 0.04em;
+        margin: 0 0 4mm;
+        color: #222;
+        white-space: nowrap;
+    }
+    body.print-drill .print-settings {
+        display: block;
+        font-size: 14pt;
+        font-weight: bold;
+        margin: 0;
+        color: #333;
+    }
+    body.print-drill .drill-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16mm 14mm;
+        max-width: none;
+        max-height: none;
+        overflow: visible;
+        margin: 0;
+        padding: 0;
+    }
+    body.print-drill .drill-list.print-few {
+        grid-template-columns: 1fr;
+        max-width: 130mm;
+        margin: 0 auto;
+        gap: 18mm;
+    }
+    body.print-drill .drill-item {
+        display: block;
+        min-height: 22mm;
+        font-size: 22pt;
+        letter-spacing: 0.08em;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        justify-content: flex-start;
+    }
+    body.print-drill .print-few .drill-item {
+        font-size: 28pt;
+        min-height: 28mm;
+    }
+    body.print-drill .drill-list.print-many {
+        gap: 8mm 12mm;
+    }
+    body.print-drill .print-many .drill-item {
+        font-size: 18pt;
+        min-height: 16mm;
+    }
+    body.print-drill .drill-list.hunt-board {
+        max-width: none;
+        max-height: none;
+        overflow: visible;
+    }
+    body.print-drill .drill-item-eq {
+        min-width: 0;
+        text-align: left;
+    }
+    body.print-drill .eq-red,
+    body.print-drill .eq-blue {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
     @media print {
         html, body {
             background: #fff !important;
             padding: 0;
             margin: 0;
             color: #222;
+            overflow: visible !important;
+            height: auto !important;
+            min-height: 0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
         body.print-drill {
             padding: 14mm 16mm 16mm;
-        }
-        body.print-drill h1,
-        body.print-drill .grove,
-        body.print-drill .settings-panel,
-        body.print-drill .step-panel,
-        body.print-drill .message,
-        body.print-drill .kastens,
-        body.print-drill .equation,
-        body.print-drill .hint-row,
-        body.print-drill .back-btn,
-        body.print-drill .choices,
-        body.print-drill .next-btn,
-        body.print-drill .shift-panel,
-        body.print-drill .change-panel,
-        body.print-drill .drill-head,
-        body.print-drill .drill-hint-mini,
-        body.print-drill .drill-mark,
-        body.print-drill .drill-done,
-        body.print-drill .eq-fill,
-        body.print-drill .treasure-prize {
-            display: none !important;
-        }
-        body.print-drill .layout {
-            display: block;
-            width: 100%;
-            max-width: none;
-            margin: 0;
-        }
-        body.print-drill .left-stack {
-            display: none !important;
-        }
-        body.print-drill .game-area {
-            box-shadow: none;
-            padding: 0;
-            width: 100%;
-            background: none;
-            border-radius: 0;
-        }
-        body.print-drill .drill-panel,
-        body.print-drill .drill-panel.hidden,
-        body.print-drill .game-area.in-drill-hint .drill-panel {
-            display: block !important;
-        }
-        body.print-drill .print-meta {
-            display: block;
-            text-align: left;
-            margin: 0 0 10mm;
-        }
-        body.print-drill .print-date {
-            display: block;
-            font-size: 22pt;
-            font-weight: bold;
-            letter-spacing: 0.04em;
-            margin: 0 0 4mm;
-            color: #222;
-            white-space: nowrap;
-        }
-        body.print-drill .print-settings {
-            display: block;
-            font-size: 14pt;
-            font-weight: bold;
-            margin: 0;
-            color: #333;
-        }
-        body.print-drill .drill-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16mm 14mm;
-            max-width: none;
-            max-height: none;
-            overflow: visible;
-            margin: 0;
-            padding: 0;
-        }
-        body.print-drill .drill-list.print-few {
-            grid-template-columns: 1fr;
-            max-width: 130mm;
-            margin: 0 auto;
-            gap: 18mm;
-        }
-        body.print-drill .drill-item {
-            display: block;
-            min-height: 22mm;
-            font-size: 22pt;
-            letter-spacing: 0.08em;
-            page-break-inside: avoid;
-            break-inside: avoid;
-            justify-content: flex-start;
-        }
-        body.print-drill .print-few .drill-item {
-            font-size: 28pt;
-            min-height: 28mm;
-        }
-        body.print-drill .drill-list.print-many {
-            gap: 8mm 12mm;
-        }
-        body.print-drill .print-many .drill-item {
-            font-size: 18pt;
-            min-height: 16mm;
-        }
-        body.print-drill .drill-list.hunt-board {
-            max-width: none;
-            max-height: none;
-            overflow: visible;
-        }
-        body.print-drill .drill-item-eq {
-            min-width: 0;
-            text-align: left;
-        }
-        body.print-drill .eq-red,
-        body.print-drill .eq-blue {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
         }
     }
 </style>
@@ -3718,15 +3734,54 @@
     countContinueBtn.addEventListener('click', () => continueCountMoves());
     countQuitBtn.addEventListener('click', quitActivity);
 
+    function isAppleTouchDevice() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
     function printDrill() {
         updatePrintMeta();
         document.body.classList.add('print-drill');
-        const done = () => {
+        document.body.offsetHeight;
+        let cleaned = false;
+        const cleanup = () => {
+            if (cleaned) return;
+            cleaned = true;
             document.body.classList.remove('print-drill');
-            window.removeEventListener('afterprint', done);
+            window.removeEventListener('afterprint', onAfterPrint);
+            window.removeEventListener('focus', onReturn);
+            document.removeEventListener('visibilitychange', onVis);
+            document.removeEventListener('pointerdown', onInteract);
         };
-        window.addEventListener('afterprint', done);
-        window.print();
+        const onAfterPrint = () => {
+            if (isAppleTouchDevice()) return;
+            cleanup();
+        };
+        const onReturn = () => setTimeout(cleanup, 400);
+        const onVis = () => {
+            if (document.visibilityState === 'visible') setTimeout(cleanup, 400);
+        };
+        const onInteract = () => {
+            if (Date.now() - printedAt < 1200) return;
+            cleanup();
+        };
+        let printedAt = Date.now();
+        window.addEventListener('afterprint', onAfterPrint);
+        window.addEventListener('focus', onReturn);
+        document.addEventListener('visibilitychange', onVis);
+        document.addEventListener('pointerdown', onInteract);
+        const go = () => {
+            printedAt = Date.now();
+            window.print();
+        };
+        if (isAppleTouchDevice()) {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setTimeout(go, 80));
+            });
+            setTimeout(cleanup, 120000);
+        } else {
+            go();
+        }
     }
 
     document.querySelectorAll('.ctrl-btn[data-setting]').forEach((btn) => {
