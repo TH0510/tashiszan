@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>たしざん</title>
+<title>ヌマーカステン</title>
 <style>
     * { box-sizing: border-box; }
     body {
@@ -16,10 +16,126 @@
         overflow-x: hidden;
         min-height: 100vh;
     }
-    h1 {
+    .title-bar {
+        text-align: center;
+        margin: 0 auto 20px;
+        max-width: 1180px;
+        width: 100%;
+    }
+    .title-bar h1 {
         color: #ff8c00;
         font-size: 32px;
-        margin: 8px 0 20px;
+        margin: 0;
+    }
+    .home-back {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        border: none;
+        background: #eceff1;
+        color: #455a64;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 8px 12px;
+        border-radius: 16px;
+        cursor: pointer;
+        box-shadow: 0 3px 0 #b0bec5;
+    }
+    .home-back:hover {
+        filter: brightness(1.03);
+    }
+    .home-back:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0 #b0bec5;
+    }
+    .home-panel {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        min-height: 320px;
+        padding: 24px 12px;
+    }
+    body.mode-home .home-panel {
+        display: flex;
+    }
+    .home-lead {
+        font-size: 28px;
+        font-weight: bold;
+        color: #546e7a;
+        margin: 0 0 8px;
+    }
+    .home-mode-btn {
+        width: min(420px, 100%);
+        border: none;
+        border-radius: 28px;
+        padding: 22px 20px;
+        font-family: inherit;
+        font-size: 36px;
+        font-weight: bold;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #e65100;
+        transition: transform 0.15s, filter 0.15s;
+    }
+    .home-mode-btn.add {
+        background: linear-gradient(#ff9800, #fb8c00);
+        box-shadow: 0 6px 0 #e65100;
+    }
+    .home-mode-btn.sub {
+        background: linear-gradient(#42a5f5, #1e88e5);
+        box-shadow: 0 6px 0 #1565c0;
+    }
+    .home-mode-btn.bunkai {
+        background: linear-gradient(#66bb6a, #43a047);
+        box-shadow: 0 6px 0 #2e7d32;
+    }
+    .home-mode-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+    .home-mode-btn:active {
+        transform: translateY(3px);
+        box-shadow: 0 3px 0 #e65100;
+    }
+    .home-mode-btn.sub:active {
+        box-shadow: 0 3px 0 #1565c0;
+    }
+    .home-mode-btn.bunkai:active {
+        box-shadow: 0 3px 0 #2e7d32;
+    }
+    body.mode-home .layout {
+        grid-template-columns: 216px minmax(520px, 1fr);
+    }
+    body.mode-home .settings-panel,
+    body.mode-home .step-panel,
+    body.mode-home .home-back,
+    body.mode-add .bunkai-settings,
+    body.mode-add .sub-settings,
+    body.mode-bunkai .add-settings,
+    body.mode-bunkai .sub-settings,
+    body.mode-sub .add-settings,
+    body.mode-sub .bunkai-settings {
+        display: none !important;
+    }
+    body.mode-bunkai .move-full,
+    body.mode-sub .move-full {
+        display: none !important;
+    }
+    body.mode-home .game-area .message,
+    body.mode-home .kastens,
+    body.mode-home .frame-spin,
+    body.mode-home .equation,
+    body.mode-home .hint-row,
+    body.mode-home .back-btn,
+    body.mode-home .shift-panel,
+    body.mode-home .change-panel,
+    body.mode-home .drill-panel,
+    body.mode-home .choices,
+    body.mode-home .next-btn {
+        display: none !important;
     }
     .layout {
         display: grid;
@@ -95,11 +211,142 @@
         background-color: #e8f5e9;
         transition: background-color 0.2s, transform 0.15s, border-color 0.2s;
     }
+    .box.empty-hint {
+        background-color: #fff8e1;
+        border-color: #ffb300;
+    }
     .box.shake,
     .equation.shake,
     .change-eq.shake,
-    .kastens.shake {
+    .kastens.shake,
+    .four-circles.shake {
         animation: shake 0.45s ease-in-out;
+    }
+    .frame-spin {
+        display: none;
+        width: fit-content;
+        margin: 36px auto 24px;
+        transform-origin: 50% 50%;
+        will-change: transform;
+        z-index: 2;
+    }
+    .game-area.in-bunkai .frame-spin {
+        display: block;
+    }
+    .game-area.in-bunkai .kastens,
+    .game-area.in-sub.sub-eq .kastens {
+        display: none;
+    }
+    .game-area.in-sub.sub-eq .equation {
+        font-size: 64px;
+        min-height: 90px;
+        margin: 36px 0 20px;
+    }
+    .game-area.in-sub .box {
+        width: 60px;
+        height: 60px;
+    }
+    .game-area.in-sub .ball:not(.flying) {
+        width: 44px;
+        height: 44px;
+    }
+    .game-area.in-bunkai .hint-row {
+        display: none !important;
+    }
+    .game-area.in-bunkai.scaffold-eq .hint-row,
+    .game-area.in-bunkai.scaffold-bars .hint-row,
+    .game-area.in-bunkai.scaffold-kasten .hint-row {
+        display: flex !important;
+    }
+    .game-area.in-bunkai.scaffold-eq .frame-spin,
+    .game-area.in-bunkai.scaffold-bars .frame-spin {
+        display: none !important;
+    }
+    .game-area.in-bunkai.scaffold-eq .equation {
+        font-size: 64px;
+        min-height: 90px;
+        margin: 36px 0 20px;
+    }
+    .ten-bars {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        width: min(420px, 100%);
+        margin: 28px auto 16px;
+    }
+    .game-area.in-bunkai.scaffold-bars .ten-bars {
+        display: flex;
+    }
+    .ten-bars-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        height: 72px;
+    }
+    .ten-bar {
+        border: 4px solid #9e9e9e;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        font-weight: bold;
+        min-width: 0;
+        background: #fff;
+        color: #424242;
+    }
+    .ten-bar-red {
+        background: #ffcdd2;
+        border-color: #e57373;
+        color: #c62828;
+    }
+    .ten-bar-blue {
+        background: #bbdefb;
+        border-color: #64b5f6;
+        color: #1565c0;
+    }
+    .ten-bar-empty {
+        background: #fff;
+        border-color: #bdbdbd;
+    }
+    .frame-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        width: fit-content;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+        min-height: 72px;
+    }
+    .frame-row {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+    .game-area.in-bunkai .box {
+        width: 72px;
+        height: 72px;
+        border-width: 4px;
+        border-radius: 15px;
+    }
+    .game-area.in-bunkai .ball:not(.flying) {
+        width: 52px;
+        height: 52px;
+    }
+    .game-area.no-grid .box.empty-hint {
+        background-color: transparent;
+    }
+    .game-area.no-grid.no-balls.in-bunkai .frame-spin {
+        margin: 0;
+    }
+    .game-area.no-grid.no-balls.in-bunkai .frame-container {
+        min-height: 0;
+        height: 0;
+        margin: 0;
+        overflow: hidden;
+        visibility: hidden;
     }
     .ball {
         width: 36px;
@@ -165,6 +412,18 @@
         justify-content: center;
         box-shadow: 0 6px 12px rgba(255, 64, 129, 0.35);
     }
+    .num-chip.red-chip {
+        background-color: #ff5252;
+        box-shadow: 0 6px 12px rgba(255, 82, 82, 0.35);
+    }
+    .num-chip.blue-chip {
+        background-color: #448aff;
+        box-shadow: 0 6px 12px rgba(68, 138, 255, 0.35);
+    }
+    .ball.bunkai-fly {
+        width: 52px;
+        height: 52px;
+    }
     .red { background-color: #ff5252; }
     .blue { background-color: #448aff; }
 
@@ -199,6 +458,17 @@
     }
     .game-area.no-grid.no-balls .hint-row {
         display: none !important;
+    }
+    .game-area.in-sub:not(.in-drill-list) .hint-row {
+        display: flex !important;
+    }
+    .game-area.in-sub:not(.sub-eq):not(.in-drill-list) .kastens {
+        display: flex !important;
+    }
+    .game-area.in-bunkai.scaffold-eq .hint-row,
+    .game-area.in-bunkai.scaffold-bars .hint-row,
+    .game-area.in-bunkai.scaffold-kasten .hint-row {
+        display: flex !important;
     }
 
     @keyframes pop {
@@ -275,7 +545,8 @@
     .hunt-block,
     .shift-block,
     .change-block,
-    .count-block {
+    .count-block,
+    .four-plus-block {
         margin-top: 16px;
         padding-top: 14px;
         border-top: 1px solid #eceff1;
@@ -411,6 +682,10 @@
         cursor: pointer;
         letter-spacing: 0;
     }
+    body.mode-bunkai .eq-blank-btn {
+        min-width: 1.8em;
+        padding: 0 14px;
+    }
     .eq-blank-btn:hover:not(:disabled) {
         background: #fff8e1;
     }
@@ -457,10 +732,13 @@
 
     .game-area.in-drill-list .message,
     .game-area.in-drill-list .kastens,
+    .game-area.in-drill-list .frame-spin,
+    .game-area.in-drill-list .ten-bars,
     .game-area.in-drill-list .equation,
     .game-area.in-drill-list .hint-row,
     .game-area.in-drill-list .next-btn,
-    .game-area.in-drill-list .back-btn {
+    .game-area.in-drill-list .back-btn,
+    body.mode-home .ten-bars {
         display: none !important;
     }
     .game-area.in-drill-hint .drill-panel,
@@ -659,6 +937,65 @@
     .game-area.in-change-hint .shift-panel,
     .game-area.in-change-hint .drill-panel {
         display: none !important;
+    }
+
+    body.mode-home .four-circles,
+    .game-area.in-drill-list .four-circles {
+        display: none !important;
+    }
+    .four-circles {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+        min-height: 170px;
+        margin: 8px auto 12px;
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+    .game-area.in-four-plus.four-circles-on .four-circles {
+        display: flex;
+    }
+    .game-area.in-four-plus.four-eq .kastens,
+    .game-area.in-four-plus.four-circles-on .kastens {
+        display: none !important;
+    }
+    .game-area.in-four-plus.four-eq .equation {
+        font-size: 64px;
+        min-height: 90px;
+        margin: 36px 0 20px;
+    }
+    .game-area.in-four-plus:not(.in-drill-list) .hint-row {
+        display: flex !important;
+    }
+    .four-dot {
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #fff;
+        flex-shrink: 0;
+        transform-origin: 50% 50%;
+        box-shadow: inset -8px -10px 16px rgba(0,0,0,0.18), 0 6px 0 rgba(0,0,0,0.12);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+        line-height: 1;
+    }
+    .four-dot.red { background: radial-gradient(circle at 32% 28%, #ff8a80, #ff5252 58%, #e53935); }
+    .four-dot.blue { background: radial-gradient(circle at 32% 28%, #82b1ff, #448aff 58%, #2962ff); }
+    .four-dot.five { background: radial-gradient(circle at 32% 28%, #ffd180, #ff9800 58%, #ef6c00); }
+    .four-dot.sum { background: radial-gradient(circle at 32% 28%, #81c784, #43a047 58%, #2e7d32); }
+    .four-plus-sign {
+        font-size: 42px;
+        font-weight: bold;
+        color: #ff4081;
+        padding-bottom: 6px;
+    }
+    .four-dot.flying-dot {
+        position: fixed;
+        margin: 0;
+        z-index: 1000;
+        pointer-events: none;
     }
 
     .game-area.in-count .shift-panel,
@@ -931,6 +1268,9 @@
         gap: 4px;
         margin-top: 8px;
     }
+    #sub-left-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
     .fix-btn,
     .sum-btn {
         border: 2px solid transparent;
@@ -954,9 +1294,17 @@
         box-shadow: 0 0 0 2px #1565c0, 0 0 0 4px #fff;
         transform: scale(1.06);
     }
-    .fix-btn:hover:not(.active),
-    .sum-btn:hover:not(.active) {
+    .fix-btn:hover:not(.active):not(:disabled),
+    .sum-btn:hover:not(.active):not(:disabled) {
         opacity: 0.85;
+    }
+    .fix-btn:disabled,
+    .sum-btn:disabled {
+        opacity: 0.22;
+        cursor: default;
+        transform: none;
+        box-shadow: none;
+        filter: grayscale(0.45);
     }
     .fix-btn[data-n="1"], .sum-btn[data-n="1"], .sum-btn[data-n="10"],
     .choice-btn[data-n="1"], .choice-btn[data-n="10"] { background-color: #42a5f5; }
@@ -1198,11 +1546,15 @@
         .settings-panel .hunt-block,
         .settings-panel .shift-block,
         .settings-panel .change-block,
-        .settings-panel .count-block {
+        .settings-panel .count-block,
+        .settings-panel .four-plus-block {
             grid-column: 1 / -1;
             margin-top: 8px;
             padding-top: 12px;
             border-top: 1px solid #eceff1;
+        }
+        body.mode-home .layout {
+            grid-template-columns: 1fr;
         }
     }
 
@@ -1222,11 +1574,17 @@
         height: auto !important;
     }
     body.print-drill h1,
+    body.print-drill .title-bar,
     body.print-drill .grove,
     body.print-drill .settings-panel,
     body.print-drill .step-panel,
+    body.print-drill .home-panel,
+    body.print-drill .home-back,
+    body.print-drill .ten-bars,
+    body.print-drill .four-circles,
     body.print-drill .message,
     body.print-drill .kastens,
+    body.print-drill .frame-spin,
     body.print-drill .equation,
     body.print-drill .hint-row,
     body.print-drill .back-btn,
@@ -1238,9 +1596,23 @@
     body.print-drill .drill-hint-mini,
     body.print-drill .drill-mark,
     body.print-drill .drill-done,
-    body.print-drill .eq-fill,
+    body.print-drill .eq-fill:not(.eq-blank-btn),
     body.print-drill .treasure-prize {
         display: none !important;
+    }
+    body.print-drill .eq-blank-btn {
+        display: inline-block !important;
+        min-width: 22mm;
+        width: 22mm;
+        height: 1em;
+        background: transparent !important;
+        border: none;
+        border-bottom: 0.45mm solid #333;
+        border-radius: 0;
+        color: transparent;
+        padding: 0;
+        box-shadow: none;
+        vertical-align: baseline;
     }
     body.print-drill .layout {
         display: block;
@@ -1352,9 +1724,11 @@
     }
 </style>
 </head>
-<body>
+<body class="mode-home">
 
-    <h1>🍎 たしざん 🍏</h1>
+    <div class="title-bar">
+        <h1 id="game-title">🍎 ヌマーカステン 🍏</h1>
+    </div>
 
     <div class="layout">
         <div class="left-stack">
@@ -1370,8 +1744,9 @@
             </div>
             <div class="harvest-meter" id="harvest-meter">きょうのりんご <strong>0</strong> / 30</div>
             <p class="streak-caption" id="streak-caption">れんぞく <strong>0</strong> 日</p>
+            <button type="button" id="home-btn" class="home-back hidden">← メニュー</button>
         </aside>
-        <aside class="controls settings-panel" aria-label="もんだいの設定">
+        <aside class="controls settings-panel add-settings" aria-label="もんだいの設定">
             <div class="settings-block">
                 <p class="controls-title">ごうけいの数</p>
                 <div class="ctrl-group">
@@ -1417,13 +1792,94 @@
                 <p class="controls-title">かぞえ足し</p>
                 <button type="button" class="ctrl-btn" id="count-start-btn">はじめる</button>
             </div>
+            <div class="settings-block four-plus-block">
+                <p class="controls-title">1+特訓</p>
+                <div class="ctrl-btns">
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="1-1">1+特訓その1</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="1-2">1+特訓その2</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="1-3">1+特訓その3</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="1-4">1+特訓その4</button>
+                </div>
+            </div>
+            <div class="settings-block four-plus-block">
+                <p class="controls-title">2+特訓</p>
+                <div class="ctrl-btns">
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="2-1">2+特訓その1</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="2-2">2+特訓その2</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="2-3">2+特訓その3</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="2-4">2+特訓その4</button>
+                </div>
+            </div>
+            <div class="settings-block four-plus-block">
+                <p class="controls-title">4+特訓</p>
+                <div class="ctrl-btns">
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="4-1">4+特訓その1</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="4-2">4+特訓その2</button>
+                    <button type="button" class="ctrl-btn" data-plus-tokkun="4-3">4+特訓その3</button>
+                </div>
+            </div>
+        </aside>
+        <aside class="controls settings-panel sub-settings" aria-label="ひきざんの設定">
+            <div class="settings-block">
+                <p class="controls-title">ひだりの数</p>
+                <div class="ctrl-group">
+                    <button type="button" class="ctrl-btn active" id="sub-random-left-btn">ランダム</button>
+                    <div class="sum-grid" id="sub-left-grid"></div>
+                    <button type="button" class="ctrl-btn le5-btn" id="sub-le5-btn" style="margin-top:8px;">5以下</button>
+                </div>
+            </div>
+            <div class="settings-block">
+                <p class="controls-title">みぎの数</p>
+                <div class="ctrl-group">
+                    <button type="button" class="ctrl-btn active" id="sub-random-right-btn">ランダム</button>
+                    <div class="fix-grid" id="sub-right-grid"></div>
+                </div>
+            </div>
+            <div class="settings-block enshu-block">
+                <p class="controls-title">えんしゅうの数</p>
+                <div class="enshu-grid" id="sub-enshu-grid"></div>
+            </div>
+        </aside>
+        <aside class="controls settings-panel bunkai-settings" aria-label="ぶんかいの設定">
+            <div class="settings-block">
+                <p class="controls-title">ごうけいの数</p>
+                <div class="ctrl-group">
+                    <button type="button" class="ctrl-btn active" id="bunkai-random-sum-btn">ランダム</button>
+                    <div class="sum-grid" id="bunkai-sum-grid"></div>
+                </div>
+            </div>
+            <div class="settings-block">
+                <p class="controls-title">10特訓</p>
+                <div class="ctrl-btns">
+                    <button type="button" class="ctrl-btn" id="bunkai-drill1-btn">10特訓その1</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill2-btn">10特訓その2</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill3-btn">10特訓その3</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill4-btn">10特訓その4</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill5-btn">10特訓その5</button>
+                </div>
+            </div>
+            <div class="settings-block enshu-block">
+                <p class="controls-title">えんしゅうの数</p>
+                <div class="enshu-grid" id="bunkai-enshu-grid"></div>
+            </div>
         </aside>
         </div>
 
         <div class="game-area" id="game-area">
+            <div id="home-panel" class="home-panel">
+                <p class="home-lead">どっちで あそぶ？</p>
+                <button type="button" class="home-mode-btn add" id="mode-add-btn">🍎 たしざん</button>
+                <button type="button" class="home-mode-btn sub" id="mode-sub-btn">➖ ひきざん</button>
+                <button type="button" class="home-mode-btn bunkai" id="mode-bunkai-btn">🍏 ぶんかい</button>
+            </div>
             <div id="message" class="message">あわせて いくつかな？</div>
 
             <div class="kastens" id="kastens"></div>
+            <div class="four-circles" id="four-circles" hidden></div>
+            <div class="frame-spin" id="frame-spin">
+                <div class="frame-container" id="frames"></div>
+            </div>
+            <div class="ten-bars" id="ten-bars" hidden></div>
 
             <div id="equation" class="equation"></div>
 
@@ -1487,7 +1943,7 @@
             </div>
 
             <div id="choices" class="choices">
-                <div class="choices-label">こたえは？</div>
+                <div class="choices-label" id="choices-label">こたえは？</div>
                 <div class="choice-row" id="choice-row"></div>
             </div>
 
@@ -1551,6 +2007,30 @@
 
     const gameArea = document.getElementById('game-area');
     const kastensEl = document.getElementById('kastens');
+    const frameSpin = document.getElementById('frame-spin');
+    const framesContainer = document.getElementById('frames');
+    const homePanel = document.getElementById('home-panel');
+    const homeBtn = document.getElementById('home-btn');
+    const gameTitle = document.getElementById('game-title');
+    const modeAddBtn = document.getElementById('mode-add-btn');
+    const modeSubBtn = document.getElementById('mode-sub-btn');
+    const modeBunkaiBtn = document.getElementById('mode-bunkai-btn');
+    const subRandomLeftBtn = document.getElementById('sub-random-left-btn');
+    const subRandomRightBtn = document.getElementById('sub-random-right-btn');
+    const subLe5Btn = document.getElementById('sub-le5-btn');
+    const subLeftGrid = document.getElementById('sub-left-grid');
+    const subRightGrid = document.getElementById('sub-right-grid');
+    const subEnshuGrid = document.getElementById('sub-enshu-grid');
+    const bunkaiSumGrid = document.getElementById('bunkai-sum-grid');
+    const bunkaiRandomSumBtn = document.getElementById('bunkai-random-sum-btn');
+    const bunkaiEnshuGrid = document.getElementById('bunkai-enshu-grid');
+    const bunkaiDrill1Btn = document.getElementById('bunkai-drill1-btn');
+    const bunkaiDrill2Btn = document.getElementById('bunkai-drill2-btn');
+    const bunkaiDrill3Btn = document.getElementById('bunkai-drill3-btn');
+    const bunkaiDrill4Btn = document.getElementById('bunkai-drill4-btn');
+    const bunkaiDrill5Btn = document.getElementById('bunkai-drill5-btn');
+    const tenBarsEl = document.getElementById('ten-bars');
+    const choicesLabel = document.getElementById('choices-label');
     const messageEl = document.getElementById('message');
     const equationEl = document.getElementById('equation');
     const nextBtn = document.getElementById('next-btn');
@@ -1581,6 +2061,8 @@
     const changeCaption = document.getElementById('change-caption');
     const changeQuitBtn = document.getElementById('change-quit-btn');
     const countStartBtn = document.getElementById('count-start-btn');
+    const plusTokkunBtns = document.querySelectorAll('[data-plus-tokkun]');
+    const fourCirclesEl = document.getElementById('four-circles');
     const countAnimStartBtn = document.getElementById('count-anim-start-btn');
     const countContinueBtn = document.getElementById('count-continue-btn');
     const countQuitBtn = document.getElementById('count-quit-btn');
@@ -1645,11 +2127,27 @@
     let countMode = false;
     let countPhase = 'idle';
     let countShown = 0;
+    let fourPlusSpecial = null;
+    let fourPlusIndex = 1;
+    let fourPlusHintPhase = 0;
     let apples = [];
     let solves = 0;
     let harvestDone = false;
     let streak = 0;
     let lastHarvestDate = '';
+    let playMode = 'home';
+    let subLefts = new Set();
+    let subRights = new Set();
+    let subLeftLe5 = false;
+    let bunkaiSums = new Set();
+    let bunkaiTarget = 5;
+    let bunkaiRed = 2;
+    let bunkaiPhase = 'ask-blue';
+    let bunkaiSpecial = null;
+    let bunkaiQueue = [];
+    let bunkaiFlipReady = false;
+    let bunkaiHintPhase = 0;
+    let boxesInOrder = [];
 
     function wait(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1821,6 +2319,17 @@
     }
 
     function fruitStartEl() {
+        if (playMode === 'bunkai') {
+            const color = bunkaiPhase === 'ask-red' ? '.red' : '.blue';
+            const balls = framesContainer.querySelectorAll(`.ball${color}`);
+            if (showBalls && balls.length) return balls[balls.length - 1];
+            return equationEl.querySelector(bunkaiPhase === 'ask-red' ? '.eq-red' : '.eq-blue') || equationEl;
+        }
+        if (isFourPlusCircles()) {
+            const dots = fourCirclesEl ? fourCirclesEl.querySelectorAll('.four-dot') : [];
+            if (dots.length) return dots[dots.length - 1];
+            return equationEl.querySelector('.eq-sum') || equationEl;
+        }
         if (changeMode && changeView === 'quiz') {
             return changeEqTo.querySelector('.eq-sum') || changeEqTo;
         }
@@ -1887,11 +2396,36 @@
         const inChangeHint = changeMode && changeView === 'hint';
         const inChangeQuiz = changeMode && changeView === 'quiz';
         const inPanel = drillCount !== null || huntTarget !== null;
-        hintBtn.textContent = hintPhase === 1 ? '💡 もっとヒント' : '💡 ヒント';
-        hintBtn.disabled = busy || solved || !showBalls || hintPhase >= 2;
-        hintBtn.classList.toggle('hidden', solved || !showBalls || shiftMode || countMode || inChangeHint || (inChangeQuiz && !changeOp));
-        resetHintBtn.disabled = busy;
-        resetHintBtn.classList.toggle('hidden', solved || !showBalls || shiftMode || inChangeQuiz || (countMode ? countPhase !== 'done' : hintPhase === 0));
+        const scaffold = isBunkaiScaffold();
+        const maxScaffold = bunkaiKastenPhase();
+        hintBtn.textContent = (scaffold ? bunkaiHintPhase : isFourPlusCircles() ? fourPlusHintPhase : hintPhase) >= 1 ? '💡 もっとヒント' : '💡 ヒント';
+        if (playMode === 'sub') {
+            hintBtn.disabled = busy || solved || hintPhase >= 3;
+            hintBtn.classList.toggle('hidden', solved || hintPhase >= 3);
+            resetHintBtn.disabled = busy;
+            resetHintBtn.classList.toggle('hidden', solved || hintPhase < 2);
+        } else if (isFourPlusCircles()) {
+            const maxP = fourPlusMaxPhase();
+            hintBtn.disabled = busy || solved || fourPlusHintPhase >= maxP;
+            hintBtn.classList.toggle('hidden', solved || fourPlusHintPhase >= maxP);
+            resetHintBtn.disabled = busy;
+            resetHintBtn.classList.toggle('hidden', solved || fourPlusHintPhase < 1);
+        } else if (fourPlusSpecial && !isPlusCircleTokkun()) {
+            hintBtn.disabled = busy || solved || hintPhase >= 2;
+            hintBtn.classList.toggle('hidden', solved || hintPhase >= 2);
+            resetHintBtn.disabled = busy;
+            resetHintBtn.classList.toggle('hidden', solved || hintPhase === 0);
+        } else if (scaffold) {
+            hintBtn.disabled = busy || solved || bunkaiHintPhase >= maxScaffold;
+            hintBtn.classList.toggle('hidden', solved || bunkaiHintPhase >= maxScaffold);
+            resetHintBtn.disabled = busy;
+            resetHintBtn.classList.toggle('hidden', solved || bunkaiHintPhase < 1);
+        } else {
+            hintBtn.disabled = busy || solved || !showBalls || hintPhase >= 2;
+            hintBtn.classList.toggle('hidden', playMode !== 'add' || solved || !showBalls || shiftMode || countMode || inChangeHint || (inChangeQuiz && !changeOp));
+            resetHintBtn.disabled = busy;
+            resetHintBtn.classList.toggle('hidden', playMode !== 'add' || solved || !showBalls || shiftMode || inChangeQuiz || (countMode ? countPhase !== 'done' : hintPhase === 0));
+        }
         backBtn.disabled = busy;
         backBtn.classList.toggle('hidden', !(inHint || inChangeHint));
         if (countAnimStartBtn) {
@@ -1913,9 +2447,22 @@
         gameArea.classList.toggle('in-change-hint', inChangeHint);
         gameArea.classList.toggle('change-solved', inChangeQuiz && solved);
         gameArea.classList.toggle('in-count', countMode);
+        gameArea.classList.toggle('in-four-plus', isFourPlusCircles());
+        gameArea.classList.toggle('four-eq', isFourPlusCircles() && fourPlusHintPhase === 0);
+        gameArea.classList.toggle('four-circles-on', isFourPlusCircles() && fourPlusHintPhase >= 1);
         if (enshuGrid) {
             enshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
-                btn.classList.toggle('active', drillCount === Number(btn.dataset.n));
+                btn.classList.toggle('active', playMode === 'add' && !fourPlusSpecial && drillCount === Number(btn.dataset.n));
+            });
+        }
+        if (bunkaiEnshuGrid) {
+            bunkaiEnshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+                btn.classList.toggle('active', playMode === 'bunkai' && drillCount === Number(btn.dataset.n));
+            });
+        }
+        if (subEnshuGrid) {
+            subEnshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+                btn.classList.toggle('active', playMode === 'sub' && drillCount === Number(btn.dataset.n));
             });
         }
         if (huntGrid) {
@@ -1925,7 +2472,13 @@
         }
         if (shiftStartBtn) shiftStartBtn.classList.toggle('active', shiftMode);
         if (countStartBtn) countStartBtn.classList.toggle('active', countMode);
+        plusTokkunBtns.forEach((btn) => {
+            btn.classList.toggle('active', fourPlusSpecial === btn.dataset.plusTokkun);
+        });
         gameArea.classList.toggle('in-shift', shiftMode);
+        gameArea.classList.toggle('in-bunkai', playMode === 'bunkai');
+        gameArea.classList.toggle('in-sub', playMode === 'sub');
+        gameArea.classList.toggle('sub-eq', playMode === 'sub' && hintPhase === 0);
         if (shiftMode) updateShiftButtons();
         if (changeOps) {
             changeOps.querySelectorAll('[data-change]').forEach((btn) => {
@@ -1937,8 +2490,47 @@
 
     function applyDisplayMode() {
         if (!showBalls) showGrid = false;
+        document.body.classList.toggle('mode-home', playMode === 'home');
+        document.body.classList.toggle('mode-add', playMode === 'add');
+        document.body.classList.toggle('mode-sub', playMode === 'sub');
+        document.body.classList.toggle('mode-bunkai', playMode === 'bunkai');
+        gameArea.classList.toggle('in-bunkai', playMode === 'bunkai');
+        gameArea.classList.toggle('in-sub', playMode === 'sub');
+        gameArea.classList.toggle('sub-eq', playMode === 'sub' && hintPhase === 0);
         gameArea.classList.toggle('no-grid', !showGrid);
-        gameArea.classList.toggle('no-balls', !showBalls);
+        gameArea.classList.toggle('no-balls', !showBalls && !(fourPlusSpecial && isHintView() && !isPlusCircleTokkun()));
+        if (homeBtn) homeBtn.classList.toggle('hidden', playMode === 'home');
+        if (gameTitle) {
+            if (playMode === 'add') {
+                if (fourPlusSpecial) gameTitle.textContent = `🍎 ${plusTokkunTitle(fourPlusSpecial)} 🍏`;
+                else gameTitle.textContent = '🍎 たしざん 🍏';
+            }
+            else if (playMode === 'sub') gameTitle.textContent = '🍎 ひきざん 🍏';
+            else if (playMode === 'bunkai') {
+                if (bunkaiSpecial === 'drill1') gameTitle.textContent = '🍎 10特訓その1 🍏';
+                else if (bunkaiSpecial === 'drill2') gameTitle.textContent = '🍎 10特訓その2 🍏';
+                else if (bunkaiSpecial === 'drill3') gameTitle.textContent = '🍎 10特訓その3 🍏';
+                else if (bunkaiSpecial === 'drill4') gameTitle.textContent = '🍎 10特訓その4 🍏';
+                else if (bunkaiSpecial === 'drill5') gameTitle.textContent = '🍎 10特訓その5 🍏';
+                else gameTitle.textContent = '🍎 ぶんかい 🍏';
+            } else {
+                gameTitle.textContent = '🍎 ヌマーカステン 🍏';
+            }
+        }
+        document.title = playMode === 'add'
+            ? (fourPlusSpecial ? plusTokkunTitle(fourPlusSpecial) : 'たしざん')
+            : playMode === 'sub' ? 'ひきざん' : playMode === 'bunkai' ? 'ぶんかい' : 'ヌマーカステン';
+        if (choicesLabel) {
+            if (playMode === 'bunkai') {
+                if (isBunkaiScaffold() && bunkaiHintPhase < bunkaiKastenPhase()) {
+                    choicesLabel.textContent = 'いくつ たす？';
+                } else if (!showBalls) choicesLabel.textContent = 'いくつ たす？';
+                else if (bunkaiPhase === 'ask-red') choicesLabel.textContent = 'あかだま は いくつ？';
+                else choicesLabel.textContent = 'あおだま は いくつ？';
+            } else {
+                choicesLabel.textContent = 'こたえは？';
+            }
+        }
         document.querySelectorAll('.ctrl-btn[data-setting]').forEach((btn) => {
             const on = btn.dataset.setting === 'grid' ? showGrid : showBalls;
             btn.classList.toggle('active', (btn.dataset.value === 'on') === on);
@@ -1956,6 +2548,37 @@
         sumGrid.querySelectorAll('.sum-btn').forEach((btn) => {
             btn.classList.toggle('active', selectedSums.has(Number(btn.dataset.n)));
         });
+        if (bunkaiRandomSumBtn) {
+            bunkaiRandomSumBtn.classList.toggle('active', bunkaiSpecial === null && bunkaiSums.size === 0);
+        }
+        if (bunkaiSumGrid) {
+            bunkaiSumGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+                btn.classList.toggle('active', bunkaiSpecial === null && bunkaiSums.has(Number(btn.dataset.n)));
+            });
+        }
+        if (bunkaiDrill1Btn) bunkaiDrill1Btn.classList.toggle('active', bunkaiSpecial === 'drill1');
+        if (bunkaiDrill2Btn) bunkaiDrill2Btn.classList.toggle('active', bunkaiSpecial === 'drill2');
+        if (bunkaiDrill3Btn) bunkaiDrill3Btn.classList.toggle('active', bunkaiSpecial === 'drill3');
+        if (bunkaiDrill4Btn) bunkaiDrill4Btn.classList.toggle('active', bunkaiSpecial === 'drill4');
+        if (bunkaiDrill5Btn) bunkaiDrill5Btn.classList.toggle('active', bunkaiSpecial === 'drill5');
+        if (subRandomLeftBtn) subRandomLeftBtn.classList.toggle('active', !subLeftLe5 && subLefts.size === 0);
+        if (subRandomRightBtn) subRandomRightBtn.classList.toggle('active', subRights.size === 0);
+        if (subLe5Btn) subLe5Btn.classList.toggle('active', subLeftLe5);
+        if (subLeftGrid) {
+            subLeftGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+                btn.classList.toggle('active', subLefts.has(Number(btn.dataset.n)));
+            });
+        }
+        if (subRightGrid) {
+            const maxL = maxSubLeft();
+            subRightGrid.querySelectorAll('.fix-btn, .sum-btn').forEach((btn) => {
+                const n = Number(btn.dataset.n);
+                const tooBig = n >= maxL;
+                btn.disabled = tooBig;
+                btn.classList.toggle('active', !tooBig && subRights.has(n));
+            });
+        }
+        updateBunkaiScaffold();
         document.querySelectorAll('.move-btn').forEach((btn) => {
             btn.classList.toggle('active', btn.dataset.move === moveMode);
         });
@@ -1967,26 +2590,32 @@
         if (!choiceRow) return;
         choiceRow.querySelectorAll('.choice-btn').forEach((btn) => {
             const n = Number(btn.dataset.n);
-            btn.classList.toggle('hidden', changeMode && n > 9);
+            btn.classList.toggle('hidden', (changeMode && n > 9) || (playMode === 'bunkai' && n > bunkaiTarget) || (playMode === 'sub' && n > leftNum));
         });
     }
 
     function refreshEquation(sumValue = null) {
+        if (playMode === 'bunkai') {
+            refreshBunkaiEquation(sumValue);
+            return;
+        }
         const rightPart = `<span class="eq-blue">${rightNum}</span>`;
         const leftPart = `<span class="eq-red">${leftNum}</span>`;
+        const op = playMode === 'sub' ? '−' : '+';
+        const total = playMode === 'sub' ? leftNum - rightNum : leftNum + rightNum;
         if (shiftMode || changeMode) {
             equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-sum">${leftNum + rightNum}</span>`;
             return;
         }
         if (solved && sumValue === null) {
-            equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-sum">${leftNum + rightNum}</span>`;
+            equationEl.innerHTML = `${leftPart} ${op} ${rightPart} = <span class="eq-sum">${total}</span>`;
             return;
         }
         if (sumValue !== null) {
-            equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-sum">${sumValue}</span>`;
+            equationEl.innerHTML = `${leftPart} ${op} ${rightPart} = <span class="eq-sum">${sumValue}</span>`;
             return;
         }
-        equationEl.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-blank">□</span>`;
+        equationEl.innerHTML = `${leftPart} ${op} ${rightPart} = <span class="eq-blank">□</span>`;
     }
 
     function makeBox() {
@@ -2051,6 +2680,14 @@
     }
 
     function promptMessage() {
+        if (playMode === 'bunkai') return bunkaiPrompt();
+        if (isFourPlusCircles()) return fourPlusPrompt();
+        if (playMode === 'sub') {
+            if (hintPhase === 1) return `<strong>${leftNum}</strong> の ヌマーカステン だよ`;
+            if (hintPhase === 2) return `<strong>${rightNum}</strong> こ が きえるよ`;
+            if (hintPhase === 3) return 'のこり は いくつ？';
+            return `<strong>${leftNum}</strong> ひく <strong>${rightNum}</strong> は いくつ？`;
+        }
         return `あか の <strong>${leftNum}</strong> と あお の <strong>${rightNum}</strong>。<br>あわせて いくつ？`;
     }
 
@@ -2177,6 +2814,72 @@
         return uniquePairs(fallback);
     }
 
+    function uniqueSubPairs(pairs) {
+        const seen = new Set();
+        const unique = [];
+        for (const [l, r] of pairs) {
+            if (l < 1 || r < 1 || l > 10 || r > 9 || l <= r) continue;
+            const key = `${l}-${r}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            unique.push([l, r]);
+        }
+        return unique;
+    }
+
+    function maxSubLeft() {
+        if (subLeftLe5) return 5;
+        if (subLefts.size) return Math.max(...subLefts);
+        return 10;
+    }
+
+    function pruneSubRights() {
+        const maxL = maxSubLeft();
+        for (const r of [...subRights]) {
+            if (r >= maxL) subRights.delete(r);
+        }
+    }
+
+    function subLeftPool() {
+        if (subLeftLe5) return [1, 2, 3, 4, 5];
+        if (subLefts.size) return [...subLefts];
+        return Array.from({ length: 10 }, (_, i) => i + 1);
+    }
+
+    function subRightPool() {
+        const maxL = maxSubLeft();
+        if (subRights.size) return [...subRights].filter((r) => r < maxL);
+        return Array.from({ length: 9 }, (_, i) => i + 1).filter((r) => r < maxL);
+    }
+
+    function collectSubPairs() {
+        const lefts = subLeftPool();
+        const rights = subRightPool();
+        const pairs = [];
+        for (const l of lefts) {
+            for (const r of rights) {
+                if (l > r) pairs.push([l, r]);
+            }
+        }
+        let unique = uniqueSubPairs(pairs);
+        if (unique.length) return unique;
+        for (const l of lefts) {
+            for (let r = 1; r < l && r <= 9; r++) pairs.push([l, r]);
+        }
+        unique = uniqueSubPairs(pairs);
+        if (unique.length) return unique;
+        return [[7, 2]];
+    }
+
+    function pickSubAddends() {
+        return choosePair(collectSubPairs());
+    }
+
+    function pickSubSet(n) {
+        const pool = shuffleInPlace(collectSubPairs());
+        return pool.slice(0, Math.max(1, Math.min(n, pool.length)));
+    }
+
     function pickHuntSet(target, n = 20) {
         const bands = new Map();
         for (const [l, r] of allAddendPairs()) {
@@ -2199,6 +2902,27 @@
     }
 
     function refreshProblems() {
+        if (playMode === 'home') return;
+        if (fourPlusSpecial) {
+            startPlusTokkun(fourPlusSpecial);
+            return;
+        }
+        if (playMode === 'bunkai') {
+            if (drillCount !== null) {
+                startDrill(drillCount);
+                return;
+            }
+            initBunkaiGame();
+            return;
+        }
+        if (playMode === 'sub') {
+            if (drillCount !== null) {
+                startDrill(drillCount);
+                return;
+            }
+            initSubGame();
+            return;
+        }
         if (countMode) {
             startCount();
             return;
@@ -2250,6 +2974,7 @@
         clearShiftMode();
         clearChangeMode();
         clearCountMode();
+        clearFourPlusMode();
         huntTarget = null;
         huntItems = [];
         huntFocus = null;
@@ -2260,11 +2985,29 @@
         busy = false;
         solved = false;
         hintPhase = 0;
-        drillItems = pickUniqueSet(n).map(([l, r]) => ({
-            left: l,
-            right: r,
-            solved: false
-        }));
+        if (playMode === 'bunkai') {
+            bunkaiSpecial = null;
+            bunkaiFlipReady = false;
+            bunkaiPhase = 'ask-blue';
+            resetBunkaiSpin();
+            drillItems = pickBunkaiSet(n).map(([l, r]) => ({
+                left: l,
+                right: r,
+                solved: false
+            }));
+        } else if (playMode === 'sub') {
+            drillItems = pickSubSet(n).map(([l, r]) => ({
+                left: l,
+                right: r,
+                solved: false
+            }));
+        } else {
+            drillItems = pickUniqueSet(n).map(([l, r]) => ({
+                left: l,
+                right: r,
+                solved: false
+            }));
+        }
         nextBtn.classList.add('hidden');
         choicesEl.classList.add('hidden');
         setChoicesEnabled(true);
@@ -2273,7 +3016,7 @@
     }
 
     function quitActivity() {
-        if (busy && !countMode) return;
+        if (busy && !countMode && !isFourPlusCircles()) return;
         document.querySelectorAll('.ball.flying').forEach((el) => el.remove());
         busy = false;
         drillCount = null;
@@ -2287,13 +3030,17 @@
         clearShiftMode();
         clearChangeMode();
         clearCountMode();
-        initGame();
+        clearFourPlusMode();
+        if (playMode === 'bunkai') initBunkaiGame();
+        else if (playMode === 'sub') initSubGame();
+        else initGame();
     }
 
     function startHunt(target) {
         clearShiftMode();
         clearChangeMode();
         clearCountMode();
+        clearFourPlusMode();
         drillCount = null;
         drillItems = [];
         drillFocus = null;
@@ -2353,6 +3100,7 @@
         renderDrillList();
         choicesEl.classList.remove('hidden');
         setChoicesEnabled(true);
+        updateChoiceRange();
     }
 
     function openItemHint(index) {
@@ -2371,11 +3119,27 @@
         }
         leftNum = item.left;
         rightNum = item.right;
+        if (playMode === 'bunkai') {
+            bunkaiTarget = item.left + item.right;
+            bunkaiRed = item.left;
+            bunkaiPhase = 'ask-blue';
+            resetBunkaiSpin();
+        }
         solved = false;
-        hintPhase = 0;
+        hintPhase = playMode === 'sub' ? 1 : 0;
+        if (isPlusCircleTokkun()) fourPlusHintPhase = 1;
+        else fourPlusHintPhase = 0;
         choicesEl.classList.add('hidden');
         messageEl.innerHTML = promptMessage();
-        renderKastens();
+        if (playMode === 'bunkai') renderBunkaiFrames();
+        else if (playMode === 'sub') renderSubKasten();
+        else if (isPlusCircleTokkun()) {
+            kastensEl.innerHTML = '';
+            renderFourCircles(1);
+        } else {
+            renderFourCircles(0);
+            renderKastens();
+        }
         applyDisplayMode();
     }
 
@@ -2386,8 +3150,10 @@
             return;
         }
         hintPhase = 0;
+        fourPlusHintPhase = 0;
         solved = false;
-        document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+        document.querySelectorAll('.num-chip, .four-dot.flying-dot').forEach((el) => el.remove());
+        renderFourCircles(0);
         choicesEl.classList.add('hidden');
         if (huntTarget !== null) {
             huntView = 'list';
@@ -2400,6 +3166,23 @@
     }
 
     function drillSettingsLabel() {
+        if (fourPlusSpecial) return plusTokkunTitle(fourPlusSpecial);
+        if (playMode === 'bunkai') {
+            let sumLabel = 'ランダム';
+            if (bunkaiSums.size > 0) {
+                sumLabel = [...bunkaiSums].sort((a, b) => a - b).join(',');
+            }
+            return `分解 合計 ${sumLabel}`;
+        }
+        if (playMode === 'sub') {
+            let leftLabel = 'ランダム';
+            if (subLeftLe5) leftLabel = '5以下';
+            else if (subLefts.size > 0) leftLabel = [...subLefts].sort((a, b) => a - b).join(',');
+            const rightLabel = subRights.size > 0
+                ? [...subRights].sort((a, b) => a - b).join(',')
+                : 'ランダム';
+            return `引き算 左 ${leftLabel}、右 ${rightLabel}`;
+        }
         let sumLabel = 'ランダム';
         if (selectedSums.size > 0) {
             sumLabel = [...selectedSums].sort((a, b) => a - b).join(',');
@@ -2452,7 +3235,24 @@
             eq.className = 'drill-item-eq';
             const leftPart = `<span class="eq-red">${item.left}</span>`;
             const rightPart = `<span class="eq-blue">${item.right}</span>`;
-            if (item.solved) {
+            if (playMode === 'bunkai') {
+                const sumPart = `<span class="eq-sum">${item.left + item.right}</span>`;
+                if (item.solved) {
+                    eq.innerHTML = `${leftPart} + <span class="eq-fill eq-blue">${item.right}</span> = ${sumPart}`;
+                } else {
+                    eq.innerHTML = `${leftPart} + <button type="button" class="eq-fill eq-blank-btn">□</button> = ${sumPart}`;
+                    const blank = eq.querySelector('.eq-blank-btn');
+                    blank.addEventListener('click', () => selectDrillItem(i));
+                }
+            } else if (playMode === 'sub') {
+                if (item.solved) {
+                    eq.innerHTML = `${leftPart} − ${rightPart} = <span class="eq-fill eq-sum">${item.left - item.right}</span>`;
+                } else {
+                    eq.innerHTML = `${leftPart} − ${rightPart} = <button type="button" class="eq-fill eq-blank-btn">□</button>`;
+                    const blank = eq.querySelector('.eq-blank-btn');
+                    blank.addEventListener('click', () => selectDrillItem(i));
+                }
+            } else if (item.solved) {
                 eq.innerHTML = `${leftPart} + ${rightPart} = <span class="eq-fill eq-sum">${item.left + item.right}</span>`;
             } else {
                 eq.innerHTML = `${leftPart} + ${rightPart} = <button type="button" class="eq-fill eq-blank-btn">□</button>`;
@@ -2470,7 +3270,7 @@
                 hint.type = 'button';
                 hint.className = 'hint-btn drill-hint-mini';
                 hint.textContent = '💡 ヒント';
-                hint.disabled = !showBalls;
+                hint.disabled = playMode !== 'sub' && !fourPlusSpecial && !showBalls;
                 hint.addEventListener('click', () => openItemHint(i));
                 row.appendChild(hint);
             }
@@ -2584,6 +3384,7 @@
     function startShift() {
         clearChangeMode();
         clearCountMode();
+        clearFourPlusMode();
         drillCount = null;
         drillItems = [];
         drillFocus = null;
@@ -2783,6 +3584,7 @@
     function startChange(selected) {
         clearShiftMode();
         clearCountMode();
+        clearFourPlusMode();
         drillCount = null;
         drillItems = [];
         drillFocus = null;
@@ -2948,6 +3750,340 @@
         countShown = 0;
     }
 
+    function plusTokkunTitle(key) {
+        if (!key) return '';
+        const parts = String(key).split('-');
+        return `${parts[0]}+特訓その${parts[1]}`;
+    }
+
+    function isPlusCircleTokkun() {
+        return playMode === 'add' && (fourPlusSpecial === '4-2' || fourPlusSpecial === '4-3');
+    }
+
+    function isFourPlusCircles() {
+        return isPlusCircleTokkun() && isHintView();
+    }
+
+    function plusTokkunItems(key) {
+        const [baseStr, partStr] = String(key).split('-');
+        const base = Number(baseStr);
+        const part = Number(partStr);
+        let ns = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        if (base === 4) {
+            if (part === 3) ns = shuffleInPlace(ns.slice());
+            return ns.map((n) => ({ left: 4, right: n, solved: false }));
+        }
+        if (part === 2 || part === 4) ns = shuffleInPlace(ns.slice());
+        const addendRight = part >= 3;
+        return ns.map((n) => addendRight
+            ? { left: base, right: n, solved: false }
+            : { left: n, right: base, solved: false });
+    }
+
+    function fourPlusMaxPhase() {
+        return rightNum <= 1 ? 2 : 4;
+    }
+
+    function fourPlusPrompt() {
+        const n = rightNum;
+        const rest = n - 1;
+        const sum = 4 + n;
+        if (fourPlusHintPhase === 1) return `<strong>4</strong> と <strong>${n}</strong>`;
+        if (n > 1 && fourPlusHintPhase === 2) return `<strong>${n}</strong> を <strong>1</strong> と <strong>${rest}</strong> に わけるよ`;
+        if ((n === 1 && fourPlusHintPhase === 2) || (n > 1 && fourPlusHintPhase === 3)) {
+            return `<strong>4</strong> と <strong>1</strong> で <strong>5</strong>`;
+        }
+        if (n > 1 && fourPlusHintPhase === 4) return `<strong>5</strong> と <strong>${rest}</strong> で <strong>${sum}</strong>`;
+        return `<strong>4</strong> たす <strong>${n}</strong> は いくつ？`;
+    }
+
+    function clearFourPlusMode() {
+        fourPlusSpecial = null;
+        fourPlusHintPhase = 0;
+        fourPlusIndex = 1;
+        if (fourCirclesEl) {
+            fourCirclesEl.innerHTML = '';
+            fourCirclesEl.hidden = true;
+        }
+        document.querySelectorAll('.four-dot.flying-dot').forEach((el) => el.remove());
+    }
+
+    function fourDotSize(n) {
+        return Math.round(50 + n * 11);
+    }
+
+    function makeFourDot(n, color, id) {
+        const el = document.createElement('div');
+        el.className = 'four-dot ' + color;
+        el.dataset.id = id;
+        el.dataset.n = String(n);
+        const size = fourDotSize(n);
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
+        el.style.fontSize = `${Math.max(22, Math.round(size * 0.42))}px`;
+        el.textContent = String(n);
+        return el;
+    }
+
+    function makeFourPlusSign() {
+        const el = document.createElement('div');
+        el.className = 'four-plus-sign';
+        el.textContent = '+';
+        return el;
+    }
+
+    function renderFourCircles(phase) {
+        if (!fourCirclesEl) return;
+        fourCirclesEl.innerHTML = '';
+        fourCirclesEl.hidden = phase < 1;
+        const n = rightNum;
+        const rest = n - 1;
+        if (phase < 1) return;
+        if (phase === 1) {
+            fourCirclesEl.append(makeFourDot(4, 'red', 'left'), makeFourPlusSign(), makeFourDot(n, 'blue', 'right'));
+            return;
+        }
+        if (n === 1) {
+            fourCirclesEl.append(makeFourDot(5, 'five', 'five'));
+            return;
+        }
+        if (phase === 2) {
+            fourCirclesEl.append(
+                makeFourDot(4, 'red', 'left'),
+                makeFourPlusSign(),
+                makeFourDot(1, 'blue', 'one'),
+                makeFourDot(rest, 'blue', 'rest')
+            );
+            return;
+        }
+        if (phase === 3) {
+            fourCirclesEl.append(makeFourDot(5, 'five', 'five'), makeFourPlusSign(), makeFourDot(rest, 'blue', 'rest'));
+            return;
+        }
+        fourCirclesEl.append(makeFourDot(4 + n, 'sum', 'sum'));
+    }
+
+    async function animateFourSplit() {
+        const n = rightNum;
+        const rest = n - 1;
+        const src = fourCirclesEl && fourCirclesEl.querySelector('[data-id="right"]');
+        if (!src || n <= 1) {
+            renderFourCircles(2);
+            return;
+        }
+        try {
+            const origin = src.getBoundingClientRect();
+            const originFont = getComputedStyle(src).fontSize;
+            src.style.visibility = 'hidden';
+
+            const size1 = fourDotSize(1);
+            const size2 = fourDotSize(rest);
+            const gap = 18;
+            const cx = origin.left + origin.width / 2;
+            const cy = origin.top + origin.height / 2;
+            const r1 = { left: cx - gap / 2 - size1, top: cy - size1 / 2, width: size1, height: size1 };
+            const r2 = { left: cx + gap / 2, top: cy - size2 / 2, width: size2, height: size2 };
+
+            const makeFly = (keepNumber) => {
+                const fly = makeFourDot(n, 'blue', 'split');
+                fly.classList.add('flying-dot');
+                fly.style.left = `${origin.left}px`;
+                fly.style.top = `${origin.top}px`;
+                fly.style.width = `${origin.width}px`;
+                fly.style.height = `${origin.height}px`;
+                fly.style.fontSize = originFont;
+                if (!keepNumber) fly.textContent = '';
+                document.body.appendChild(fly);
+                return fly;
+            };
+            const fly1 = makeFly(true);
+            const fly2 = makeFly(false);
+            let labeled = false;
+            const mix = (a, b, t) => a + (b - a) * t;
+            const duration = 1080;
+            const start = performance.now();
+
+            const poseAt = (t) => {
+                if (t < 0.16) {
+                    const p = t / 0.16;
+                    return { u: 0, squash: 1 - 0.12 * Math.sin(p * Math.PI), hop: 4 * p, pinch: 0 };
+                }
+                if (t < 0.46) {
+                    const p = (t - 0.16) / 0.3;
+                    return { u: 0.26 * p, squash: 0.84, hop: 0, pinch: p };
+                }
+                if (t < 0.7) {
+                    const p = (t - 0.46) / 0.24;
+                    const snap = p * p;
+                    return {
+                        u: 0.26 + 0.9 * snap,
+                        squash: 0.82 + 0.06 * p,
+                        hop: -22 * Math.sin(p * Math.PI),
+                        pinch: 1 - p
+                    };
+                }
+                const p = (t - 0.7) / 0.3;
+                const settle = 1.16 + (1 - 1.16) * (1 - Math.pow(1 - p, 3));
+                return {
+                    u: settle,
+                    squash: 1 - 0.18 * Math.sin(p * Math.PI) * (1 - p),
+                    hop: 10 * (1 - p) * Math.sin(p * Math.PI * 2),
+                    pinch: 0
+                };
+            };
+
+            const place = (fly, toRect, newN, side, pose) => {
+                const dx = toRect.left - origin.left;
+                const dy = toRect.top - origin.top;
+                const grow = Math.min(1, pose.u);
+                const w = mix(origin.width, toRect.width, grow);
+                const h = mix(origin.height, toRect.height, grow) * pose.squash;
+                fly.style.left = `${origin.left + dx * pose.u}px`;
+                fly.style.top = `${origin.top + dy * pose.u + pose.hop}px`;
+                fly.style.width = `${w}px`;
+                fly.style.height = `${h}px`;
+                fly.style.borderRadius = pose.pinch > 0.05
+                    ? (side === 'left' ? '46% 70% 70% 46%' : '70% 46% 46% 70%')
+                    : '50%';
+                if (!labeled && pose.u > 0.4) {
+                    labeled = true;
+                    fly1.textContent = '1';
+                    fly1.style.fontSize = `${Math.max(22, Math.round(size1 * 0.42))}px`;
+                    fly2.textContent = String(rest);
+                    fly2.style.fontSize = `${Math.max(22, Math.round(size2 * 0.42))}px`;
+                }
+            };
+
+            await new Promise((resolve) => {
+                const tick = (now) => {
+                    const t = Math.min(1, (now - start) / duration);
+                    const pose = poseAt(t);
+                    place(fly1, r1, 1, 'left', pose);
+                    place(fly2, r2, rest, 'right', pose);
+                    if (t < 1) requestAnimationFrame(tick);
+                    else resolve();
+                };
+                requestAnimationFrame(tick);
+            });
+
+            fly1.remove();
+            fly2.remove();
+            renderFourCircles(2);
+        } catch (err) {
+            document.querySelectorAll('.four-dot.flying-dot').forEach((el) => el.remove());
+            renderFourCircles(2);
+        }
+    }
+
+    async function animateFourMerge(ids, nextPhase) {
+        const dots = ids.map((id) => fourCirclesEl.querySelector(`[data-id="${id}"]`)).filter(Boolean);
+        if (dots.length < 2) {
+            renderFourCircles(nextPhase);
+            return;
+        }
+        const n = nextPhase === 4 || (rightNum === 1 && nextPhase === 2) ? 4 + rightNum : 5;
+        const targetSize = fourDotSize(n);
+        const rects = dots.map((dot) => dot.getBoundingClientRect());
+        const cx = rects.reduce((s, r) => s + r.left + r.width / 2, 0) / rects.length;
+        const cy = rects.reduce((s, r) => s + r.top + r.height / 2, 0) / rects.length;
+        const flies = dots.map((dot, i) => {
+            const fly = dot.cloneNode(true);
+            fly.classList.add('flying-dot');
+            fly.style.left = `${rects[i].left}px`;
+            fly.style.top = `${rects[i].top}px`;
+            fly.style.width = `${rects[i].width}px`;
+            fly.style.height = `${rects[i].height}px`;
+            fly.style.fontSize = getComputedStyle(dot).fontSize;
+            document.body.appendChild(fly);
+            dot.style.visibility = 'hidden';
+            return fly;
+        });
+        await Promise.all(flies.map((fly, i) => {
+            const from = rects[i];
+            const dx = cx - targetSize / 2 - from.left;
+            const dy = cy - targetSize / 2 - from.top;
+            return fly.animate([
+                { transform: 'translate(0, 0) scale(1)', offset: 0 },
+                { transform: `translate(${dx}px, ${dy}px) scale(${targetSize / from.width})`, offset: 1 }
+            ], {
+                duration: 700,
+                easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                fill: 'forwards'
+            }).finished;
+        }));
+        flies.forEach((fly) => fly.remove());
+        renderFourCircles(nextPhase);
+    }
+
+    async function onFourPlusHint() {
+        if (busy || solved || !isFourPlusCircles()) return;
+        const maxP = fourPlusMaxPhase();
+        if (fourPlusHintPhase >= maxP) return;
+        const next = fourPlusHintPhase + 1;
+        const n = rightNum;
+        if (next === 1) {
+            fourPlusHintPhase = 1;
+            renderFourCircles(1);
+            messageEl.innerHTML = fourPlusPrompt();
+            applyDisplayMode();
+            return;
+        }
+        busy = true;
+        updateHintButton();
+        try {
+            if (n === 1 && next === 2) {
+                await animateFourMerge(['left', 'right'], 2);
+            } else if (n > 1 && next === 2) {
+                await animateFourSplit();
+            } else if (n > 1 && next === 3) {
+                await animateFourMerge(['left', 'one'], 3);
+            } else if (n > 1 && next === 4) {
+                await animateFourMerge(['five', 'rest'], 4);
+            } else {
+                renderFourCircles(next);
+            }
+            fourPlusHintPhase = next;
+            messageEl.innerHTML = fourPlusPrompt();
+        } finally {
+            busy = false;
+            applyDisplayMode();
+        }
+    }
+
+    function startPlusTokkun(kind) {
+        if (busy && !isFourPlusCircles()) return;
+        document.querySelectorAll('.ball.flying, .four-dot.flying-dot, .num-chip').forEach((el) => el.remove());
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        huntTarget = null;
+        huntItems = [];
+        huntFocus = null;
+        huntView = 'list';
+        fourPlusSpecial = kind;
+        fourPlusHintPhase = 0;
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        nextBtn.classList.add('hidden');
+        drillCount = 9;
+        drillView = 'list';
+        drillFocus = null;
+        drillItems = plusTokkunItems(kind);
+        if (drillItems[0]) {
+            leftNum = drillItems[0].left;
+            rightNum = drillItems[0].right;
+            lastLeft = leftNum;
+            lastRight = rightNum;
+        }
+        choicesEl.classList.add('hidden');
+        setChoicesEnabled(true);
+        renderFourCircles(0);
+        kastensEl.innerHTML = '';
+        renderDrillList();
+        applyDisplayMode();
+    }
+
     function pickCountPair() {
         const pairs = [];
         for (let small = 1; small <= 3; small++) {
@@ -3073,6 +4209,7 @@
         huntView = 'list';
         clearShiftMode();
         clearChangeMode();
+        clearFourPlusMode();
         countMode = true;
         countPhase = 'idle';
         countShown = 0;
@@ -3092,10 +4229,576 @@
         applyDisplayMode();
     }
 
+    function bunkaiActiveSums() {
+        if (bunkaiSpecial) return [10];
+        if (bunkaiSums.size > 0) return [...bunkaiSums].sort((a, b) => a - b);
+        return [2, 3, 4, 5, 6, 7, 8, 9, 10];
+    }
+
+    function collectBunkaiPairs() {
+        const pairs = [];
+        for (const sum of bunkaiActiveSums()) {
+            for (let red = 1; red < sum; red++) {
+                pairs.push([red, sum - red]);
+            }
+        }
+        if (!pairs.length) pairs.push([1, 1]);
+        return pairs;
+    }
+
+    function pickBunkaiSet(n) {
+        const pool = shuffleInPlace(collectBunkaiPairs());
+        return pool.slice(0, Math.max(1, Math.min(n, pool.length)));
+    }
+
+    function bunkaiKnown() {
+        return bunkaiPhase === 'ask-red' ? bunkaiTarget - bunkaiRed : bunkaiRed;
+    }
+
+    function bunkaiNeeded() {
+        return bunkaiTarget - bunkaiKnown();
+    }
+
+    function bunkaiFillColor() {
+        return bunkaiPhase === 'ask-red' ? 'red' : 'blue';
+    }
+
+    function isBunkaiScaffold() {
+        return playMode === 'bunkai' && (bunkaiSpecial === 'drill4' || bunkaiSpecial === 'drill5');
+    }
+
+    function bunkaiKastenPhase() {
+        return bunkaiSpecial === 'drill5' ? 3 : 2;
+    }
+
+    function makeTenBar(units, kind, label) {
+        const bar = document.createElement('div');
+        bar.className = 'ten-bar ten-bar-' + kind;
+        bar.style.gridColumn = `span ${Math.max(1, units)}`;
+        if (label) bar.textContent = label;
+        return bar;
+    }
+
+    function renderTenBars() {
+        if (!tenBarsEl) return;
+        tenBarsEl.innerHTML = '';
+        const red = bunkaiRed;
+        const top = document.createElement('div');
+        top.className = 'ten-bars-row';
+        const bottom = document.createElement('div');
+        bottom.className = 'ten-bars-row';
+        if (bunkaiSpecial === 'drill4') {
+            const extra = Math.max(0, red - 5);
+            if (extra > 0) {
+                top.appendChild(makeTenBar(extra, 'red', String(extra)));
+                top.appendChild(makeTenBar(5 - extra, 'empty', ''));
+            } else {
+                top.appendChild(makeTenBar(5, 'empty', ''));
+            }
+            bottom.appendChild(makeTenBar(5, 'red', '5'));
+        } else {
+            const filled = bunkaiHintPhase >= 2;
+            top.appendChild(makeTenBar(5, filled ? 'blue' : 'empty', filled ? '5' : ''));
+            bottom.appendChild(makeTenBar(red, 'red', String(red)));
+            const rest = 5 - red;
+            if (rest > 0) {
+                bottom.appendChild(makeTenBar(rest, filled ? 'blue' : 'empty', filled ? String(rest) : ''));
+            }
+        }
+        tenBarsEl.appendChild(top);
+        tenBarsEl.appendChild(bottom);
+    }
+
+    function updateBunkaiScaffold() {
+        const scaffold = isBunkaiScaffold();
+        const kastenAt = bunkaiKastenPhase();
+        const atEq = scaffold && bunkaiHintPhase === 0;
+        const atBars = scaffold && bunkaiHintPhase > 0 && bunkaiHintPhase < kastenAt;
+        const atKasten = scaffold && bunkaiHintPhase >= kastenAt;
+        gameArea.classList.toggle('scaffold-eq', atEq);
+        gameArea.classList.toggle('scaffold-bars', atBars);
+        gameArea.classList.toggle('scaffold-kasten', atKasten);
+        if (tenBarsEl) {
+            tenBarsEl.hidden = !atBars;
+            if (atBars) renderTenBars();
+        }
+    }
+
+    function onBunkaiScaffoldHint() {
+        if (busy || solved || !isBunkaiScaffold()) return;
+        if (bunkaiHintPhase >= bunkaiKastenPhase()) return;
+        bunkaiHintPhase += 1;
+        if (bunkaiHintPhase >= bunkaiKastenPhase()) renderBunkaiFrames();
+        messageEl.innerHTML = bunkaiPrompt();
+        applyDisplayMode();
+    }
+
+    function bunkaiPrompt() {
+        const known = bunkaiKnown();
+        if (isBunkaiScaffold() && bunkaiHintPhase < bunkaiKastenPhase()) {
+            return `<strong>${known}</strong> に いくつ たせば <strong>${bunkaiTarget}</strong> になるかな？`;
+        }
+        if (showBalls) {
+            if (bunkaiPhase === 'ask-red') {
+                return `あお が <strong>${known}</strong> こ あるよ。<br>あかだま は いくつ いるかな？`;
+            }
+            return `あか が <strong>${known}</strong> こ あるよ。<br>あお を いれて <strong>${bunkaiTarget}</strong> に しよう！`;
+        }
+        return `<strong>${known}</strong> に いくつ たせば <strong>${bunkaiTarget}</strong> になるかな？`;
+    }
+
+    function refreshBunkaiEquation(fillValue = null) {
+        const known = bunkaiKnown();
+        const knownClass = bunkaiPhase === 'ask-red' ? 'eq-blue' : 'eq-red';
+        const fillClass = bunkaiPhase === 'ask-red' ? 'eq-red' : 'eq-blue';
+        if (solved && fillValue === null) {
+            equationEl.innerHTML =
+                `<span class="${knownClass}">${known}</span> + <span class="${fillClass}">${bunkaiNeeded()}</span> = <span class="eq-sum">${bunkaiTarget}</span>`;
+            return;
+        }
+        if (fillValue !== null) {
+            equationEl.innerHTML =
+                `<span class="${knownClass}">${known}</span> + <span class="${fillClass}">${fillValue}</span> = <span class="eq-sum">${bunkaiTarget}</span>`;
+            return;
+        }
+        equationEl.innerHTML =
+            `<span class="${knownClass}">${known}</span> + <span class="eq-blank">□</span> = <span class="eq-sum">${bunkaiTarget}</span>`;
+    }
+
+    function resetBunkaiSpin() {
+        if (!frameSpin) return;
+        frameSpin.getAnimations().forEach((anim) => anim.cancel());
+        frameSpin.classList.remove('spinning');
+        frameSpin.style.transform = '';
+    }
+
+    function emptyBunkaiBoxes() {
+        return boxesInOrder.filter((box) => !box.querySelector('.ball'));
+    }
+
+    function renderBunkaiFrames() {
+        framesContainer.innerHTML = '';
+        boxesInOrder = [];
+        const bottomCount = Math.min(5, bunkaiTarget);
+        const topCount = Math.max(0, bunkaiTarget - 5);
+        const bottomRow = document.createElement('div');
+        bottomRow.className = 'frame-row';
+        const topRow = document.createElement('div');
+        topRow.className = 'frame-row';
+        for (let i = 0; i < bottomCount; i++) {
+            const box = makeBox();
+            bottomRow.appendChild(box);
+            boxesInOrder.push(box);
+        }
+        for (let i = 0; i < topCount; i++) {
+            const box = makeBox();
+            topRow.appendChild(box);
+            boxesInOrder.push(box);
+        }
+        if (topCount > 0) framesContainer.appendChild(topRow);
+        framesContainer.appendChild(bottomRow);
+        const filled = bunkaiPhase === 'ask-red' ? bunkaiTarget - bunkaiRed : bunkaiRed;
+        const color = bunkaiPhase === 'ask-red' ? 'blue' : 'red';
+        boxesInOrder.forEach((box, i) => {
+            if (i < filled) {
+                const ball = document.createElement('div');
+                ball.className = `ball ${color}`;
+                box.appendChild(ball);
+            }
+        });
+    }
+
+    function bunkaiPairOpts() {
+        if (bunkaiSpecial === 'drill1' || bunkaiSpecial === 'drill2' || bunkaiSpecial === 'drill4') {
+            return [5, 6, 7, 8, 9].map((red) => `${10}-${red}`);
+        }
+        if (bunkaiSpecial === 'drill3' || bunkaiSpecial === 'drill5') {
+            return [1, 2, 3, 4].map((red) => `${10}-${red}`);
+        }
+        const opts = [];
+        for (const sum of bunkaiActiveSums()) {
+            for (let red = 1; red < sum; red++) {
+                opts.push(`${sum}-${red}`);
+            }
+        }
+        return opts.length ? opts : ['2-1'];
+    }
+
+    function buildFairQueue(opts, length, avoidStart = '') {
+        if (!opts.length) return Array(length).fill('2-1');
+        const counts = {};
+        opts.forEach((n) => { counts[n] = 0; });
+        const base = Math.floor(length / opts.length);
+        let extra = length % opts.length;
+        shuffleInPlace(opts.slice()).forEach((n) => {
+            counts[n] = base + (extra > 0 ? 1 : 0);
+            if (extra > 0) extra -= 1;
+        });
+        const result = [];
+        let last = avoidStart;
+        for (let i = 0; i < length; i++) {
+            const remaining = opts.filter((n) => counts[n] > 0);
+            let candidates = remaining.filter((n) => n !== last);
+            if (!candidates.length) candidates = remaining;
+            const maxLeft = Math.max(...candidates.map((n) => counts[n]));
+            candidates = candidates.filter((n) => counts[n] === maxLeft);
+            const pick = candidates[Math.floor(Math.random() * candidates.length)];
+            result.push(pick);
+            counts[pick] -= 1;
+            last = pick;
+        }
+        return result;
+    }
+
+    function refillBunkaiQueue() {
+        const opts = bunkaiPairOpts();
+        const length = harvestDone
+            ? HARVEST_GOAL
+            : Math.max(HARVEST_GOAL - apples.length, opts.length);
+        bunkaiQueue = buildFairQueue(opts, length, `${bunkaiTarget}-${bunkaiRed}`);
+    }
+
+    function drawBunkaiQuestion() {
+        if (!bunkaiQueue.length) refillBunkaiQueue();
+        const next = bunkaiQueue.shift() || '5-2';
+        const [sum, red] = next.split('-').map(Number);
+        bunkaiTarget = sum;
+        bunkaiRed = red;
+    }
+
+    function initBunkaiGame() {
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        bunkaiHintPhase = 0;
+        bunkaiFlipReady = false;
+        bunkaiPhase = 'ask-blue';
+        resetBunkaiSpin();
+        drawBunkaiQuestion();
+        messageEl.innerHTML = bunkaiPrompt();
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+        renderBunkaiFrames();
+        applyDisplayMode();
+    }
+
+    function clearFillBalls() {
+        const color = bunkaiFillColor();
+        framesContainer.querySelectorAll(`.ball.${color}`).forEach((ball) => ball.remove());
+        framesContainer.querySelectorAll('.box').forEach((box) => {
+            box.classList.remove('empty-hint', 'shake');
+        });
+    }
+
+    function placeFillBalls(count, colorClass) {
+        emptyBunkaiBoxes().slice(0, count).forEach((box) => {
+            const landed = document.createElement('div');
+            landed.className = `ball ${colorClass} landed`;
+            box.appendChild(landed);
+        });
+    }
+
+    function spawnBunkaiFlyingBall(fromEl, index, total, colorClass) {
+        const rect = fromEl.getBoundingClientRect();
+        const ball = document.createElement('div');
+        ball.className = `ball ${colorClass} flying bunkai-fly`;
+        const size = 52;
+        const offsetX = (index - (total - 1) / 2) * 14;
+        ball.style.left = `${rect.left + (rect.width - size) / 2 + offsetX}px`;
+        ball.style.top = `${rect.top + (rect.height - size) / 2}px`;
+        document.body.appendChild(ball);
+        return ball;
+    }
+
+    async function flyIntoBunkaiBox(ball, box, colorClass) {
+        await flyFromTo(ball, box);
+        const landed = document.createElement('div');
+        landed.className = `ball ${colorClass} landed`;
+        box.appendChild(landed);
+        ball.remove();
+    }
+
+    async function spillBunkai(el, lastBox, spillIndex) {
+        const from = el.getBoundingClientRect();
+        const target = lastBox.getBoundingClientRect();
+        const towardX = target.right - from.left - from.width / 2 + 10 + spillIndex * 18;
+        const towardY = target.top + 8 - from.top;
+        const fallX = towardX + 40 + spillIndex * 36 + Math.random() * 24;
+        const fallY = window.innerHeight - from.top + 40;
+        await el.animate([
+            { transform: 'translate(0, 0) rotate(0deg) scale(1)' },
+            { transform: `translate(${towardX}px, ${towardY - 24}px) rotate(25deg) scale(1.05)` }
+        ], { duration: 380, easing: 'ease-out', fill: 'forwards' }).finished;
+        lastBox.classList.add('shake');
+        await el.animate([
+            { transform: `translate(${towardX}px, ${towardY - 24}px) rotate(25deg) scale(1.05)` },
+            { transform: `translate(${fallX}px, ${fallY}px) rotate(420deg) scale(0.85)` }
+        ], { duration: 780, easing: 'cubic-bezier(0.55, 0.09, 0.68, 0.2)', fill: 'forwards' }).finished;
+        el.remove();
+    }
+
+    async function animateBunkaiBalls(count, button, colorClass) {
+        const empties = emptyBunkaiBoxes();
+        const flyingBalls = [];
+        for (let i = 0; i < count; i++) {
+            flyingBalls.push(spawnBunkaiFlyingBall(button, i, count, colorClass));
+        }
+        await Promise.all(flyingBalls.map((ball, i) => wait(i * 150).then(() => {
+            if (i < empties.length) return flyIntoBunkaiBox(ball, empties[i], colorClass);
+            const lastBox = boxesInOrder[boxesInOrder.length - 1];
+            return spillBunkai(ball, lastBox, i - empties.length);
+        })));
+    }
+
+    async function animateBunkaiNumber(count, button, shouldSpill, colorClass) {
+        refreshBunkaiEquation();
+        const chip = spawnFlyingNumber(button, count, colorClass);
+        const blank = equationEl.querySelector('.eq-blank') || equationEl;
+        if (shouldSpill) {
+            await spillBunkai(chip, blank, 0);
+            equationEl.classList.add('shake');
+            wait(450).then(() => equationEl.classList.remove('shake'));
+        } else {
+            await flyFromTo(chip, blank, -60);
+            chip.remove();
+            refreshBunkaiEquation(count);
+        }
+        placeFillBalls(Math.min(count, emptyBunkaiBoxes().length), colorClass);
+    }
+
+    async function onBunkaiChoose(count, button) {
+        if (busy || isHintView()) return;
+        busy = true;
+        setChoicesEnabled(false);
+        emptyBunkaiBoxes().forEach((box) => box.classList.remove('empty-hint'));
+        const needed = bunkaiNeeded();
+        const known = bunkaiKnown();
+        const shouldSpill = known + count > bunkaiTarget;
+        const colorClass = bunkaiFillColor();
+        const askRed = bunkaiPhase === 'ask-red';
+        const useKastenAnim = showBalls && (!isBunkaiScaffold() || bunkaiHintPhase >= bunkaiKastenPhase());
+        messageEl.innerHTML = useKastenAnim
+            ? (askRed
+                ? `あかだま を <strong>${count}</strong> こ いれるよ！`
+                : `あおだま を <strong>${count}</strong> こ いれるよ！`)
+            : `<strong>${count}</strong> を たしてみるよ！`;
+        if (useKastenAnim) await animateBunkaiBalls(count, button, colorClass);
+        else await animateBunkaiNumber(count, button, shouldSpill, colorClass);
+        if (count === needed) {
+            solved = true;
+            refreshBunkaiEquation(count);
+            const reward = await grantSolveReward();
+            messageEl.innerHTML = rewardMessage(reward.wasComplete, reward.golden, reward.grew);
+            choicesEl.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            bunkaiFlipReady = bunkaiSpecial === 'drill2' && bunkaiPhase === 'ask-blue';
+            busy = false;
+            updateHintButton();
+            return;
+        }
+        if (shouldSpill) {
+            messageEl.innerHTML = `わあっ！ <strong>こぼれちゃった！</strong><br>${known} + ${count} は ${bunkaiTarget} より おおいよ`;
+            refreshBunkaiEquation(count);
+            if (useKastenAnim) {
+                framesContainer.querySelectorAll('.box').forEach((box) => box.classList.add('shake'));
+            } else {
+                equationEl.classList.add('shake');
+            }
+        } else {
+            if (useKastenAnim) emptyBunkaiBoxes().forEach((box) => box.classList.add('empty-hint'));
+            messageEl.innerHTML = `まだ <strong>たりないよ！</strong><br>すきま が あるね`;
+            refreshBunkaiEquation(count);
+            if (!useKastenAnim) equationEl.classList.add('shake');
+        }
+        await wait(1600);
+        clearFillBalls();
+        document.querySelectorAll('.ball.flying, .num-chip').forEach((el) => el.remove());
+        messageEl.innerHTML = bunkaiPrompt();
+        refreshBunkaiEquation();
+        setChoicesEnabled(true);
+        busy = false;
+        updateHintButton();
+    }
+
+    async function startCommutativeFlip() {
+        busy = true;
+        nextBtn.classList.add('hidden');
+        messageEl.innerHTML = 'ぬまーかてん を まわすよ！';
+        framesContainer.querySelectorAll('.ball.landed').forEach((ball) => {
+            ball.classList.remove('landed');
+        });
+        await frameSpin.animate([
+            { transform: 'rotate(0deg) scale(1)' },
+            { transform: 'rotate(90deg) scale(0.92)', offset: 0.5 },
+            { transform: 'rotate(180deg) scale(1)' }
+        ], {
+            duration: 1300,
+            easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
+            fill: 'forwards'
+        }).finished;
+        const reds = [...framesContainer.querySelectorAll('.ball.red')];
+        await Promise.all(reds.map((ball) => ball.animate([
+            { opacity: 1, transform: 'scale(1)' },
+            { opacity: 0, transform: 'scale(0.55)' }
+        ], {
+            duration: 380,
+            easing: 'ease-in',
+            fill: 'forwards'
+        }).finished));
+        reds.forEach((ball) => ball.remove());
+        bunkaiPhase = 'ask-red';
+        solved = false;
+        bunkaiFlipReady = false;
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+        messageEl.innerHTML = bunkaiPrompt();
+        refreshBunkaiEquation();
+        applyDisplayMode();
+        busy = false;
+    }
+
+    function startBunkaiTokkun(kind) {
+        if (busy) return;
+        if (bunkaiSpecial === kind && !solved && bunkaiPhase === 'ask-blue' && drillCount === null) return;
+        drillCount = null;
+        drillItems = [];
+        drillFocus = null;
+        drillView = 'list';
+        bunkaiSpecial = kind;
+        bunkaiQueue = [];
+        initBunkaiGame();
+    }
+
+    function showHome() {
+        if (busy) return;
+        playMode = 'home';
+        bunkaiSpecial = null;
+        bunkaiFlipReady = false;
+        bunkaiPhase = 'ask-blue';
+        resetBunkaiSpin();
+        document.querySelectorAll('.ball.flying, .num-chip').forEach((el) => el.remove());
+        busy = false;
+        drillCount = null;
+        drillItems = [];
+        drillFocus = null;
+        huntTarget = null;
+        huntItems = [];
+        huntFocus = null;
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        clearFourPlusMode();
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.add('hidden');
+        applyDisplayMode();
+    }
+
+    function enterAdd() {
+        if (busy) return;
+        playMode = 'add';
+        bunkaiSpecial = null;
+        bunkaiFlipReady = false;
+        resetBunkaiSpin();
+        initGame();
+    }
+
+    function enterBunkai() {
+        if (busy) return;
+        playMode = 'bunkai';
+        bunkaiSpecial = null;
+        bunkaiQueue = [];
+        bunkaiFlipReady = false;
+        initBunkaiGame();
+    }
+
+    function buildBunkaiSumButtons() {
+        bunkaiSumGrid.innerHTML = '';
+        for (let n = 2; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => {
+                bunkaiSpecial = null;
+                if (bunkaiSums.has(n)) bunkaiSums.delete(n);
+                else bunkaiSums.add(n);
+                bunkaiQueue = [];
+                refreshProblems();
+            });
+            bunkaiSumGrid.appendChild(btn);
+        }
+    }
+
+    function buildBunkaiEnshuButtons() {
+        bunkaiEnshuGrid.innerHTML = '';
+        for (let n = 1; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => startDrill(n));
+            bunkaiEnshuGrid.appendChild(btn);
+        }
+    }
+
+    function buildSubLeftButtons() {
+        subLeftGrid.innerHTML = '';
+        for (let n = 1; n <= 10; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => {
+                subLeftLe5 = false;
+                if (subLefts.has(n)) subLefts.delete(n);
+                else subLefts.add(n);
+                pruneSubRights();
+                refreshProblems();
+            });
+            subLeftGrid.appendChild(btn);
+        }
+    }
+
+    function buildSubRightButtons() {
+        subRightGrid.innerHTML = '';
+        for (let n = 1; n <= 9; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'fix-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => {
+                if (n >= maxSubLeft()) return;
+                if (subRights.has(n)) subRights.delete(n);
+                else subRights.add(n);
+                refreshProblems();
+            });
+            subRightGrid.appendChild(btn);
+        }
+    }
+
+    function buildSubEnshuButtons() {
+        subEnshuGrid.innerHTML = '';
+        for (let n = 1; n <= 20; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => startDrill(n));
+            subEnshuGrid.appendChild(btn);
+        }
+    }
+
     function initGame() {
         clearShiftMode();
         clearChangeMode();
         clearCountMode();
+        clearFourPlusMode();
         busy = false;
         solved = false;
         hintPhase = 0;
@@ -3106,6 +4809,111 @@
         choicesEl.classList.remove('hidden');
         setChoicesEnabled(true);
         renderKastens();
+        applyDisplayMode();
+    }
+
+    function buildSubFrame(filled) {
+        const wrap = document.createElement('div');
+        wrap.className = 'kasten';
+        const boxes = [];
+        const bottomRow = document.createElement('div');
+        bottomRow.className = 'kasten-row';
+        const topRow = document.createElement('div');
+        topRow.className = 'kasten-row';
+        for (let i = 0; i < 5; i++) {
+            const box = makeBox();
+            bottomRow.appendChild(box);
+            boxes.push(box);
+        }
+        for (let i = 0; i < 5; i++) {
+            const box = makeBox();
+            topRow.appendChild(box);
+            boxes.push(box);
+        }
+        wrap.appendChild(topRow);
+        wrap.appendChild(bottomRow);
+        for (let i = 0; i < filled; i++) {
+            const ball = document.createElement('div');
+            ball.className = 'ball red landed';
+            boxes[i].appendChild(ball);
+        }
+        return { el: wrap, boxes };
+    }
+
+    function renderSubKasten() {
+        kastensEl.innerHTML = '';
+        rightBoxes = [];
+        const frame = buildSubFrame(leftNum);
+        leftBoxes = frame.boxes;
+        kastensEl.appendChild(frame.el);
+    }
+
+    function subTakeBalls() {
+        return leftBoxes.map((box) => box.querySelector('.ball')).filter(Boolean).slice(-rightNum);
+    }
+
+    function initSubGame() {
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        clearFourPlusMode();
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        [leftNum, rightNum] = pickSubAddends();
+        messageEl.innerHTML = promptMessage();
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+        kastensEl.innerHTML = '';
+        leftBoxes = [];
+        rightBoxes = [];
+        applyDisplayMode();
+    }
+
+    function enterSub() {
+        if (busy) return;
+        playMode = 'sub';
+        bunkaiSpecial = null;
+        bunkaiFlipReady = false;
+        resetBunkaiSpin();
+        initSubGame();
+    }
+
+    async function onSubHint() {
+        if (busy || solved || hintPhase >= 3) return;
+        if (hintPhase === 0) {
+            hintPhase = 1;
+            renderSubKasten();
+            messageEl.innerHTML = promptMessage();
+            applyDisplayMode();
+            return;
+        }
+        if (hintPhase === 1) {
+            subTakeBalls().forEach((ball) => ball.classList.add('pico'));
+            hintPhase = 2;
+            messageEl.innerHTML = promptMessage();
+            applyDisplayMode();
+            return;
+        }
+        busy = true;
+        setChoicesEnabled(false);
+        updateHintButton();
+        const balls = subTakeBalls();
+        balls.forEach((ball) => ball.classList.remove('pico'));
+        await Promise.all(balls.map((ball) => ball.animate([
+            { opacity: 1, transform: 'scale(1)' },
+            { opacity: 0, transform: 'scale(0.4)' }
+        ], {
+            duration: 700,
+            easing: 'ease-out',
+            fill: 'forwards'
+        }).finished));
+        balls.forEach((ball) => ball.remove());
+        hintPhase = 3;
+        messageEl.innerHTML = promptMessage();
+        busy = false;
+        if (!isHintView()) setChoicesEnabled(true);
         applyDisplayMode();
     }
 
@@ -3293,11 +5101,24 @@
 
     async function onHint() {
         if (countMode) return;
+        if (isFourPlusCircles()) {
+            await onFourPlusHint();
+            return;
+        }
+        if (playMode === 'sub') {
+            await onSubHint();
+            return;
+        }
+        if (isBunkaiScaffold()) {
+            onBunkaiScaffoldHint();
+            return;
+        }
         if (changeMode) {
             await openChangeHint();
             return;
         }
-        if (busy || solved || !showBalls || hintPhase >= 2) return;
+        if (busy || solved || hintPhase >= 2) return;
+        if (!showBalls && !fourPlusSpecial) return;
         busy = true;
         setChoicesEnabled(false);
         updateHintButton();
@@ -3348,10 +5169,10 @@
         }));
     }
 
-    function spawnFlyingNumber(fromEl, value) {
+    function spawnFlyingNumber(fromEl, value, color = null) {
         const rect = fromEl.getBoundingClientRect();
         const chip = document.createElement('div');
-        chip.className = 'num-chip';
+        chip.className = 'num-chip' + (color === 'red' ? ' red-chip' : color === 'blue' ? ' blue-chip' : '');
         chip.textContent = String(value);
         chip.style.left = `${rect.left + (rect.width - 56) / 2}px`;
         chip.style.top = `${rect.top + (rect.height - 56) / 2}px`;
@@ -3359,14 +5180,14 @@
         return chip;
     }
 
-    function flyFromTo(el, targetEl) {
+    function flyFromTo(el, targetEl, extraY = -70) {
         const from = el.getBoundingClientRect();
         const to = targetEl.getBoundingClientRect();
         const dx = to.left + (to.width - from.width) / 2 - from.left;
         const dy = to.top + (to.height - from.height) / 2 - from.top;
         return el.animate([
             { transform: 'translate(0, 0) scale(1)' },
-            { transform: `translate(${dx * 0.55}px, ${dy * 0.45 - 70}px) scale(1.12)` },
+            { transform: `translate(${dx * 0.55}px, ${dy * 0.45 + extraY}px) scale(1.12)` },
             { transform: `translate(${dx}px, ${dy}px) scale(1)` }
         ], {
             duration: 520,
@@ -3450,7 +5271,7 @@
         if (!item || item.solved) return;
         busy = true;
         setChoicesEnabled(false);
-        const answer = item.left + item.right;
+        const answer = playMode === 'bunkai' ? item.right : playMode === 'sub' ? item.left - item.right : item.left + item.right;
         const row = drillList.querySelectorAll('.drill-item')[index];
         const blank = row ? row.querySelector('.eq-blank-btn') : null;
         let mark = row ? row.querySelector('.drill-mark') : null;
@@ -3508,6 +5329,92 @@
         if (isHintView()) return;
         if (isDrillList()) {
             await onDrillChoose(count, button);
+            return;
+        }
+        if (playMode === 'bunkai') {
+            await onBunkaiChoose(count, button);
+            return;
+        }
+        if (isFourPlusCircles()) {
+            busy = true;
+            setChoicesEnabled(false);
+            updateHintButton();
+            const answer = leftNum + rightNum;
+            const chip = spawnFlyingNumber(button, count);
+            const blank = equationEl.querySelector('.eq-blank') || equationEl;
+            if (count === answer) {
+                await flyFromTo(chip, blank).then(() => chip.remove());
+                solved = true;
+                const { wasComplete, golden, grew } = await grantSolveReward();
+                refreshEquation(count);
+                messageEl.innerHTML = rewardMessage(wasComplete, golden, grew);
+                choicesEl.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                busy = false;
+                updateHintButton();
+                return;
+            }
+            if (count > answer) {
+                messageEl.innerHTML = `わあっ！ <strong>おおすぎるよ！</strong><br>4 + ${rightNum} は ${count} より ちいさいよ`;
+                await spillElement(chip, blank);
+            } else {
+                messageEl.innerHTML = `まだ <strong>たりないよ！</strong><br>4 + ${rightNum} は ${count} より おおきいよ`;
+                await flyFromTo(chip, blank);
+                chip.remove();
+                refreshEquation(count);
+            }
+            equationEl.classList.add('shake');
+            if (fourCirclesEl) fourCirclesEl.classList.add('shake');
+            await wait(1400);
+            equationEl.classList.remove('shake');
+            if (fourCirclesEl) fourCirclesEl.classList.remove('shake');
+            document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+            messageEl.innerHTML = promptMessage();
+            refreshEquation();
+            setChoicesEnabled(true);
+            busy = false;
+            updateHintButton();
+            return;
+        }
+        if (playMode === 'sub') {
+            busy = true;
+            setChoicesEnabled(false);
+            updateHintButton();
+            const answer = leftNum - rightNum;
+            const chip = spawnFlyingNumber(button, count);
+            const blank = equationEl.querySelector('.eq-blank') || equationEl;
+            if (count === answer) {
+                await flyFromTo(chip, blank).then(() => chip.remove());
+                solved = true;
+                const { wasComplete, golden, grew } = await grantSolveReward();
+                refreshEquation(count);
+                messageEl.innerHTML = rewardMessage(wasComplete, golden, grew);
+                choicesEl.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                busy = false;
+                updateHintButton();
+                return;
+            }
+            if (count > answer) {
+                messageEl.innerHTML = `わあっ！ <strong>おおすぎるよ！</strong><br>${leftNum} − ${rightNum} は ${count} より ちいさいよ`;
+                await spillElement(chip, blank);
+            } else {
+                messageEl.innerHTML = `まだ <strong>たりないよ！</strong><br>${leftNum} − ${rightNum} は ${count} より おおきいよ`;
+                await flyFromTo(chip, blank);
+                chip.remove();
+                refreshEquation(count);
+            }
+            equationEl.classList.add('shake');
+            if (hintPhase >= 1) kastensEl.classList.add('shake');
+            await wait(1400);
+            equationEl.classList.remove('shake');
+            kastensEl.classList.remove('shake');
+            document.querySelectorAll('.num-chip').forEach((el) => el.remove());
+            messageEl.innerHTML = promptMessage();
+            refreshEquation();
+            setChoicesEnabled(true);
+            busy = false;
+            updateHintButton();
             return;
         }
         busy = true;
@@ -3697,6 +5604,21 @@
     });
 
     async function resetHintToStart() {
+        if (isFourPlusCircles()) {
+            if (busy || solved || fourPlusHintPhase < 1) return;
+            fourPlusHintPhase = 1;
+            renderFourCircles(1);
+            messageEl.innerHTML = fourPlusPrompt();
+            applyDisplayMode();
+            return;
+        }
+        if (isBunkaiScaffold()) {
+            if (busy || solved || bunkaiHintPhase < 1) return;
+            bunkaiHintPhase = 0;
+            messageEl.innerHTML = bunkaiPrompt();
+            applyDisplayMode();
+            return;
+        }
         if (countMode) {
             if (busy || solved) return;
             resetCountBoard();
@@ -3705,6 +5627,15 @@
         }
         if (changeMode) {
             await replayChangeHint();
+            return;
+        }
+        if (playMode === 'sub') {
+            if (busy || solved || hintPhase < 2) return;
+            hintPhase = 1;
+            messageEl.innerHTML = promptMessage();
+            if (!isHintView()) setChoicesEnabled(true);
+            renderSubKasten();
+            applyDisplayMode();
             return;
         }
         if (busy || solved || hintPhase === 0) return;
@@ -3730,6 +5661,9 @@
         btn.addEventListener('click', () => startChange(btn.dataset.change));
     });
     countStartBtn.addEventListener('click', () => startCount());
+    plusTokkunBtns.forEach((btn) => {
+        btn.addEventListener('click', () => startPlusTokkun(btn.dataset.plusTokkun));
+    });
     countAnimStartBtn.addEventListener('click', () => beginCountLabel());
     countContinueBtn.addEventListener('click', () => continueCountMoves());
     countQuitBtn.addEventListener('click', quitActivity);
@@ -3806,6 +5740,9 @@
             } else if (shiftMode) {
                 if (!busy) renderKastens();
                 if (!solved) messageEl.innerHTML = shiftPrompt();
+            } else if (playMode === 'bunkai' && !busy && !solved && !isListView()) {
+                renderBunkaiFrames();
+                messageEl.innerHTML = promptMessage();
             } else if (!busy && !solved && !isListView()) {
                 messageEl.innerHTML = promptMessage();
             }
@@ -3820,11 +5757,55 @@
     });
 
     nextBtn.addEventListener('click', () => {
+        if (playMode === 'bunkai') {
+            if (bunkaiFlipReady) startCommutativeFlip();
+            else initBunkaiGame();
+            return;
+        }
+        if (playMode === 'sub') {
+            initSubGame();
+            return;
+        }
         if (countMode) startCount();
         else if (changeMode) startChange(changeOpSelected);
         else if (shiftMode) startShift();
         else initGame();
     });
+    homeBtn.addEventListener('click', showHome);
+    modeAddBtn.addEventListener('click', enterAdd);
+    modeSubBtn.addEventListener('click', enterSub);
+    modeBunkaiBtn.addEventListener('click', enterBunkai);
+    subRandomLeftBtn.addEventListener('click', () => {
+        if (!subLeftLe5 && subLefts.size === 0) return;
+        subLeftLe5 = false;
+        subLefts = new Set();
+        pruneSubRights();
+        refreshProblems();
+    });
+    subLe5Btn.addEventListener('click', () => {
+        if (subLeftLe5) return;
+        subLeftLe5 = true;
+        subLefts = new Set();
+        pruneSubRights();
+        refreshProblems();
+    });
+    subRandomRightBtn.addEventListener('click', () => {
+        if (subRights.size === 0) return;
+        subRights = new Set();
+        refreshProblems();
+    });
+    bunkaiRandomSumBtn.addEventListener('click', () => {
+        if (bunkaiSpecial === null && bunkaiSums.size === 0) return;
+        bunkaiSpecial = null;
+        bunkaiSums = new Set();
+        bunkaiQueue = [];
+        refreshProblems();
+    });
+    bunkaiDrill1Btn.addEventListener('click', () => startBunkaiTokkun('drill1'));
+    bunkaiDrill2Btn.addEventListener('click', () => startBunkaiTokkun('drill2'));
+    bunkaiDrill3Btn.addEventListener('click', () => startBunkaiTokkun('drill3'));
+    bunkaiDrill4Btn.addEventListener('click', () => startBunkaiTokkun('drill4'));
+    bunkaiDrill5Btn.addEventListener('click', () => startBunkaiTokkun('drill5'));
     loadState();
     refreshOrchard();
     buildFixButtons();
@@ -3832,7 +5813,12 @@
     buildEnshuButtons();
     buildHuntButtons();
     buildChoiceButtons();
-    initGame();
+    buildBunkaiSumButtons();
+    buildBunkaiEnshuButtons();
+    buildSubLeftButtons();
+    buildSubRightButtons();
+    buildSubEnshuButtons();
+    showHome();
 </script>
 
 </body>
