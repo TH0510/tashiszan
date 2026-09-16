@@ -127,6 +127,7 @@
     body.mode-home .game-area .message,
     body.mode-home .kastens,
     body.mode-home .frame-spin,
+    body.mode-home .drill6-num,
     body.mode-home .equation,
     body.mode-home .hint-row,
     body.mode-home .back-btn,
@@ -219,7 +220,8 @@
     .equation.shake,
     .change-eq.shake,
     .kastens.shake,
-    .four-circles.shake {
+    .four-circles.shake,
+    .ten-bars.shake {
         animation: shake 0.45s ease-in-out;
     }
     .frame-spin {
@@ -305,9 +307,105 @@
         border-color: #64b5f6;
         color: #1565c0;
     }
+    .ten-bar-num {
+        display: inline-block;
+        line-height: 1;
+    }
+    .ten-bar-num.is-off {
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+    .game-area.in-bunkai.drill6-play:not(.drill6-right-on) #kasten-right-num {
+        display: none !important;
+    }
     .ten-bar-empty {
         background: #fff;
         border-color: #bdbdbd;
+    }
+    .kasten-trio {
+        display: contents;
+    }
+    .drill6-num {
+        font-weight: bold;
+        line-height: 1;
+        letter-spacing: 0;
+        min-width: 1.1em;
+        text-align: center;
+        pointer-events: none;
+    }
+    .drill6-num.flying-eq {
+        position: fixed;
+        margin: 0;
+        z-index: 1000;
+        pointer-events: none;
+        font-size: clamp(52px, 10vw, 80px);
+    }
+    .game-area.in-bunkai.drill6-play .kasten-trio {
+        display: grid;
+        grid-template-columns: minmax(72px, 1fr) auto minmax(72px, 1fr);
+        align-items: center;
+        column-gap: 4px;
+        width: 100%;
+    }
+    .game-area.in-bunkai.drill6-play .frame-spin {
+        margin: 18px auto 8px;
+    }
+    .game-area.in-bunkai.drill6-play .drill6-num {
+        font-size: clamp(52px, 10vw, 80px);
+    }
+    .game-area.in-bunkai.drill6-play #kasten-left-num {
+        justify-self: end;
+        padding-right: 10px;
+    }
+    .game-area.in-bunkai.drill6-play #kasten-right-num {
+        justify-self: start;
+        padding-left: 10px;
+    }
+    .game-area.in-bunkai.drill6-play.drill6-solo .kasten-trio {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 220px;
+    }
+    .game-area.in-bunkai.drill6-play.drill6-solo .frame-spin,
+    .game-area.in-bunkai.drill6-play.drill6-solo #kasten-right-num,
+    .game-area.in-bunkai.drill6-play.drill6-solo .ten-bars {
+        display: none !important;
+    }
+    .game-area.in-bunkai.drill6-play.drill6-solo #kasten-left-num {
+        justify-self: center;
+        padding: 0;
+        font-size: clamp(88px, 18vw, 132px);
+    }
+    .game-area.in-bunkai.drill6-play .ten-bars {
+        display: none;
+        margin-top: 12px;
+        margin-bottom: 8px;
+    }
+    .game-area.in-bunkai.drill6-play.drill6-bars .ten-bars {
+        display: flex;
+    }
+    .game-area.in-bunkai.drill6-play .ten-bars-split {
+        grid-template-columns: 1fr 1fr;
+    }
+    .game-area.in-bunkai.drill6-play .ten-bars-full {
+        grid-template-columns: 1fr;
+    }
+    .game-area.in-bunkai.drill6-play.drill6-eq .equation {
+        font-size: clamp(52px, 10vw, 80px);
+        min-height: 90px;
+        margin: 18px 0 10px;
+        letter-spacing: 0.08em;
+        transition: none;
+    }
+    .game-area.in-bunkai.drill6-play:not(.drill6-eq) .equation {
+        visibility: hidden;
+    }
+    .game-area.in-bunkai.drill6-play:not(.drill6-ask) .choices {
+        display: none !important;
+    }
+    .game-area.in-bunkai.drill6-play.drill6-ask .equation {
+        display: none;
     }
     .frame-container {
         display: flex;
@@ -733,6 +831,7 @@
     .game-area.in-drill-list .message,
     .game-area.in-drill-list .kastens,
     .game-area.in-drill-list .frame-spin,
+    .game-area.in-drill-list .drill6-num,
     .game-area.in-drill-list .ten-bars,
     .game-area.in-drill-list .equation,
     .game-area.in-drill-list .hint-row,
@@ -1585,6 +1684,7 @@
     body.print-drill .message,
     body.print-drill .kastens,
     body.print-drill .frame-spin,
+    body.print-drill .drill6-num,
     body.print-drill .equation,
     body.print-drill .hint-row,
     body.print-drill .back-btn,
@@ -1607,7 +1707,6 @@
         height: 1em;
         background: transparent !important;
         border: none;
-        border-bottom: 0.45mm solid #333;
         border-radius: 0;
         color: transparent;
         padding: 0;
@@ -1856,6 +1955,10 @@
                     <button type="button" class="ctrl-btn" id="bunkai-drill3-btn">10特訓その3</button>
                     <button type="button" class="ctrl-btn" id="bunkai-drill4-btn">10特訓その4</button>
                     <button type="button" class="ctrl-btn" id="bunkai-drill5-btn">10特訓その5</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill6-btn">10特訓その6</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill7-btn">10特訓その7</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill8-btn">10特訓その8</button>
+                    <button type="button" class="ctrl-btn" id="bunkai-drill9-btn">10特訓その9</button>
                 </div>
             </div>
             <div class="settings-block enshu-block">
@@ -1876,8 +1979,12 @@
 
             <div class="kastens" id="kastens"></div>
             <div class="four-circles" id="four-circles" hidden></div>
-            <div class="frame-spin" id="frame-spin">
-                <div class="frame-container" id="frames"></div>
+            <div class="kasten-trio" id="kasten-trio">
+                <div class="drill6-num eq-red" id="kasten-left-num" hidden></div>
+                <div class="frame-spin" id="frame-spin">
+                    <div class="frame-container" id="frames"></div>
+                </div>
+                <div class="drill6-num eq-blue" id="kasten-right-num" hidden></div>
             </div>
             <div class="ten-bars" id="ten-bars" hidden></div>
 
@@ -2029,7 +2136,13 @@
     const bunkaiDrill3Btn = document.getElementById('bunkai-drill3-btn');
     const bunkaiDrill4Btn = document.getElementById('bunkai-drill4-btn');
     const bunkaiDrill5Btn = document.getElementById('bunkai-drill5-btn');
+    const bunkaiDrill6Btn = document.getElementById('bunkai-drill6-btn');
+    const bunkaiDrill7Btn = document.getElementById('bunkai-drill7-btn');
+    const bunkaiDrill8Btn = document.getElementById('bunkai-drill8-btn');
+    const bunkaiDrill9Btn = document.getElementById('bunkai-drill9-btn');
     const tenBarsEl = document.getElementById('ten-bars');
+    const kastenLeftNum = document.getElementById('kasten-left-num');
+    const kastenRightNum = document.getElementById('kasten-right-num');
     const choicesLabel = document.getElementById('choices-label');
     const messageEl = document.getElementById('message');
     const equationEl = document.getElementById('equation');
@@ -2147,6 +2260,10 @@
     let bunkaiQueue = [];
     let bunkaiFlipReady = false;
     let bunkaiHintPhase = 0;
+    let bunkaiAnimId = 0;
+    let drill6Phase = 0;
+    let storyBarShown = { comp: false, botRight: false, topFive: false };
+    let storyQuizWait = null;
     let boxesInOrder = [];
 
     function wait(ms) {
@@ -2415,6 +2532,9 @@
             hintBtn.classList.toggle('hidden', solved || hintPhase >= 2);
             resetHintBtn.disabled = busy;
             resetHintBtn.classList.toggle('hidden', solved || hintPhase === 0);
+        } else if (isBunkaiStoryDrill()) {
+            hintBtn.classList.add('hidden');
+            resetHintBtn.classList.add('hidden');
         } else if (scaffold) {
             hintBtn.disabled = busy || solved || bunkaiHintPhase >= maxScaffold;
             hintBtn.classList.toggle('hidden', solved || bunkaiHintPhase >= maxScaffold);
@@ -2512,6 +2632,10 @@
                 else if (bunkaiSpecial === 'drill3') gameTitle.textContent = '🍎 10特訓その3 🍏';
                 else if (bunkaiSpecial === 'drill4') gameTitle.textContent = '🍎 10特訓その4 🍏';
                 else if (bunkaiSpecial === 'drill5') gameTitle.textContent = '🍎 10特訓その5 🍏';
+                else if (bunkaiSpecial === 'drill6') gameTitle.textContent = '🍎 10特訓その6 🍏';
+                else if (bunkaiSpecial === 'drill7') gameTitle.textContent = '🍎 10特訓その7 🍏';
+                else if (bunkaiSpecial === 'drill8') gameTitle.textContent = '🍎 10特訓その8 🍏';
+                else if (bunkaiSpecial === 'drill9') gameTitle.textContent = '🍎 10特訓その9 🍏';
                 else gameTitle.textContent = '🍎 ぶんかい 🍏';
             } else {
                 gameTitle.textContent = '🍎 ヌマーカステン 🍏';
@@ -2522,7 +2646,9 @@
             : playMode === 'sub' ? 'ひきざん' : playMode === 'bunkai' ? 'ぶんかい' : 'ヌマーカステン';
         if (choicesLabel) {
             if (playMode === 'bunkai') {
-                if (isBunkaiScaffold() && bunkaiHintPhase < bunkaiKastenPhase()) {
+                if (isBunkaiQuizDrill()) {
+                    choicesLabel.textContent = (isBunkaiDrill8() && drill6Extra() === 0) ? 'いくつ たす？' : 'となりは？';
+                } else if (isBunkaiScaffold() && bunkaiHintPhase < bunkaiKastenPhase()) {
                     choicesLabel.textContent = 'いくつ たす？';
                 } else if (!showBalls) choicesLabel.textContent = 'いくつ たす？';
                 else if (bunkaiPhase === 'ask-red') choicesLabel.textContent = 'あかだま は いくつ？';
@@ -2561,6 +2687,10 @@
         if (bunkaiDrill3Btn) bunkaiDrill3Btn.classList.toggle('active', bunkaiSpecial === 'drill3');
         if (bunkaiDrill4Btn) bunkaiDrill4Btn.classList.toggle('active', bunkaiSpecial === 'drill4');
         if (bunkaiDrill5Btn) bunkaiDrill5Btn.classList.toggle('active', bunkaiSpecial === 'drill5');
+        if (bunkaiDrill6Btn) bunkaiDrill6Btn.classList.toggle('active', bunkaiSpecial === 'drill6');
+        if (bunkaiDrill7Btn) bunkaiDrill7Btn.classList.toggle('active', bunkaiSpecial === 'drill7');
+        if (bunkaiDrill8Btn) bunkaiDrill8Btn.classList.toggle('active', bunkaiSpecial === 'drill8');
+        if (bunkaiDrill9Btn) bunkaiDrill9Btn.classList.toggle('active', bunkaiSpecial === 'drill9');
         if (subRandomLeftBtn) subRandomLeftBtn.classList.toggle('active', !subLeftLe5 && subLefts.size === 0);
         if (subRandomRightBtn) subRandomRightBtn.classList.toggle('active', subRights.size === 0);
         if (subLe5Btn) subLe5Btn.classList.toggle('active', subLeftLe5);
@@ -2979,6 +3109,7 @@
         huntItems = [];
         huntFocus = null;
         huntView = 'list';
+        abortBunkaiAnim();
         drillCount = n;
         drillView = 'list';
         drillFocus = null;
@@ -4267,16 +4398,463 @@
         return playMode === 'bunkai' && (bunkaiSpecial === 'drill4' || bunkaiSpecial === 'drill5');
     }
 
+    function isBunkaiDrill6() {
+        return playMode === 'bunkai' && bunkaiSpecial === 'drill6';
+    }
+
+    function isBunkaiDrill7() {
+        return playMode === 'bunkai' && bunkaiSpecial === 'drill7';
+    }
+
+    function isBunkaiDrill8() {
+        return playMode === 'bunkai' && bunkaiSpecial === 'drill8';
+    }
+
+    function isBunkaiDrill9() {
+        return playMode === 'bunkai' && bunkaiSpecial === 'drill9';
+    }
+
+    function isBunkaiWatchDrill() {
+        return isBunkaiDrill6() || isBunkaiDrill7();
+    }
+
+    function isBunkaiQuizDrill() {
+        return isBunkaiDrill8() || isBunkaiDrill9();
+    }
+
+    function isBunkaiStoryDrill() {
+        return isBunkaiWatchDrill() || isBunkaiQuizDrill();
+    }
+
+    function isBunkaiLowRedStory() {
+        return isBunkaiDrill7() || isBunkaiDrill9();
+    }
+
+    function storyEqPhase() {
+        return isBunkaiLowRedStory() ? 6 : 5;
+    }
+
+    function clearStoryQuizWait() {
+        if (!storyQuizWait) return;
+        const { resolve } = storyQuizWait;
+        storyQuizWait = null;
+        resolve(false);
+    }
+
+    function abortBunkaiAnim() {
+        bunkaiAnimId += 1;
+        if (isBunkaiStoryDrill() || bunkaiSpecial === 'drill6' || bunkaiSpecial === 'drill7' || bunkaiSpecial === 'drill8' || bunkaiSpecial === 'drill9') busy = false;
+        resetDrill6Anims();
+        document.querySelectorAll('.drill6-num.flying-eq').forEach((el) => el.remove());
+        storyBarShown = { comp: false, botRight: false, topFive: false };
+        clearStoryQuizWait();
+    }
+
+    function resetDrill6Anims() {
+        [kastenLeftNum, kastenRightNum, frameSpin, tenBarsEl, equationEl].forEach((el) => {
+            if (!el) return;
+            el.getAnimations().forEach((anim) => anim.cancel());
+            el.style.transform = '';
+            el.style.opacity = '';
+            el.style.visibility = '';
+        });
+    }
+
+    function clearDrill6Ui() {
+        drill6Phase = 0;
+        storyBarShown = { comp: false, botRight: false, topFive: false };
+        if (gameArea) {
+            gameArea.classList.remove('drill6-eq', 'drill6-right-on', 'drill6-bars', 'drill6-ask');
+        }
+        if (kastenLeftNum) {
+            kastenLeftNum.hidden = true;
+            kastenLeftNum.textContent = '';
+            kastenLeftNum.style.transform = '';
+            kastenLeftNum.style.visibility = '';
+            kastenLeftNum.style.opacity = '';
+        }
+        if (kastenRightNum) {
+            kastenRightNum.hidden = true;
+            kastenRightNum.textContent = '';
+            kastenRightNum.style.transform = '';
+            kastenRightNum.style.visibility = '';
+            kastenRightNum.style.opacity = '';
+        }
+        if (equationEl) {
+            equationEl.style.opacity = '';
+            equationEl.innerHTML = '';
+        }
+        if (tenBarsEl) {
+            tenBarsEl.innerHTML = '';
+            tenBarsEl.hidden = true;
+            tenBarsEl.style.width = '';
+            tenBarsEl.style.opacity = '';
+            tenBarsEl.getAnimations().forEach((anim) => anim.cancel());
+        }
+        document.querySelectorAll('.drill6-num.flying-eq').forEach((el) => el.remove());
+        clearStoryQuizWait();
+    }
+
+    function drill6Extra() {
+        return Math.max(0, bunkaiRed - 5);
+    }
+
+    function drill6Blue() {
+        return bunkaiTarget - bunkaiRed;
+    }
+
+    function drill7ToFive() {
+        return Math.max(0, 5 - bunkaiRed);
+    }
+
+    function storyPrompt() {
+        const red = bunkaiRed;
+        const blue = drill6Blue();
+        if (drill6Phase <= 0) return '';
+        if (isBunkaiLowRedStory()) {
+            const rest = drill7ToFive();
+            if (drill6Phase <= 2) return `<strong class="eq-red">${red}</strong> だよ`;
+            if (drill6Phase === 3) {
+                return `<strong class="eq-red">${red}</strong> の となり は <strong class="eq-blue">${rest}</strong>`;
+            }
+            if (drill6Phase === 4) return `うえ は <strong class="eq-blue">5</strong>`;
+            return `<strong class="eq-red">${red}</strong> + <strong class="eq-blue">${blue}</strong> = <strong class="eq-sum">${bunkaiTarget}</strong>`;
+        }
+        const extra = drill6Extra();
+        if (drill6Phase === 1) return `<strong class="eq-red">${red}</strong> だよ`;
+        if (drill6Phase === 2) {
+            if (extra > 0) {
+                return `<strong class="eq-red">${red}</strong> は <strong class="eq-red">5</strong> と <strong class="eq-red">${extra}</strong>`;
+            }
+            return `<strong class="eq-red">5</strong> だよ`;
+        }
+        if (drill6Phase === 3 || drill6Phase === 4) {
+            if (extra > 0) {
+                return `<strong class="eq-red">${extra}</strong> の となり は <strong class="eq-blue">${blue}</strong>`;
+            }
+            return `<strong class="eq-blue">${blue}</strong> が いるよ`;
+        }
+        return `<strong class="eq-red">${red}</strong> + <strong class="eq-blue">${blue}</strong> = <strong class="eq-sum">${bunkaiTarget}</strong>`;
+    }
+
+    function storyAlive(animId) {
+        return bunkaiAnimId === animId && isBunkaiStoryDrill();
+    }
+
+    async function waitIfAlive(animId, ms) {
+        await wait(ms);
+        return storyAlive(animId);
+    }
+
+    function cloneFlyingNum(fromEl) {
+        const rect = fromEl.getBoundingClientRect();
+        const cs = getComputedStyle(fromEl);
+        const clone = fromEl.cloneNode(true);
+        clone.id = '';
+        clone.hidden = false;
+        clone.classList.add('flying-eq');
+        clone.style.position = 'fixed';
+        clone.style.left = `${rect.left}px`;
+        clone.style.top = `${rect.top}px`;
+        clone.style.width = `${rect.width}px`;
+        clone.style.height = `${rect.height}px`;
+        clone.style.margin = '0';
+        clone.style.opacity = '1';
+        clone.style.visibility = 'visible';
+        clone.style.transform = 'none';
+        clone.style.transformOrigin = 'center center';
+        clone.style.zIndex = '1000';
+        clone.style.fontSize = cs.fontSize;
+        clone.style.fontFamily = cs.fontFamily;
+        clone.style.fontWeight = cs.fontWeight;
+        clone.style.lineHeight = cs.lineHeight;
+        clone.style.letterSpacing = cs.letterSpacing;
+        clone.style.color = cs.color;
+        document.body.appendChild(clone);
+        return clone;
+    }
+
+    function flySameSize(el, targetEl, extraY = -36) {
+        const from = el.getBoundingClientRect();
+        const to = targetEl.getBoundingClientRect();
+        const dx = to.left + (to.width - from.width) / 2 - from.left;
+        const dy = to.top + (to.height - from.height) / 2 - from.top;
+        return el.animate([
+            { transform: 'translate(0, 0)' },
+            { transform: `translate(${dx * 0.55}px, ${dy * 0.45 + extraY}px)` },
+            { transform: `translate(${dx}px, ${dy}px)` }
+        ], {
+            duration: 520,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            fill: 'forwards'
+        }).finished;
+    }
+
+    async function flyNumsToEquation(animId) {
+        if (!storyAlive(animId)) return false;
+        const flyL = kastenLeftNum && !kastenLeftNum.hidden ? cloneFlyingNum(kastenLeftNum) : null;
+        const flyR = kastenRightNum && !kastenRightNum.hidden ? cloneFlyingNum(kastenRightNum) : null;
+        if (kastenLeftNum) kastenLeftNum.style.visibility = 'hidden';
+        if (kastenRightNum) kastenRightNum.style.visibility = 'hidden';
+        drill6Phase = storyEqPhase();
+        equationEl.style.opacity = '0';
+        applyDisplayMode();
+        await wait(50);
+        if (!storyAlive(animId)) {
+            flyL && flyL.remove();
+            flyR && flyR.remove();
+            return false;
+        }
+        const eqRed = equationEl.querySelector('.eq-red');
+        const eqBlue = equationEl.querySelector('.eq-blue');
+        try {
+            await Promise.all([
+                flyL && eqRed ? flySameSize(flyL, eqRed, -36) : Promise.resolve(),
+                flyR && eqBlue ? flySameSize(flyR, eqBlue, -36) : Promise.resolve()
+            ]);
+        } catch (err) {
+            flyL && flyL.remove();
+            flyR && flyR.remove();
+            return storyAlive(animId);
+        }
+        flyL && flyL.remove();
+        flyR && flyR.remove();
+        if (!storyAlive(animId)) return false;
+        if (kastenLeftNum) {
+            kastenLeftNum.hidden = true;
+            kastenLeftNum.style.visibility = '';
+            kastenLeftNum.style.transform = '';
+        }
+        if (kastenRightNum) {
+            kastenRightNum.hidden = true;
+            kastenRightNum.style.visibility = '';
+            kastenRightNum.style.transform = '';
+        }
+        equationEl.style.opacity = '';
+        return true;
+    }
+
+    async function showKastenFromSolo(animId) {
+        const first = kastenLeftNum.getBoundingClientRect();
+        drill6Phase = 1;
+        applyDisplayMode();
+        await wait(30);
+        if (!storyAlive(animId)) return false;
+        const last = kastenLeftNum.getBoundingClientRect();
+        const dx = first.left - last.left + (first.width - last.width) / 2;
+        const dy = first.top - last.top + (first.height - last.height) / 2;
+        const scale = last.width > 0 ? first.width / last.width : 1;
+        try {
+            await Promise.all([
+                kastenLeftNum.animate([
+                    { transform: `translate(${dx}px, ${dy}px) scale(${scale})` },
+                    { transform: 'translate(0, 0) scale(1)' }
+                ], { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }).finished,
+                frameSpin.animate([
+                    { opacity: 0, transform: 'scale(0.92)' },
+                    { opacity: 1, transform: 'scale(1)' }
+                ], { duration: 450, easing: 'ease-out' }).finished
+            ]);
+        } catch (err) {
+            return storyAlive(animId);
+        }
+        messageEl.innerHTML = storyPrompt();
+        return true;
+    }
+
+    function storyAskPrompt() {
+        const red = bunkaiRed;
+        if (isBunkaiDrill9()) {
+            return `<strong class="eq-red">${red}</strong> の となり は？`;
+        }
+        const extra = drill6Extra();
+        if (extra > 0) {
+            return `<strong class="eq-red">${extra}</strong> の となり は？`;
+        }
+        return `いくつ たす？`;
+    }
+
+    function storyQuizAnswer() {
+        return isBunkaiDrill9() ? drill7ToFive() : drill6Blue();
+    }
+
+    function waitForStoryQuiz(animId) {
+        if (!storyAlive(animId)) return Promise.resolve(false);
+        return new Promise((resolve) => {
+            storyQuizWait = { animId, resolve };
+            busy = false;
+            choicesEl.classList.remove('hidden');
+            setChoicesEnabled(true);
+            messageEl.innerHTML = storyAskPrompt();
+            applyDisplayMode();
+            updateHintButton();
+        });
+    }
+
+    async function onStoryQuizChoose(count) {
+        if (!storyQuizWait || busy || solved) return;
+        if (!storyAlive(storyQuizWait.animId)) {
+            clearStoryQuizWait();
+            return;
+        }
+        busy = true;
+        setChoicesEnabled(false);
+        const needed = storyQuizAnswer();
+        if (count === needed) {
+            choicesEl.classList.add('hidden');
+            const { resolve } = storyQuizWait;
+            storyQuizWait = null;
+            applyDisplayMode();
+            resolve(true);
+            return;
+        }
+        if (tenBarsEl) {
+            tenBarsEl.classList.add('shake');
+            wait(450).then(() => tenBarsEl && tenBarsEl.classList.remove('shake'));
+        }
+        messageEl.innerHTML = 'ちがうよ！ もういちど！';
+        await wait(900);
+        if (!storyQuizWait || !storyAlive(storyQuizWait.animId)) {
+            busy = false;
+            return;
+        }
+        messageEl.innerHTML = storyAskPrompt();
+        setChoicesEnabled(true);
+        busy = false;
+    }
+
+    async function playStoryDrillSequence(animId) {
+        const red = bunkaiRed;
+        const blue = drill6Blue();
+        const isLow = isBunkaiLowRedStory();
+        busy = true;
+        solved = false;
+        setChoicesEnabled(false);
+        choicesEl.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        resetDrill6Anims();
+        drill6Phase = 0;
+        storyBarShown = { comp: false, botRight: false, topFive: false };
+        if (kastenLeftNum) {
+            kastenLeftNum.hidden = false;
+            kastenLeftNum.textContent = String(red);
+            kastenLeftNum.style.transform = '';
+            kastenLeftNum.style.visibility = '';
+        }
+        if (kastenRightNum) {
+            kastenRightNum.hidden = true;
+            kastenRightNum.textContent = '';
+            kastenRightNum.style.transform = '';
+            kastenRightNum.style.visibility = '';
+        }
+        equationEl.style.opacity = '';
+        equationEl.innerHTML = '';
+        messageEl.innerHTML = '';
+        applyDisplayMode();
+        if (!await waitIfAlive(animId, 2000)) return;
+
+        if (!await showKastenFromSolo(animId)) return;
+        if (!await waitIfAlive(animId, 2000)) return;
+
+        drill6Phase = 2;
+        applyDisplayMode();
+        messageEl.innerHTML = storyPrompt();
+        if (tenBarsEl) {
+            tenBarsEl.animate([
+                { opacity: 0, transform: 'translateY(10px)' },
+                { opacity: 1, transform: 'translateY(0)' }
+            ], { duration: 400, easing: 'ease-out' });
+        }
+        if (!await waitIfAlive(animId, 2000)) return;
+
+        if (isBunkaiQuizDrill()) {
+            if (!await waitForStoryQuiz(animId)) return;
+            busy = true;
+            setChoicesEnabled(false);
+            choicesEl.classList.add('hidden');
+            applyDisplayMode();
+        }
+
+        if (isLow) {
+            drill6Phase = 3;
+            revealBarNum('botRight');
+            messageEl.innerHTML = storyPrompt();
+            if (!await waitIfAlive(animId, 2000)) return;
+
+            drill6Phase = 4;
+            revealBarNum('topFive');
+            messageEl.innerHTML = storyPrompt();
+            if (!await waitIfAlive(animId, 2000)) return;
+
+            drill6Phase = 5;
+        } else {
+            drill6Phase = 3;
+            revealBarNum('comp');
+            messageEl.innerHTML = storyPrompt();
+            if (!await waitIfAlive(animId, 2000)) return;
+
+            drill6Phase = 4;
+        }
+
+        if (kastenRightNum) {
+            kastenRightNum.hidden = false;
+            kastenRightNum.textContent = String(blue);
+            kastenRightNum.style.transform = '';
+            kastenRightNum.style.visibility = '';
+        }
+        applyDisplayMode();
+        if (kastenRightNum) {
+            kastenRightNum.animate([
+                { opacity: 0, transform: 'scale(0.55)' },
+                { opacity: 1, transform: 'scale(1)' }
+            ], { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+        }
+        if (!await waitIfAlive(animId, 2000)) return;
+
+        if (!await flyNumsToEquation(animId)) return;
+        messageEl.innerHTML = storyPrompt();
+        if (!storyAlive(animId)) return;
+        solved = true;
+        const reward = await grantSolveReward();
+        if (!storyAlive(animId)) return;
+        messageEl.innerHTML = rewardMessage(reward.wasComplete, reward.golden, reward.grew);
+        nextBtn.classList.remove('hidden');
+        busy = false;
+        updateHintButton();
+    }
+
     function bunkaiKastenPhase() {
         return bunkaiSpecial === 'drill5' ? 3 : 2;
     }
 
-    function makeTenBar(units, kind, label) {
+    function makeTenBar(units, kind, label, fixed = false) {
         const bar = document.createElement('div');
         bar.className = 'ten-bar ten-bar-' + kind;
-        bar.style.gridColumn = `span ${Math.max(1, units)}`;
+        if (!fixed) bar.style.gridColumn = `span ${Math.max(1, units)}`;
         if (label) bar.textContent = label;
         return bar;
+    }
+
+    function makeDrill6BlueBar(blue, showNum, key) {
+        const bar = makeTenBar(1, 'blue', '', true);
+        const num = document.createElement('span');
+        num.className = 'ten-bar-num' + (showNum ? '' : ' is-off');
+        num.dataset.barKey = key;
+        num.textContent = String(blue);
+        bar.appendChild(num);
+        return bar;
+    }
+
+    function revealBarNum(key) {
+        storyBarShown[key] = true;
+        const num = tenBarsEl ? tenBarsEl.querySelector(`.ten-bar-num[data-bar-key="${key}"]`) : null;
+        if (!num) return;
+        num.classList.remove('is-off');
+        num.animate([
+            { opacity: 0, transform: 'scale(0.6)' },
+            { opacity: 1, transform: 'scale(1.12)' },
+            { opacity: 1, transform: 'scale(1)' }
+        ], { duration: 420, easing: 'ease-out' });
     }
 
     function renderTenBars() {
@@ -4287,7 +4865,27 @@
         top.className = 'ten-bars-row';
         const bottom = document.createElement('div');
         bottom.className = 'ten-bars-row';
-        if (bunkaiSpecial === 'drill4') {
+        if (bunkaiSpecial === 'drill6' || bunkaiSpecial === 'drill8') {
+            const extra = Math.max(0, red - 5);
+            const blue = bunkaiTarget - red;
+            bottom.className = 'ten-bars-row ten-bars-full';
+            if (extra === 0) {
+                top.className = 'ten-bars-row ten-bars-full';
+                top.appendChild(makeDrill6BlueBar(blue, storyBarShown.comp, 'comp'));
+            } else {
+                top.className = 'ten-bars-row ten-bars-split';
+                top.appendChild(makeTenBar(1, 'red', String(extra), true));
+                top.appendChild(makeDrill6BlueBar(blue, storyBarShown.comp, 'comp'));
+            }
+            bottom.appendChild(makeTenBar(1, 'red', '5', true));
+        } else if (bunkaiSpecial === 'drill7' || bunkaiSpecial === 'drill9') {
+            const rest = Math.max(0, 5 - red);
+            top.className = 'ten-bars-row ten-bars-full';
+            bottom.className = 'ten-bars-row ten-bars-split';
+            top.appendChild(makeDrill6BlueBar(5, storyBarShown.topFive, 'topFive'));
+            bottom.appendChild(makeTenBar(1, 'red', String(red), true));
+            bottom.appendChild(makeDrill6BlueBar(rest, storyBarShown.botRight, 'botRight'));
+        } else if (bunkaiSpecial === 'drill4') {
             const extra = Math.max(0, red - 5);
             if (extra > 0) {
                 top.appendChild(makeTenBar(extra, 'red', String(extra)));
@@ -4310,6 +4908,30 @@
     }
 
     function updateBunkaiScaffold() {
+        if (isBunkaiStoryDrill()) {
+            gameArea.classList.remove('scaffold-eq', 'scaffold-bars', 'scaffold-kasten');
+            gameArea.classList.add('drill6-play');
+            gameArea.classList.toggle('drill6-solo', drill6Phase === 0);
+            gameArea.classList.toggle('drill6-eq', drill6Phase >= storyEqPhase());
+            gameArea.classList.toggle('drill6-right-on', isBunkaiLowRedStory() ? drill6Phase === 5 : drill6Phase === 4);
+            gameArea.classList.toggle('drill6-bars', drill6Phase >= 2);
+            gameArea.classList.toggle('drill6-ask', isBunkaiQuizDrill() && !!storyQuizWait);
+            if (tenBarsEl) {
+                tenBarsEl.hidden = drill6Phase < 2;
+                if (drill6Phase >= 2) {
+                    tenBarsEl.style.opacity = '';
+                    renderTenBars();
+                    const w = framesContainer.getBoundingClientRect().width;
+                    tenBarsEl.style.width = w > 0 ? `${Math.round(w)}px` : '';
+                } else {
+                    tenBarsEl.innerHTML = '';
+                    tenBarsEl.style.width = '';
+                }
+            }
+            return;
+        }
+        gameArea.classList.remove('drill6-play', 'drill6-solo', 'drill6-eq', 'drill6-right-on', 'drill6-bars', 'drill6-ask');
+        if (tenBarsEl) tenBarsEl.style.width = '';
         const scaffold = isBunkaiScaffold();
         const kastenAt = bunkaiKastenPhase();
         const atEq = scaffold && bunkaiHintPhase === 0;
@@ -4334,6 +4956,7 @@
     }
 
     function bunkaiPrompt() {
+        if (isBunkaiStoryDrill()) return storyPrompt();
         const known = bunkaiKnown();
         if (isBunkaiScaffold() && bunkaiHintPhase < bunkaiKastenPhase()) {
             return `<strong>${known}</strong> に いくつ たせば <strong>${bunkaiTarget}</strong> になるかな？`;
@@ -4348,6 +4971,15 @@
     }
 
     function refreshBunkaiEquation(fillValue = null) {
+        if (isBunkaiStoryDrill()) {
+            if (drill6Phase >= storyEqPhase()) {
+                equationEl.innerHTML =
+                    `<span class="eq-red">${bunkaiRed}</span> + <span class="eq-blue">${drill6Blue()}</span> = <span class="eq-sum">${bunkaiTarget}</span>`;
+            } else {
+                equationEl.innerHTML = '';
+            }
+            return;
+        }
         const known = bunkaiKnown();
         const knownClass = bunkaiPhase === 'ask-red' ? 'eq-blue' : 'eq-red';
         const fillClass = bunkaiPhase === 'ask-red' ? 'eq-red' : 'eq-blue';
@@ -4409,10 +5041,10 @@
     }
 
     function bunkaiPairOpts() {
-        if (bunkaiSpecial === 'drill1' || bunkaiSpecial === 'drill2' || bunkaiSpecial === 'drill4') {
+        if (bunkaiSpecial === 'drill1' || bunkaiSpecial === 'drill2' || bunkaiSpecial === 'drill4' || bunkaiSpecial === 'drill6' || bunkaiSpecial === 'drill8') {
             return [5, 6, 7, 8, 9].map((red) => `${10}-${red}`);
         }
-        if (bunkaiSpecial === 'drill3' || bunkaiSpecial === 'drill5') {
+        if (bunkaiSpecial === 'drill3' || bunkaiSpecial === 'drill5' || bunkaiSpecial === 'drill7' || bunkaiSpecial === 'drill9') {
             return [1, 2, 3, 4].map((red) => `${10}-${red}`);
         }
         const opts = [];
@@ -4467,6 +5099,8 @@
     }
 
     function initBunkaiGame() {
+        bunkaiAnimId += 1;
+        const animId = bunkaiAnimId;
         busy = false;
         solved = false;
         hintPhase = 0;
@@ -4474,9 +5108,25 @@
         bunkaiFlipReady = false;
         bunkaiPhase = 'ask-blue';
         resetBunkaiSpin();
+        if (isBunkaiStoryDrill()) clearDrill6Ui();
         drawBunkaiQuestion();
         messageEl.innerHTML = bunkaiPrompt();
         nextBtn.classList.add('hidden');
+        if (isBunkaiStoryDrill()) {
+            choicesEl.classList.add('hidden');
+            setChoicesEnabled(false);
+            renderBunkaiFrames();
+            if (kastenLeftNum) {
+                kastenLeftNum.hidden = false;
+                kastenLeftNum.textContent = String(bunkaiRed);
+                kastenLeftNum.style.transform = '';
+                kastenLeftNum.style.visibility = '';
+            }
+            applyDisplayMode();
+            playStoryDrillSequence(animId);
+            return;
+        }
+        clearDrill6Ui();
         choicesEl.classList.remove('hidden');
         setChoicesEnabled(true);
         renderBunkaiFrames();
@@ -4568,7 +5218,11 @@
     }
 
     async function onBunkaiChoose(count, button) {
-        if (busy || isHintView()) return;
+        if (isBunkaiQuizDrill()) {
+            await onStoryQuizChoose(count);
+            return;
+        }
+        if (busy || isHintView() || isBunkaiWatchDrill()) return;
         busy = true;
         setChoicesEnabled(false);
         emptyBunkaiBoxes().forEach((box) => box.classList.remove('empty-hint'));
@@ -4659,8 +5313,9 @@
     }
 
     function startBunkaiTokkun(kind) {
+        abortBunkaiAnim();
         if (busy) return;
-        if (bunkaiSpecial === kind && !solved && bunkaiPhase === 'ask-blue' && drillCount === null) return;
+        if (bunkaiSpecial === kind && !solved && bunkaiPhase === 'ask-blue' && drillCount === null && !isBunkaiStoryDrill() && kind !== 'drill6' && kind !== 'drill7' && kind !== 'drill8' && kind !== 'drill9') return;
         drillCount = null;
         drillItems = [];
         drillFocus = null;
@@ -4671,12 +5326,14 @@
     }
 
     function showHome() {
+        abortBunkaiAnim();
         if (busy) return;
         playMode = 'home';
         bunkaiSpecial = null;
         bunkaiFlipReady = false;
         bunkaiPhase = 'ask-blue';
         resetBunkaiSpin();
+        clearDrill6Ui();
         document.querySelectorAll('.ball.flying, .num-chip').forEach((el) => el.remove());
         busy = false;
         drillCount = null;
@@ -4695,20 +5352,24 @@
     }
 
     function enterAdd() {
+        abortBunkaiAnim();
         if (busy) return;
         playMode = 'add';
         bunkaiSpecial = null;
         bunkaiFlipReady = false;
         resetBunkaiSpin();
+        clearDrill6Ui();
         initGame();
     }
 
     function enterBunkai() {
+        abortBunkaiAnim();
         if (busy) return;
         playMode = 'bunkai';
         bunkaiSpecial = null;
         bunkaiQueue = [];
         bunkaiFlipReady = false;
+        clearDrill6Ui();
         initBunkaiGame();
     }
 
@@ -4872,11 +5533,13 @@
     }
 
     function enterSub() {
+        abortBunkaiAnim();
         if (busy) return;
         playMode = 'sub';
         bunkaiSpecial = null;
         bunkaiFlipReady = false;
         resetBunkaiSpin();
+        clearDrill6Ui();
         initSubGame();
     }
 
@@ -5180,15 +5843,16 @@
         return chip;
     }
 
-    function flyFromTo(el, targetEl, extraY = -70) {
+    function flyFromTo(el, targetEl, extraY = -70, matchScale = false) {
         const from = el.getBoundingClientRect();
         const to = targetEl.getBoundingClientRect();
         const dx = to.left + (to.width - from.width) / 2 - from.left;
         const dy = to.top + (to.height - from.height) / 2 - from.top;
+        const endScale = matchScale ? to.height / Math.max(1, from.height) : 1;
         return el.animate([
             { transform: 'translate(0, 0) scale(1)' },
-            { transform: `translate(${dx * 0.55}px, ${dy * 0.45 + extraY}px) scale(1.12)` },
-            { transform: `translate(${dx}px, ${dy}px) scale(1)` }
+            { transform: `translate(${dx * 0.55}px, ${dy * 0.45 + extraY}px) scale(${Math.max(endScale, 1) * 1.06})` },
+            { transform: `translate(${dx}px, ${dy}px) scale(${endScale})` }
         ], {
             duration: 520,
             easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
@@ -5805,7 +6469,11 @@
     bunkaiDrill2Btn.addEventListener('click', () => startBunkaiTokkun('drill2'));
     bunkaiDrill3Btn.addEventListener('click', () => startBunkaiTokkun('drill3'));
     bunkaiDrill4Btn.addEventListener('click', () => startBunkaiTokkun('drill4'));
-    bunkaiDrill5Btn.addEventListener('click', () => startBunkaiTokkun('drill5'));
+    if (bunkaiDrill5Btn) bunkaiDrill5Btn.addEventListener('click', () => startBunkaiTokkun('drill5'));
+    if (bunkaiDrill6Btn) bunkaiDrill6Btn.addEventListener('click', () => startBunkaiTokkun('drill6'));
+    if (bunkaiDrill7Btn) bunkaiDrill7Btn.addEventListener('click', () => startBunkaiTokkun('drill7'));
+    if (bunkaiDrill8Btn) bunkaiDrill8Btn.addEventListener('click', () => startBunkaiTokkun('drill8'));
+    if (bunkaiDrill9Btn) bunkaiDrill9Btn.addEventListener('click', () => startBunkaiTokkun('drill9'));
     loadState();
     refreshOrchard();
     buildFixButtons();
