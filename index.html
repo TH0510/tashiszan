@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ヌマーカステン</title>
 <style>
     * { box-sizing: border-box; }
@@ -1417,6 +1417,75 @@
         opacity: 0.55;
     }
 
+    @media screen and (orientation: landscape) and (max-height: 900px) {
+        body.mode-add {
+            padding: 6px 12px 6px;
+            padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
+        }
+        body.mode-add .title-bar {
+            margin-bottom: 4px;
+        }
+        body.mode-add .title-bar h1 {
+            font-size: 22px;
+        }
+        body.mode-add .game-area {
+            padding: 10px 16px 6px;
+        }
+        body.mode-add .add-bar {
+            margin-bottom: 2px;
+        }
+        body.mode-add .add-bar-btn,
+        body.mode-add .enshu-make-btn {
+            padding: 7px 14px;
+            font-size: 16px;
+        }
+        body.mode-add .game-area:not(.in-shift):not(.in-change-quiz):not(.in-change-hint):not(.in-count):not(.in-four-plus):not(.in-drill-list):not(.in-drill-hint) .message,
+        body.mode-add .game-area:not(.in-shift):not(.in-change-quiz):not(.in-change-hint):not(.in-count):not(.in-four-plus):not(.in-drill-list):not(.in-drill-hint) .message:empty {
+            min-height: 48px;
+            margin-bottom: 2px;
+            font-size: 22px;
+        }
+        body.mode-add .kastens {
+            margin: 4px auto 0;
+            gap: 12px;
+        }
+        body.mode-add .equation {
+            font-size: 36px;
+            min-height: 42px;
+            margin: 4px 0 2px;
+        }
+        body.mode-add .hint-row {
+            margin: 2px 0 4px;
+        }
+        body.mode-add .hint-btn {
+            padding: 6px 18px;
+            font-size: 16px;
+        }
+        body.mode-add .choices {
+            margin-top: 2px;
+        }
+        body.mode-add .choices-label {
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+        body.mode-add .choice-row {
+            gap: 6px;
+            max-width: 500px;
+        }
+        body.mode-add .choice-btn {
+            width: 42px;
+            height: 42px;
+            font-size: 18px;
+        }
+        body.mode-add .next-row {
+            margin-top: 4px;
+        }
+        body.mode-add .next-btn {
+            padding: 10px 28px;
+            font-size: 20px;
+        }
+    }
+
     .next-row {
         display: flex;
         justify-content: center;
@@ -1861,10 +1930,10 @@
        いんさつ中は画面上も問題用紙レイアウトにする */
     body.print-drill {
         background: #fff !important;
-        padding: 12mm 14mm 12mm;
+        padding: 10mm 14mm 8mm;
         margin: 0;
         color: #222;
-        overflow: visible !important;
+        overflow: hidden !important;
         min-height: 0 !important;
         height: auto !important;
     }
@@ -1934,23 +2003,19 @@
     body.print-drill .print-meta {
         display: block;
         text-align: left;
-        margin: 0 0 5mm;
+        margin: 0 0 4mm;
     }
     body.print-drill .print-date {
         display: block;
-        font-size: 16pt;
+        font-size: 14pt;
         font-weight: bold;
         letter-spacing: 0.04em;
-        margin: 0 0 2mm;
+        margin: 0;
         color: #222;
         white-space: nowrap;
     }
     body.print-drill .print-settings {
-        display: block;
-        font-size: 11pt;
-        font-weight: bold;
-        margin: 0;
-        color: #333;
+        display: none !important;
     }
     body.print-drill .drill-list,
     body.print-drill .drill-list.print-few,
@@ -1958,7 +2023,7 @@
     body.print-drill .drill-list.hunt-board {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-auto-rows: 36mm;
+        grid-auto-rows: 34mm;
         gap: 0 16mm;
         max-width: none;
         max-height: none;
@@ -1974,20 +2039,12 @@
         align-items: center;
         justify-content: flex-start;
         min-height: 0;
-        height: 36mm;
-        font-size: 24pt;
+        height: 34mm;
+        font-size: 22pt;
         letter-spacing: 0.12em;
         page-break-inside: avoid;
         break-inside: avoid;
         gap: 0;
-    }
-    body.print-drill .drill-item:nth-child(14n) {
-        break-after: page;
-        page-break-after: always;
-    }
-    body.print-drill .drill-item:last-child {
-        break-after: auto;
-        page-break-after: auto;
     }
     body.print-drill .drill-list.hunt-board {
         max-width: none;
@@ -2016,7 +2073,7 @@
             print-color-adjust: exact;
         }
         body.print-drill {
-            padding: 12mm 14mm 12mm;
+            padding: 10mm 14mm 8mm;
         }
     }
 </style>
@@ -3113,19 +3170,14 @@
 
     function closeAddBarIfOutside(event) {
         if (!addBarOpen) return;
-        const target = event.target;
-        if (!(target instanceof Element)) return;
-        const openPanel = addBarOpen === 'sum' ? sumMenuPanel
-            : addBarOpen === 'side' ? sideMenuPanel
-            : enshuMenuPanel;
-        const openBtn = addBarOpen === 'sum' ? sumMenuBtn
-            : addBarOpen === 'side' ? sideMenuBtn
-            : enshuMenuBtn;
-        if (openPanel && openPanel.contains(target)) return;
-        if (openBtn && openBtn.contains(target)) return;
-        if (sumMenuBtn && sumMenuBtn.contains(target)) return;
-        if (sideMenuBtn && sideMenuBtn.contains(target)) return;
-        if (enshuMenuBtn && enshuMenuBtn.contains(target)) return;
+        const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+        const nodes = path.length ? path : [event.target];
+        const keep = [sumMenuPanel, sideMenuPanel, enshuMenuPanel, sumMenuBtn, sideMenuBtn, enshuMenuBtn];
+        const inside = nodes.some((node) => keep.some((el) => {
+            if (!el || !(node instanceof Node)) return false;
+            return node === el || el.contains(node);
+        }));
+        if (inside) return;
         addBarOpen = null;
         syncAddBarOpen();
     }
@@ -6562,6 +6614,11 @@
     if (sumMenuBtn) sumMenuBtn.addEventListener('click', () => setAddBarOpen('sum'));
     if (sideMenuBtn) sideMenuBtn.addEventListener('click', () => setAddBarOpen('side'));
     if (enshuMenuBtn) enshuMenuBtn.addEventListener('click', () => setAddBarOpen('enshu'));
+    [sumMenuPanel, sideMenuPanel, enshuMenuPanel].forEach((panel) => {
+        if (!panel) return;
+        panel.addEventListener('pointerdown', (event) => event.stopPropagation());
+        panel.addEventListener('click', (event) => event.stopPropagation());
+    });
     document.addEventListener('pointerdown', closeAddBarIfOutside);
     if (enshuDupBtn) {
         enshuDupBtn.addEventListener('click', () => {
