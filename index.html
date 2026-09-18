@@ -124,6 +124,7 @@
     body.mode-sub .move-full {
         display: none !important;
     }
+    body.mode-home .game-area .add-bar,
     body.mode-home .game-area .message,
     body.mode-home .kastens,
     body.mode-home .frame-spin,
@@ -169,6 +170,194 @@
         color: #555;
         margin-bottom: 12px;
         min-height: 64px;
+    }
+    .message:empty {
+        display: none;
+        min-height: 0;
+        margin: 0;
+    }
+    body.mode-add .game-area:not(.in-shift):not(.in-change-quiz):not(.in-change-hint):not(.in-count):not(.in-four-plus):not(.in-drill-list):not(.in-drill-hint) .message,
+    body.mode-add .game-area:not(.in-shift):not(.in-change-quiz):not(.in-change-hint):not(.in-count):not(.in-four-plus):not(.in-drill-list):not(.in-drill-hint) .message:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 88px;
+        margin-bottom: 8px;
+        visibility: visible;
+    }
+    .add-bar {
+        display: none;
+        position: relative;
+        z-index: 8;
+        margin-bottom: 8px;
+    }
+    body.mode-add .add-bar {
+        display: block;
+    }
+    body.mode-add .game-area.in-drill-hint .add-bar,
+    body.mode-add .game-area.in-shift .add-bar,
+    body.mode-add .game-area.in-change-quiz .add-bar,
+    body.mode-add .game-area.in-change-hint .add-bar,
+    body.mode-add .game-area.in-count .add-bar,
+    body.mode-add .game-area.in-four-plus .add-bar,
+    body.print-drill .add-bar {
+        display: none !important;
+    }
+    .add-bar-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px 32px;
+    }
+    .add-bar-settings {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+    .add-bar-btn {
+        border: 2px solid #b0bec5;
+        background: #eceff1;
+        color: #37474f;
+        border-radius: 16px;
+        padding: 10px 16px;
+        font-size: 18px;
+        font-weight: bold;
+        font-family: inherit;
+        cursor: pointer;
+        min-width: 148px;
+    }
+    .add-bar-btn:hover:not(.open) {
+        background: #cfd8dc;
+    }
+    .add-bar-btn.open {
+        background: #1565c0;
+        border-color: #1565c0;
+        color: #fff;
+    }
+    .enshu-make-btn {
+        border: none;
+        background: linear-gradient(#ff9800, #fb8c00);
+        color: #fff;
+        border-radius: 22px;
+        padding: 11px 22px;
+        font-size: 18px;
+        font-weight: bold;
+        font-family: inherit;
+        cursor: pointer;
+        min-width: 148px;
+        box-shadow: 0 4px 0 #e65100;
+    }
+    .enshu-make-btn:hover:not(.open) {
+        filter: brightness(1.05);
+    }
+    .enshu-make-btn.open {
+        background: linear-gradient(#ef6c00, #e65100);
+        box-shadow: 0 2px 0 #bf360c;
+        transform: translateY(2px);
+    }
+    .enshu-make-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #e65100;
+    }
+    .add-bar-panel {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        z-index: 9;
+        padding: 12px 10px 10px;
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #eceff1;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+    }
+    .add-bar-panel.open {
+        display: block;
+    }
+    .add-bar-extra {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    .add-bar-sides {
+        display: flex;
+        justify-content: center;
+        max-width: 560px;
+        margin: 0 auto 12px;
+        padding: 4px;
+        background: #eceff1;
+        border-radius: 999px;
+        gap: 4px;
+    }
+    .side-scope {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: #607d8b;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: inherit;
+        padding: 8px 8px;
+        border-radius: 999px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .side-scope:hover:not(.active) {
+        color: #37474f;
+        background: rgba(255,255,255,0.55);
+    }
+    #fix-left-tab.active {
+        background: #ffebee;
+        color: #c62828;
+        box-shadow: 0 1px 3px rgba(198,40,40,0.25);
+    }
+    #fix-right-tab.active {
+        background: #e3f2fd;
+        color: #1565c0;
+        box-shadow: 0 1px 3px rgba(21,101,192,0.25);
+    }
+    #fix-either-tab.active {
+        background: #e0f2f1;
+        color: #00695c;
+        box-shadow: 0 1px 3px rgba(0,105,92,0.25);
+    }
+    #fix-both-tab.active {
+        background: #f3e5f5;
+        color: #6a1b9a;
+        box-shadow: 0 1px 3px rgba(106,27,154,0.25);
+    }
+    .add-bar-panel .ctrl-btn {
+        width: auto;
+        min-width: 96px;
+        padding: 8px 14px;
+        font-size: 16px;
+    }
+    .add-bar-panel .sum-grid,
+    .add-bar-panel .fix-grid,
+    .add-bar-panel .enshu-grid {
+        margin: 8px auto 0;
+    }
+    .add-bar-panel .sum-grid {
+        grid-template-columns: repeat(9, minmax(36px, 1fr));
+        max-width: 520px;
+    }
+    .add-bar-panel .fix-grid {
+        grid-template-columns: repeat(9, minmax(36px, 1fr));
+        max-width: 520px;
+    }
+    .add-bar-panel .enshu-grid {
+        grid-template-columns: repeat(10, minmax(36px, 1fr));
+        max-width: 560px;
+    }
+    .add-settings .settings-block:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
     }
     .kastens {
         display: flex;
@@ -855,7 +1044,7 @@
     .game-area.in-shift .equation { order: 2; }
     .game-area.in-shift .kastens { order: 3; }
     .game-area.in-shift .shift-panel { order: 4; }
-    .game-area.in-shift .next-btn { order: 5; }
+    .game-area.in-shift .next-row { order: 5; }
     .game-area.in-shift .hint-row,
     .game-area.in-shift .back-btn,
     .game-area.in-shift .drill-panel,
@@ -1006,7 +1195,7 @@
     }
     .game-area.in-change-quiz .hint-row { order: 2; }
     .game-area.in-change-quiz .choices { order: 3; }
-    .game-area.in-change-quiz .next-btn { order: 4; }
+    .game-area.in-change-quiz .next-row { order: 4; }
     .game-area.in-change-quiz .message,
     .game-area.in-change-quiz .kastens,
     .game-area.in-change-quiz .equation,
@@ -1030,7 +1219,7 @@
     .game-area.in-change-hint .kastens { order: 3; }
     .game-area.in-change-hint .hint-row { order: 4; }
     .game-area.in-change-hint .back-btn { order: 5; }
-    .game-area.in-change-hint .next-btn { order: 6; }
+    .game-area.in-change-hint .next-row { order: 6; }
     .game-area.in-change-hint .change-panel,
     .game-area.in-change-hint .choices,
     .game-area.in-change-hint .shift-panel,
@@ -1228,6 +1417,14 @@
         opacity: 0.55;
     }
 
+    .next-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+    }
     .next-btn {
         background-color: #ff9800;
         color: white;
@@ -1239,7 +1436,7 @@
         cursor: pointer;
         box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         transition: all 0.2s;
-        margin-top: 8px;
+        margin-top: 0;
         font-family: inherit;
     }
     .next-btn:hover {
@@ -1249,6 +1446,13 @@
     .next-btn:active {
         transform: translateY(2px);
         box-shadow: none;
+    }
+    .next-btn.retry-btn {
+        background-color: #42a5f5;
+        padding: 15px 28px;
+    }
+    .next-btn.retry-btn:hover {
+        background-color: #1e88e5;
     }
     .hidden {
         display: none !important;
@@ -1291,14 +1495,6 @@
     }
     .side-tab:hover:not(.active) {
         color: #607d8b;
-    }
-    #fix-left-tab.active {
-        color: #e53935;
-        border-bottom-color: #e53935;
-    }
-    #fix-right-tab.active {
-        color: #1565c0;
-        border-bottom-color: #1565c0;
     }
     .ctrl-group {
         margin-bottom: 18px;
@@ -1665,7 +1861,7 @@
        いんさつ中は画面上も問題用紙レイアウトにする */
     body.print-drill {
         background: #fff !important;
-        padding: 14mm 16mm 16mm;
+        padding: 12mm 14mm 12mm;
         margin: 0;
         color: #222;
         overflow: visible !important;
@@ -1676,6 +1872,7 @@
     body.print-drill .title-bar,
     body.print-drill .grove,
     body.print-drill .settings-panel,
+    body.print-drill .add-bar,
     body.print-drill .step-panel,
     body.print-drill .home-panel,
     body.print-drill .home-back,
@@ -1702,9 +1899,9 @@
     }
     body.print-drill .eq-blank-btn {
         display: inline-block !important;
-        min-width: 22mm;
-        width: 22mm;
-        height: 1em;
+        min-width: 18mm;
+        width: 18mm;
+        height: 1.05em;
         background: transparent !important;
         border: none;
         border-radius: 0;
@@ -1737,59 +1934,60 @@
     body.print-drill .print-meta {
         display: block;
         text-align: left;
-        margin: 0 0 10mm;
+        margin: 0 0 5mm;
     }
     body.print-drill .print-date {
         display: block;
-        font-size: 22pt;
+        font-size: 16pt;
         font-weight: bold;
         letter-spacing: 0.04em;
-        margin: 0 0 4mm;
+        margin: 0 0 2mm;
         color: #222;
         white-space: nowrap;
     }
     body.print-drill .print-settings {
         display: block;
-        font-size: 14pt;
+        font-size: 11pt;
         font-weight: bold;
         margin: 0;
         color: #333;
     }
-    body.print-drill .drill-list {
+    body.print-drill .drill-list,
+    body.print-drill .drill-list.print-few,
+    body.print-drill .drill-list.print-many,
+    body.print-drill .drill-list.hunt-board {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16mm 14mm;
+        grid-auto-rows: 36mm;
+        gap: 0 16mm;
         max-width: none;
         max-height: none;
         overflow: visible;
         margin: 0;
         padding: 0;
+        align-items: center;
     }
-    body.print-drill .drill-list.print-few {
-        grid-template-columns: 1fr;
-        max-width: 130mm;
-        margin: 0 auto;
-        gap: 18mm;
-    }
-    body.print-drill .drill-item {
-        display: block;
-        min-height: 22mm;
-        font-size: 22pt;
-        letter-spacing: 0.08em;
+    body.print-drill .drill-item,
+    body.print-drill .print-few .drill-item,
+    body.print-drill .print-many .drill-item {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 0;
+        height: 36mm;
+        font-size: 24pt;
+        letter-spacing: 0.12em;
         page-break-inside: avoid;
         break-inside: avoid;
-        justify-content: flex-start;
+        gap: 0;
     }
-    body.print-drill .print-few .drill-item {
-        font-size: 28pt;
-        min-height: 28mm;
+    body.print-drill .drill-item:nth-child(14n) {
+        break-after: page;
+        page-break-after: always;
     }
-    body.print-drill .drill-list.print-many {
-        gap: 8mm 12mm;
-    }
-    body.print-drill .print-many .drill-item {
-        font-size: 18pt;
-        min-height: 16mm;
+    body.print-drill .drill-item:last-child {
+        break-after: auto;
+        page-break-after: auto;
     }
     body.print-drill .drill-list.hunt-board {
         max-width: none;
@@ -1818,7 +2016,7 @@
             print-color-adjust: exact;
         }
         body.print-drill {
-            padding: 14mm 16mm 16mm;
+            padding: 12mm 14mm 12mm;
         }
     }
 </style>
@@ -1846,29 +2044,6 @@
             <button type="button" id="home-btn" class="home-back hidden">← メニュー</button>
         </aside>
         <aside class="controls settings-panel add-settings" aria-label="もんだいの設定">
-            <div class="settings-block">
-                <p class="controls-title">ごうけいの数</p>
-                <div class="ctrl-group">
-                    <button type="button" class="ctrl-btn active" id="random-sum-btn">ランダム</button>
-                    <div class="sum-grid" id="sum-grid"></div>
-                    <button type="button" class="ctrl-btn le10-btn" id="le10-btn" style="margin-top:8px;">10以下</button>
-                    <button type="button" class="ctrl-btn le5-btn" id="le5-btn" style="margin-top:8px;">5以下</button>
-                </div>
-            </div>
-            <div class="settings-block">
-                <div class="side-tabs">
-                    <button type="button" class="side-tab active" id="fix-left-tab">ひだりの数</button>
-                    <button type="button" class="side-tab" id="fix-right-tab">みぎの数</button>
-                </div>
-                <div class="ctrl-group">
-                    <button type="button" class="ctrl-btn active" id="random-left-btn">ランダム</button>
-                    <div class="fix-grid" id="fix-grid"></div>
-                </div>
-            </div>
-            <div class="settings-block enshu-block">
-                <p class="controls-title">えんしゅうの数</p>
-                <div class="enshu-grid" id="enshu-grid"></div>
-            </div>
             <div class="settings-block hunt-block">
                 <p class="controls-title">たからさがし</p>
                 <div class="sum-grid" id="hunt-grid"></div>
@@ -1975,7 +2150,44 @@
                 <button type="button" class="home-mode-btn sub" id="mode-sub-btn">➖ ひきざん</button>
                 <button type="button" class="home-mode-btn bunkai" id="mode-bunkai-btn">🍏 ぶんかい</button>
             </div>
-            <div id="message" class="message">あわせて いくつかな？</div>
+            <div class="add-bar" id="add-bar">
+                <div class="add-bar-row">
+                    <div class="add-bar-settings">
+                        <button type="button" class="add-bar-btn" id="sum-menu-btn">合計 ランダム</button>
+                        <button type="button" class="add-bar-btn" id="side-menu-btn">左右 ランダム</button>
+                    </div>
+                    <button type="button" class="enshu-make-btn" id="enshu-menu-btn">演習作成</button>
+                </div>
+                <div class="add-bar-panel" id="sum-menu-panel">
+                    <div class="add-bar-extra">
+                        <button type="button" class="ctrl-btn active" id="random-sum-btn">ランダム</button>
+                        <button type="button" class="ctrl-btn le10-btn" id="le10-btn">10以下</button>
+                        <button type="button" class="ctrl-btn le5-btn" id="le5-btn">5以下</button>
+                    </div>
+                    <div class="sum-grid" id="sum-grid"></div>
+                </div>
+                <div class="add-bar-panel" id="side-menu-panel">
+                    <div class="add-bar-sides">
+                        <button type="button" class="side-scope" id="fix-left-tab">左</button>
+                        <button type="button" class="side-scope" id="fix-right-tab">右</button>
+                        <button type="button" class="side-scope active" id="fix-either-tab">左右ランダム</button>
+                        <button type="button" class="side-scope" id="fix-both-tab">左右とも</button>
+                    </div>
+                    <div class="add-bar-extra">
+                        <button type="button" class="ctrl-btn active" id="random-left-btn">ランダム</button>
+                        <button type="button" class="ctrl-btn le5-btn" id="side-le4-btn">4以下</button>
+                        <button type="button" class="ctrl-btn le10-btn" id="side-ge5-btn">5以上</button>
+                    </div>
+                    <div class="fix-grid" id="fix-grid"></div>
+                </div>
+                <div class="add-bar-panel" id="enshu-menu-panel">
+                    <div class="add-bar-extra">
+                        <button type="button" class="ctrl-btn" id="enshu-dup-btn">重複可</button>
+                    </div>
+                    <div class="enshu-grid" id="enshu-grid"></div>
+                </div>
+            </div>
+            <div id="message" class="message"></div>
 
             <div class="kastens" id="kastens"></div>
             <div class="four-circles" id="four-circles" hidden></div>
@@ -2054,7 +2266,10 @@
                 <div class="choice-row" id="choice-row"></div>
             </div>
 
-            <button id="next-btn" class="next-btn hidden">つぎのもんだい！</button>
+            <div class="next-row" id="next-row">
+                <button type="button" id="retry-btn" class="next-btn retry-btn hidden">もういちど</button>
+                <button type="button" id="next-btn" class="next-btn hidden">つぎのもんだい！</button>
+            </div>
         </div>
 
         <aside class="controls step-panel" aria-label="表示のきりかえ">
@@ -2147,6 +2362,7 @@
     const messageEl = document.getElementById('message');
     const equationEl = document.getElementById('equation');
     const nextBtn = document.getElementById('next-btn');
+    const retryBtn = document.getElementById('retry-btn');
     const choicesEl = document.getElementById('choices');
     const choiceRow = document.getElementById('choice-row');
     const fixGrid = document.getElementById('fix-grid');
@@ -2154,9 +2370,20 @@
     const randomLeftBtn = document.getElementById('random-left-btn');
     const fixLeftTab = document.getElementById('fix-left-tab');
     const fixRightTab = document.getElementById('fix-right-tab');
+    const fixEitherTab = document.getElementById('fix-either-tab');
+    const fixBothTab = document.getElementById('fix-both-tab');
     const randomSumBtn = document.getElementById('random-sum-btn');
     const le10Btn = document.getElementById('le10-btn');
     const le5Btn = document.getElementById('le5-btn');
+    const sideLe4Btn = document.getElementById('side-le4-btn');
+    const sideGe5Btn = document.getElementById('side-ge5-btn');
+    const sumMenuBtn = document.getElementById('sum-menu-btn');
+    const sideMenuBtn = document.getElementById('side-menu-btn');
+    const enshuMenuBtn = document.getElementById('enshu-menu-btn');
+    const sumMenuPanel = document.getElementById('sum-menu-panel');
+    const sideMenuPanel = document.getElementById('side-menu-panel');
+    const enshuMenuPanel = document.getElementById('enshu-menu-panel');
+    const enshuDupBtn = document.getElementById('enshu-dup-btn');
     const hintBtn = document.getElementById('hint-btn');
     const resetHintBtn = document.getElementById('reset-hint-btn');
     const backBtn = document.getElementById('back-btn');
@@ -2195,16 +2422,11 @@
 
     let leftNum = 1;
     let rightNum = 1;
-    let fixedDigit = null;
-    let fixTarget = 'left';
-
-    function fixedLeft() {
-        return fixTarget === 'left' ? fixedDigit : null;
-    }
-
-    function fixedRight() {
-        return fixTarget === 'right' ? fixedDigit : null;
-    }
+    let selectedSides = new Set();
+    let fixTarget = 'either';
+    let sideMode = 'random';
+    let addBarOpen = null;
+    let enshuAllowDup = false;
     let sumMode = 'random';
     let selectedSums = new Set();
     let busy = false;
@@ -2546,6 +2768,18 @@
             resetHintBtn.disabled = busy;
             resetHintBtn.classList.toggle('hidden', playMode !== 'add' || solved || !showBalls || shiftMode || inChangeQuiz || (countMode ? countPhase !== 'done' : hintPhase === 0));
         }
+        if (retryBtn) {
+            const showRetry = playMode === 'add'
+                && solved
+                && !shiftMode
+                && !changeMode
+                && !countMode
+                && !fourPlusSpecial
+                && drillCount === null
+                && huntTarget === null
+                && !nextBtn.classList.contains('hidden');
+            retryBtn.classList.toggle('hidden', !showRetry);
+        }
         backBtn.disabled = busy;
         backBtn.classList.toggle('hidden', !(inHint || inChangeHint));
         if (countAnimStartBtn) {
@@ -2575,6 +2809,7 @@
                 btn.classList.toggle('active', playMode === 'add' && !fourPlusSpecial && drillCount === Number(btn.dataset.n));
             });
         }
+        if (enshuDupBtn) enshuDupBtn.classList.toggle('active', enshuAllowDup);
         if (bunkaiEnshuGrid) {
             bunkaiEnshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
                 btn.classList.toggle('active', playMode === 'bunkai' && drillCount === Number(btn.dataset.n));
@@ -2664,9 +2899,13 @@
         });
         fixLeftTab.classList.toggle('active', fixTarget === 'left');
         fixRightTab.classList.toggle('active', fixTarget === 'right');
-        randomLeftBtn.classList.toggle('active', fixedDigit === null);
+        if (fixEitherTab) fixEitherTab.classList.toggle('active', fixTarget === 'either');
+        if (fixBothTab) fixBothTab.classList.toggle('active', fixTarget === 'both');
+        randomLeftBtn.classList.toggle('active', sideMode === 'random' && selectedSides.size === 0);
+        if (sideLe4Btn) sideLe4Btn.classList.toggle('active', sideMode === 'le4');
+        if (sideGe5Btn) sideGe5Btn.classList.toggle('active', sideMode === 'ge5');
         fixGrid.querySelectorAll('.fix-btn').forEach((btn) => {
-            btn.classList.toggle('active', Number(btn.dataset.n) === fixedDigit);
+            btn.classList.toggle('active', selectedSides.has(Number(btn.dataset.n)));
         });
         randomSumBtn.classList.toggle('active', sumMode === 'random' && selectedSums.size === 0);
         le10Btn.classList.toggle('active', sumMode === 'le10');
@@ -2674,6 +2913,7 @@
         sumGrid.querySelectorAll('.sum-btn').forEach((btn) => {
             btn.classList.toggle('active', selectedSums.has(Number(btn.dataset.n)));
         });
+        updateAddBarLabels();
         if (bunkaiRandomSumBtn) {
             bunkaiRandomSumBtn.classList.toggle('active', bunkaiSpecial === null && bunkaiSums.size === 0);
         }
@@ -2818,7 +3058,76 @@
             if (hintPhase === 3) return 'のこり は いくつ？';
             return `<strong>${leftNum}</strong> ひく <strong>${rightNum}</strong> は いくつ？`;
         }
-        return `あか の <strong>${leftNum}</strong> と あお の <strong>${rightNum}</strong>。<br>あわせて いくつ？`;
+        return '';
+    }
+
+    function sumSettingLabel() {
+        if (selectedSums.size > 0) return [...selectedSums].sort((a, b) => a - b).join(',');
+        if (sumMode === 'le10') return '10以下';
+        if (sumMode === 'le5') return '5以下';
+        return 'ランダム';
+    }
+
+    function sideValueLabel() {
+        if (sideMode === 'le4') return '4以下';
+        if (sideMode === 'ge5') return '5以上';
+        if (selectedSides.size > 0) return [...selectedSides].sort((a, b) => a - b).join(',');
+        return null;
+    }
+
+    function sideScopeLabel(value) {
+        if (!value) return '左右 ランダム';
+        if (fixTarget === 'left') return `左 ${value}`;
+        if (fixTarget === 'right') return `右 ${value}`;
+        if (fixTarget === 'both') return `左右とも ${value}`;
+        return `左右いずれかが${value}`;
+    }
+
+    function sideSettingLabel() {
+        const value = sideValueLabel();
+        if (!value) return '左右ランダム';
+        if (fixTarget === 'left') return `左 ${value}`;
+        if (fixTarget === 'right') return `右 ${value}`;
+        if (fixTarget === 'both') return `左右とも ${value}`;
+        return `左右いずれかが${value}`;
+    }
+
+    function updateAddBarLabels() {
+        if (sumMenuBtn) sumMenuBtn.textContent = `合計 ${sumSettingLabel()}`;
+        if (sideMenuBtn) sideMenuBtn.textContent = sideScopeLabel(sideValueLabel());
+    }
+
+    function syncAddBarOpen() {
+        if (sumMenuBtn) sumMenuBtn.classList.toggle('open', addBarOpen === 'sum');
+        if (sideMenuBtn) sideMenuBtn.classList.toggle('open', addBarOpen === 'side');
+        if (enshuMenuBtn) enshuMenuBtn.classList.toggle('open', addBarOpen === 'enshu');
+        if (sumMenuPanel) sumMenuPanel.classList.toggle('open', addBarOpen === 'sum');
+        if (sideMenuPanel) sideMenuPanel.classList.toggle('open', addBarOpen === 'side');
+        if (enshuMenuPanel) enshuMenuPanel.classList.toggle('open', addBarOpen === 'enshu');
+    }
+
+    function setAddBarOpen(which) {
+        addBarOpen = addBarOpen === which ? null : which;
+        syncAddBarOpen();
+    }
+
+    function closeAddBarIfOutside(event) {
+        if (!addBarOpen) return;
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const openPanel = addBarOpen === 'sum' ? sumMenuPanel
+            : addBarOpen === 'side' ? sideMenuPanel
+            : enshuMenuPanel;
+        const openBtn = addBarOpen === 'sum' ? sumMenuBtn
+            : addBarOpen === 'side' ? sideMenuBtn
+            : enshuMenuBtn;
+        if (openPanel && openPanel.contains(target)) return;
+        if (openBtn && openBtn.contains(target)) return;
+        if (sumMenuBtn && sumMenuBtn.contains(target)) return;
+        if (sideMenuBtn && sideMenuBtn.contains(target)) return;
+        if (enshuMenuBtn && enshuMenuBtn.contains(target)) return;
+        addBarOpen = null;
+        syncAddBarOpen();
     }
 
     function pairFitsSum(l, r) {
@@ -2827,6 +3136,22 @@
         if (sumMode === 'le10') return s <= 10;
         if (sumMode === 'le5') return s <= 5;
         return true;
+    }
+
+    function sideConstraintDigits() {
+        if (sideMode === 'le4') return [1, 2, 3, 4];
+        if (sideMode === 'ge5') return [5, 6, 7, 8, 9];
+        if (selectedSides.size > 0) return [...selectedSides];
+        return null;
+    }
+
+    function pairFitsSide(l, r) {
+        const digits = sideConstraintDigits();
+        if (!digits) return true;
+        if (fixTarget === 'left') return digits.includes(l);
+        if (fixTarget === 'right') return digits.includes(r);
+        if (fixTarget === 'both') return digits.includes(l) && digits.includes(r);
+        return digits.includes(l) || digits.includes(r);
     }
 
     function choosePair(pairs) {
@@ -2866,33 +3191,23 @@
         const MIN = 1;
         const MAX = 9;
         const pairs = [];
-        const lefts = fixedLeft() === null
-            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
-            : [fixedLeft()];
-        const rights = fixedRight() === null
-            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
-            : [fixedRight()];
 
-        for (const l of lefts) {
-            for (const r of rights) {
-                if (pairFitsSum(l, r)) pairs.push([l, r]);
+        function pushMatching(pred) {
+            for (let l = MIN; l <= MAX; l++) {
+                for (let r = MIN; r <= MAX; r++) {
+                    if (pred(l, r)) pairs.push([l, r]);
+                }
             }
         }
 
-        if (pairs.length === 0 && fixedDigit !== null) {
-            for (const l of lefts) {
-                for (const r of rights) {
-                    pairs.push([l, r]);
-                }
-            }
+        pushMatching((l, r) => pairFitsSum(l, r) && pairFitsSide(l, r));
+
+        if (pairs.length === 0 && sideConstraintDigits()) {
+            pushMatching((l, r) => pairFitsSide(l, r));
         }
 
         if (pairs.length === 0 && (selectedSums.size > 0 || sumMode === 'le10' || sumMode === 'le5')) {
-            for (let l = MIN; l <= MAX; l++) {
-                for (let r = MIN; r <= MAX; r++) {
-                    if (pairFitsSum(l, r)) pairs.push([l, r]);
-                }
-            }
+            pushMatching((l, r) => pairFitsSum(l, r));
         }
 
         if (pairs.length === 0 && selectedSums.size > 0) {
@@ -2905,32 +3220,48 @@
         }
 
         if (pairs.length === 0) {
-            pairs.push([
-                fixedLeft() === null ? randDigit() : fixedLeft(),
-                fixedRight() === null ? randDigit() : fixedRight()
-            ]);
+            pairs.push([randDigit(), randDigit()]);
         }
         return uniquePairs(pairs);
     }
 
+    function pickSetAllowingDup(n, uniquePool) {
+        const pool = uniquePool.slice();
+        if (!pool.length) return [[randDigit(), randDigit()]];
+        if (n <= pool.length) return shuffleInPlace(pool).slice(0, Math.max(1, n));
+        const result = [];
+        let prev = null;
+        while (result.length < n) {
+            const round = shuffleInPlace(pool.slice());
+            if (prev && round.length > 1) {
+                const idx = round.findIndex(([l, r]) => l !== prev[0] || r !== prev[1]);
+                if (idx > 0) {
+                    const [item] = round.splice(idx, 1);
+                    round.unshift(item);
+                }
+            }
+            for (const pair of round) {
+                if (result.length >= n) break;
+                result.push(pair);
+                prev = pair;
+            }
+        }
+        return result;
+    }
+
     function pickUniqueSet(n) {
         const pool = shuffleInPlace(collectPairs());
+        if (enshuAllowDup) return pickSetAllowingDup(n, pool);
         return pool.slice(0, Math.max(1, Math.min(n, pool.length)));
     }
 
     function allAddendPairs() {
         const MIN = 1;
         const MAX = 9;
-        const lefts = fixedLeft() === null
-            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
-            : [fixedLeft()];
-        const rights = fixedRight() === null
-            ? Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN)
-            : [fixedRight()];
         const pairs = [];
-        for (const l of lefts) {
-            for (const r of rights) {
-                pairs.push([l, r]);
+        for (let l = MIN; l <= MAX; l++) {
+            for (let r = MIN; r <= MAX; r++) {
+                if (pairFitsSide(l, r)) pairs.push([l, r]);
             }
         }
         const unique = uniquePairs(pairs);
@@ -3101,6 +3432,8 @@
     }
 
     function startDrill(n) {
+        addBarOpen = null;
+        syncAddBarOpen();
         clearShiftMode();
         clearChangeMode();
         clearCountMode();
@@ -3314,21 +3647,8 @@
                 : 'ランダム';
             return `引き算 左 ${leftLabel}、右 ${rightLabel}`;
         }
-        let sumLabel = 'ランダム';
-        if (selectedSums.size > 0) {
-            sumLabel = [...selectedSums].sort((a, b) => a - b).join(',');
-        } else if (sumMode === 'le10') {
-            sumLabel = '10以下';
-        } else if (sumMode === 'le5') {
-            sumLabel = '5以下';
-        }
-        let sideLabel = '左右ランダム';
-        if (fixedDigit !== null) {
-            sideLabel = fixTarget === 'left'
-                ? `左 ${fixedDigit}固定`
-                : `右 ${fixedDigit}固定`;
-        }
-        return `合計 ${sumLabel}、${sideLabel}`;
+        let sumLabel = sumSettingLabel();
+        return `合計 ${sumLabel}、${sideSettingLabel()}`;
     }
 
     function updatePrintMeta() {
@@ -3338,13 +3658,7 @@
         const d = String(now.getDate()).padStart(2, '0');
         printDateEl.textContent = `${y}/${m}/${d}　計算練習`;
         if (huntTarget !== null) {
-            let sideLabel = '左右ランダム';
-            if (fixedDigit !== null) {
-                sideLabel = fixTarget === 'left'
-                    ? `左 ${fixedDigit}固定`
-                    : `右 ${fixedDigit}固定`;
-            }
-            printSettingsEl.textContent = `たから ${huntTarget}、${sideLabel}`;
+            printSettingsEl.textContent = `たから ${huntTarget}、${sideSettingLabel()}`;
         } else {
             printSettingsEl.textContent = drillSettingsLabel();
         }
@@ -5473,6 +5787,23 @@
         applyDisplayMode();
     }
 
+    function retryCurrentProblem() {
+        if (busy) return;
+        if (playMode !== 'add' || shiftMode || changeMode || countMode || fourPlusSpecial) return;
+        if (drillCount !== null || huntTarget !== null) return;
+        document.querySelectorAll('.ball.flying, .num-chip').forEach((el) => el.remove());
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        messageEl.innerHTML = '';
+        nextBtn.classList.add('hidden');
+        if (retryBtn) retryBtn.classList.add('hidden');
+        choicesEl.classList.remove('hidden');
+        setChoicesEnabled(true);
+        renderKastens();
+        applyDisplayMode();
+    }
+
     function buildSubFrame(filled) {
         const wrap = document.createElement('div');
         wrap.className = 'kasten';
@@ -5716,7 +6047,6 @@
         const { destBoxes, srcBoxes } = getRoles();
         const moving = filledBoxes(srcBoxes);
         const dest = emptyBoxes(destBoxes);
-        messageEl.innerHTML = 'すくないほう の たま が うごくよ！';
         await blinkPico(moving.map((box) => box.querySelector('.ball')).filter(Boolean));
         await moveBallsTo(moving, dest);
         hintPhase = 2;
@@ -5726,23 +6056,17 @@
         const { destBoxes, srcBoxes } = getRoles();
         const holes = emptyBoxes(destBoxes.slice(0, 5));
         const moving = pickSrcBoxes(srcBoxes, holes.length);
-        messageEl.innerHTML = 'まず したの あきます を うめよう';
         await blinkPico(holes);
-        messageEl.innerHTML = 'みぎはし の たま が うごくよ！';
         await blinkPico(moving.map((box) => box.querySelector('.ball')).filter(Boolean));
         await moveBallsTo(moving, holes);
         hintPhase = filledBoxes(srcBoxes).length ? 1 : 2;
     }
 
     async function hintMake10First() {
-        const { destBoxes, srcBoxes, smaller } = getRoles();
+        const { destBoxes, srcBoxes } = getRoles();
         const holes = emptyBoxes(destBoxes.slice(5, 10));
         const moving = pickSrcBoxes(srcBoxes, holes.length);
-        messageEl.innerHTML = 'まず うえの あきます を うめて<br>10 をつくろう';
         await blinkPico(holes);
-        messageEl.innerHTML = smaller >= 6
-            ? 'うえの みぎ から たま が うごくよ！'
-            : 'みぎはし の たま が うごくよ！';
         await blinkPico(moving.map((box) => box.querySelector('.ball')).filter(Boolean));
         await moveBallsTo(moving, holes);
         hintPhase = 2;
@@ -5756,7 +6080,6 @@
             hintPhase = 2;
             return;
         }
-        messageEl.innerHTML = 'のこりの たま も いこう！';
         await blinkPico(remaining.map((box) => box.querySelector('.ball')).filter(Boolean));
         await moveBallsTo(remaining, dest);
         hintPhase = 2;
@@ -6103,10 +6426,6 @@
                 updateHintButton();
                 return;
             }
-            const dir = hintPhase > 0
-                ? (leftNum >= rightNum ? 'rtl' : 'ltr')
-                : resolveMoveDir();
-            messageEl.innerHTML = combineMessage(dir);
             await Promise.all([
                 flyFromTo(chip, blank).then(() => chip.remove()),
                 animateCombine()
@@ -6125,12 +6444,10 @@
         }
 
         if (count > answer) {
-            messageEl.innerHTML = `わあっ！ <strong>おおすぎるよ！</strong><br>${leftNum} + ${rightNum} は ${count} より ちいさいよ`;
             await spillElement(chip, blank);
             equationEl.classList.add('shake');
             kastensEl.classList.add('shake');
         } else {
-            messageEl.innerHTML = `まだ <strong>たりないよ！</strong><br>${leftNum} + ${rightNum} は ${count} より おおきいよ`;
             await flyFromTo(chip, blank);
             chip.remove();
             refreshEquation(count);
@@ -6171,8 +6488,13 @@
             btn.dataset.n = String(n);
             btn.textContent = String(n);
             btn.addEventListener('click', () => {
-                if (fixedDigit === n) return;
-                fixedDigit = n;
+                if (selectedSides.has(n)) {
+                    selectedSides.delete(n);
+                    if (selectedSides.size === 0) sideMode = 'random';
+                } else {
+                    selectedSides.add(n);
+                    sideMode = 'picks';
+                }
                 refreshProblems();
             });
             fixGrid.appendChild(btn);
@@ -6230,21 +6552,53 @@
     function setFixTarget(side) {
         if (fixTarget === side) return;
         fixTarget = side;
-        if (fixedDigit === null) {
+        if (sideMode === 'random' && selectedSides.size === 0) {
             applyDisplayMode();
             return;
         }
         refreshProblems();
     }
 
+    if (sumMenuBtn) sumMenuBtn.addEventListener('click', () => setAddBarOpen('sum'));
+    if (sideMenuBtn) sideMenuBtn.addEventListener('click', () => setAddBarOpen('side'));
+    if (enshuMenuBtn) enshuMenuBtn.addEventListener('click', () => setAddBarOpen('enshu'));
+    document.addEventListener('pointerdown', closeAddBarIfOutside);
+    if (enshuDupBtn) {
+        enshuDupBtn.addEventListener('click', () => {
+            enshuAllowDup = !enshuAllowDup;
+            applyDisplayMode();
+        });
+    }
+
     fixLeftTab.addEventListener('click', () => setFixTarget('left'));
     fixRightTab.addEventListener('click', () => setFixTarget('right'));
+    if (fixEitherTab) fixEitherTab.addEventListener('click', () => setFixTarget('either'));
+    if (fixBothTab) fixBothTab.addEventListener('click', () => setFixTarget('both'));
 
     randomLeftBtn.addEventListener('click', () => {
-        if (fixedDigit === null) return;
-        fixedDigit = null;
+        if (sideMode === 'random' && selectedSides.size === 0) return;
+        sideMode = 'random';
+        selectedSides.clear();
         refreshProblems();
     });
+
+    if (sideLe4Btn) {
+        sideLe4Btn.addEventListener('click', () => {
+            if (sideMode === 'le4') return;
+            sideMode = 'le4';
+            selectedSides.clear();
+            refreshProblems();
+        });
+    }
+
+    if (sideGe5Btn) {
+        sideGe5Btn.addEventListener('click', () => {
+            if (sideMode === 'ge5') return;
+            sideMode = 'ge5';
+            selectedSides.clear();
+            refreshProblems();
+        });
+    }
 
     randomSumBtn.addEventListener('click', () => {
         if (sumMode === 'random' && selectedSums.size === 0) return;
@@ -6435,6 +6789,7 @@
         else if (shiftMode) startShift();
         else initGame();
     });
+    if (retryBtn) retryBtn.addEventListener('click', retryCurrentProblem);
     homeBtn.addEventListener('click', showHome);
     modeAddBtn.addEventListener('click', enterAdd);
     modeSubBtn.addEventListener('click', enterSub);
