@@ -2002,8 +2002,10 @@
         display: block !important;
     }
     body.print-drill .print-meta {
-        display: block;
-        text-align: left;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 1mm 8mm;
         margin: 0 0 3mm;
     }
     body.print-drill .print-date {
@@ -2016,7 +2018,11 @@
         white-space: nowrap;
     }
     body.print-drill .print-settings {
-        display: none !important;
+        display: block;
+        font-size: 11pt;
+        font-weight: bold;
+        margin: 0;
+        color: #333;
     }
     body.print-drill .drill-list,
     body.print-drill .drill-list.print-few,
@@ -2488,6 +2494,7 @@
     let fixTarget = 'either';
     let sideMode = 'random';
     let addBarOpen = null;
+    let addBarIgnoreCloseUntil = 0;
     let enshuAllowDup = false;
     let sumMode = 'random';
     let selectedSums = new Set();
@@ -3171,10 +3178,16 @@
     function setAddBarOpen(which) {
         addBarOpen = addBarOpen === which ? null : which;
         syncAddBarOpen();
+        markAddBarInteract();
+    }
+
+    function markAddBarInteract() {
+        addBarIgnoreCloseUntil = Date.now() + 600;
     }
 
     function closeAddBarIfOutside(event) {
         if (!addBarOpen) return;
+        if (Date.now() < addBarIgnoreCloseUntil) return;
         const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
         const nodes = path.length ? path : [event.target];
         const keep = [sumMenuPanel, sideMenuPanel, enshuMenuPanel, sumMenuBtn, sideMenuBtn, enshuMenuBtn];
@@ -3489,8 +3502,10 @@
     }
 
     function startDrill(n) {
-        addBarOpen = null;
-        syncAddBarOpen();
+        if (addBarOpen === 'enshu') {
+            addBarOpen = null;
+            syncAddBarOpen();
+        }
         clearShiftMode();
         clearChangeMode();
         clearCountMode();
@@ -6621,8 +6636,14 @@
     if (enshuMenuBtn) enshuMenuBtn.addEventListener('click', () => setAddBarOpen('enshu'));
     [sumMenuPanel, sideMenuPanel, enshuMenuPanel].forEach((panel) => {
         if (!panel) return;
-        panel.addEventListener('pointerdown', (event) => event.stopPropagation());
-        panel.addEventListener('click', (event) => event.stopPropagation());
+        panel.addEventListener('pointerdown', (event) => {
+            event.stopPropagation();
+            markAddBarInteract();
+        });
+        panel.addEventListener('click', (event) => {
+            event.stopPropagation();
+            markAddBarInteract();
+        });
     });
     document.addEventListener('pointerdown', closeAddBarIfOutside);
     if (enshuDupBtn) {
