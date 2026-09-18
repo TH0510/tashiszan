@@ -1930,12 +1930,13 @@
        いんさつ中は画面上も問題用紙レイアウトにする */
     body.print-drill {
         background: #fff !important;
-        padding: 10mm 14mm 8mm;
+        padding: 8mm 12mm 14mm;
         margin: 0;
         color: #222;
-        overflow: hidden !important;
+        overflow: visible !important;
         min-height: 0 !important;
         height: auto !important;
+        max-height: none !important;
     }
     body.print-drill h1,
     body.print-drill .title-bar,
@@ -2003,11 +2004,11 @@
     body.print-drill .print-meta {
         display: block;
         text-align: left;
-        margin: 0 0 4mm;
+        margin: 0 0 3mm;
     }
     body.print-drill .print-date {
         display: block;
-        font-size: 14pt;
+        font-size: 12pt;
         font-weight: bold;
         letter-spacing: 0.04em;
         margin: 0;
@@ -2023,8 +2024,8 @@
     body.print-drill .drill-list.hunt-board {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-auto-rows: 34mm;
-        gap: 0 16mm;
+        grid-auto-rows: 30mm;
+        gap: 0 14mm;
         max-width: none;
         max-height: none;
         overflow: visible;
@@ -2039,9 +2040,9 @@
         align-items: center;
         justify-content: flex-start;
         min-height: 0;
-        height: 34mm;
-        font-size: 22pt;
-        letter-spacing: 0.12em;
+        height: 30mm;
+        font-size: 20pt;
+        letter-spacing: 0.1em;
         page-break-inside: avoid;
         break-inside: avoid;
         gap: 0;
@@ -2069,11 +2070,15 @@
             overflow: visible !important;
             height: auto !important;
             min-height: 0 !important;
+            max-height: none !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
         body.print-drill {
-            padding: 10mm 14mm 8mm;
+            padding: 8mm 12mm 14mm;
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
         }
     }
 </style>
