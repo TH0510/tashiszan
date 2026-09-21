@@ -210,7 +210,8 @@
         align-items: center;
         gap: 8px 32px;
     }
-    .add-bar-settings {
+    .add-bar-settings,
+    .add-bar-actions {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
@@ -260,6 +261,117 @@
     .enshu-make-btn:active {
         transform: translateY(2px);
         box-shadow: 0 2px 0 #e65100;
+    }
+    .enshu-make-btn.weak-list-btn,
+    .enshu-make-btn.weak-enshu-btn {
+        background: linear-gradient(#8e24aa, #6a1b9a);
+        box-shadow: 0 4px 0 #4a148c;
+    }
+    .enshu-make-btn.weak-list-btn.open,
+    .enshu-make-btn.weak-enshu-btn.open {
+        background: linear-gradient(#6a1b9a, #4a148c);
+        box-shadow: 0 2px 0 #311b92;
+        transform: translateY(2px);
+    }
+    .enshu-make-btn.weak-enshu-btn {
+        min-width: 180px;
+        font-size: 16px;
+        padding: 10px 18px;
+    }
+    .add-bar-panel.weak-panel {
+        max-height: min(72vh, 680px);
+        overflow-y: auto;
+    }
+    .weak-caption {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: bold;
+        color: #78909c;
+    }
+    .weak-pair-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-width: 280px;
+        margin: 10px auto 4px;
+        max-height: 220px;
+        overflow-y: auto;
+        text-align: left;
+    }
+    .weak-pair-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: #fafafa;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+    }
+    .weak-pair-row:hover {
+        background: #f3e5f5;
+    }
+    .weak-pair-row input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #8e24aa;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .weak-empty {
+        margin: 8px 0 0;
+        font-size: 14px;
+        font-weight: bold;
+        color: #90a4ae;
+    }
+    .weak-backup {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px dashed #e1bee7;
+    }
+    .weak-backup-btns {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+    .weak-save-status {
+        margin: 8px 0 0;
+        font-size: 13px;
+        font-weight: bold;
+        color: #6a1b9a;
+        min-height: 1.2em;
+    }
+    .weak-backup-text {
+        display: block;
+        width: min(100%, 360px);
+        margin: 8px auto 0;
+        min-height: 72px;
+        border: 1px solid #ce93d8;
+        border-radius: 10px;
+        padding: 8px;
+        font-family: inherit;
+        font-size: 16px;
+        resize: vertical;
+    }
+    .weak-backup-text[hidden] {
+        display: none;
+    }
+    .weak-drill-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 12px;
+    }
+    .weak-drill-setup {
+        display: none;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid #eceff1;
+    }
+    .weak-drill-setup.open {
+        display: block;
     }
     .add-bar-panel {
         display: none;
@@ -1690,6 +1802,13 @@
     .choice-btn[data-n="9"], .choice-btn[data-n="18"] { background-color: #7e57c2; }
     .sum-btn[data-n="19"] { background-color: #42a5f5; }
     .sum-btn[data-n="20"] { background-color: #66bb6a; }
+    .sum-btn.has-weak {
+        opacity: 1;
+        box-shadow: 0 0 0 2px #ffd54f;
+    }
+    .sum-btn.has-weak.active {
+        box-shadow: 0 0 0 2px #1565c0, 0 0 0 4px #fff;
+    }
 
     .grove {
         background-color: #ffffff;
@@ -2224,7 +2343,10 @@
                         <button type="button" class="add-bar-btn" id="sum-menu-btn">合計 ランダム</button>
                         <button type="button" class="add-bar-btn" id="side-menu-btn">左右 ランダム</button>
                     </div>
-                    <button type="button" class="enshu-make-btn" id="enshu-menu-btn">演習作成</button>
+                    <div class="add-bar-actions">
+                        <button type="button" class="enshu-make-btn" id="enshu-menu-btn">演習作成</button>
+                        <button type="button" class="enshu-make-btn weak-list-btn" id="weak-menu-btn">苦手リスト</button>
+                    </div>
                 </div>
                 <div class="add-bar-panel" id="sum-menu-panel">
                     <div class="add-bar-extra">
@@ -2253,6 +2375,30 @@
                         <button type="button" class="ctrl-btn" id="enshu-dup-btn">重複可</button>
                     </div>
                     <div class="enshu-grid" id="enshu-grid"></div>
+                </div>
+                <div class="add-bar-panel weak-panel" id="weak-menu-panel">
+                    <p class="weak-caption">和</p>
+                    <div class="sum-grid" id="weak-sum-grid"></div>
+                    <div class="weak-pair-list" id="weak-sum-pairs" hidden></div>
+                    <div class="weak-backup">
+                        <p class="weak-caption">ページを消しても残す</p>
+                        <div class="weak-backup-btns">
+                            <button type="button" class="ctrl-btn" id="weak-export-btn">控えをとる</button>
+                            <button type="button" class="ctrl-btn" id="weak-import-btn">控えを入れる</button>
+                            <button type="button" class="ctrl-btn" id="weak-file-btn">ファイルから</button>
+                        </div>
+                        <p class="weak-save-status" id="weak-save-status"></p>
+                        <textarea id="weak-backup-text" class="weak-backup-text" hidden rows="3"></textarea>
+                        <input type="file" id="weak-import-file" accept=".txt,.json,text/plain,application/json" hidden>
+                    </div>
+                    <div class="weak-drill-actions">
+                        <button type="button" class="enshu-make-btn weak-enshu-btn" id="weak-enshu-btn">苦手演習作成</button>
+                    </div>
+                    <div class="weak-drill-setup" id="weak-drill-setup">
+                        <div class="enshu-grid" id="weak-enshu-grid"></div>
+                        <p class="weak-caption">苦手問題（チェックすると必ず出る）</p>
+                        <div class="weak-pair-list" id="weak-must-list"></div>
+                    </div>
                 </div>
             </div>
             <div id="message" class="message"></div>
@@ -2375,6 +2521,8 @@
     const STAR_MAX = 24;
     const GOLDEN_EVERY = 10;
     const STORAGE_KEY = 'tashizan-kai-v1';
+    const WEAK_STORAGE_KEY = 'tashizan-kai-weak-v1';
+    const WEAK_COOKIE = 'tashizan_kai_weak';
     const APPLE_SPOTS = [
         { x: 14, y: 36 }, { x: 32, y: 16 }, { x: 50, y: 8 }, { x: 68, y: 14 }, { x: 84, y: 30 },
         { x: 8, y: 52 }, { x: 26, y: 44 }, { x: 44, y: 32 }, { x: 62, y: 36 }, { x: 78, y: 46 },
@@ -2448,9 +2596,23 @@
     const sumMenuBtn = document.getElementById('sum-menu-btn');
     const sideMenuBtn = document.getElementById('side-menu-btn');
     const enshuMenuBtn = document.getElementById('enshu-menu-btn');
+    const weakMenuBtn = document.getElementById('weak-menu-btn');
     const sumMenuPanel = document.getElementById('sum-menu-panel');
     const sideMenuPanel = document.getElementById('side-menu-panel');
     const enshuMenuPanel = document.getElementById('enshu-menu-panel');
+    const weakMenuPanel = document.getElementById('weak-menu-panel');
+    const weakSumGrid = document.getElementById('weak-sum-grid');
+    const weakSumPairs = document.getElementById('weak-sum-pairs');
+    const weakEnshuBtn = document.getElementById('weak-enshu-btn');
+    const weakDrillSetup = document.getElementById('weak-drill-setup');
+    const weakEnshuGrid = document.getElementById('weak-enshu-grid');
+    const weakMustList = document.getElementById('weak-must-list');
+    const weakExportBtn = document.getElementById('weak-export-btn');
+    const weakImportBtn = document.getElementById('weak-import-btn');
+    const weakFileBtn = document.getElementById('weak-file-btn');
+    const weakImportFile = document.getElementById('weak-import-file');
+    const weakBackupText = document.getElementById('weak-backup-text');
+    const weakSaveStatus = document.getElementById('weak-save-status');
     const enshuDupBtn = document.getElementById('enshu-dup-btn');
     const hintBtn = document.getElementById('hint-btn');
     const resetHintBtn = document.getElementById('reset-hint-btn');
@@ -2496,6 +2658,11 @@
     let addBarOpen = null;
     let addBarIgnoreCloseUntil = 0;
     let enshuAllowDup = false;
+    let weakPairs = new Set();
+    let mustIncludePairs = new Set();
+    let weakSumSelected = null;
+    let weakDrillOpen = false;
+    let weakDrillMode = false;
     let sumMode = 'random';
     let selectedSums = new Set();
     let busy = false;
@@ -2875,10 +3042,12 @@
         gameArea.classList.toggle('four-circles-on', isFourPlusCircles() && fourPlusHintPhase >= 1);
         if (enshuGrid) {
             enshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
-                btn.classList.toggle('active', playMode === 'add' && !fourPlusSpecial && drillCount === Number(btn.dataset.n));
+                btn.classList.toggle('active', playMode === 'add' && !fourPlusSpecial && !weakDrillMode && drillCount === Number(btn.dataset.n));
             });
         }
         if (enshuDupBtn) enshuDupBtn.classList.toggle('active', enshuAllowDup);
+        syncWeakSumButtons();
+        syncWeakEnshuButtons();
         if (bunkaiEnshuGrid) {
             bunkaiEnshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
                 btn.classList.toggle('active', playMode === 'bunkai' && drillCount === Number(btn.dataset.n));
@@ -3170,9 +3339,13 @@
         if (sumMenuBtn) sumMenuBtn.classList.toggle('open', addBarOpen === 'sum');
         if (sideMenuBtn) sideMenuBtn.classList.toggle('open', addBarOpen === 'side');
         if (enshuMenuBtn) enshuMenuBtn.classList.toggle('open', addBarOpen === 'enshu');
+        if (weakMenuBtn) weakMenuBtn.classList.toggle('open', addBarOpen === 'weak');
         if (sumMenuPanel) sumMenuPanel.classList.toggle('open', addBarOpen === 'sum');
         if (sideMenuPanel) sideMenuPanel.classList.toggle('open', addBarOpen === 'side');
         if (enshuMenuPanel) enshuMenuPanel.classList.toggle('open', addBarOpen === 'enshu');
+        if (weakMenuPanel) weakMenuPanel.classList.toggle('open', addBarOpen === 'weak');
+        if (weakEnshuBtn) weakEnshuBtn.classList.toggle('open', weakDrillOpen);
+        if (weakDrillSetup) weakDrillSetup.classList.toggle('open', weakDrillOpen);
     }
 
     function setAddBarOpen(which) {
@@ -3190,7 +3363,7 @@
         if (Date.now() < addBarIgnoreCloseUntil) return;
         const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
         const nodes = path.length ? path : [event.target];
-        const keep = [sumMenuPanel, sideMenuPanel, enshuMenuPanel, sumMenuBtn, sideMenuBtn, enshuMenuBtn];
+        const keep = [sumMenuPanel, sideMenuPanel, enshuMenuPanel, weakMenuPanel, sumMenuBtn, sideMenuBtn, enshuMenuBtn, weakMenuBtn];
         const inside = nodes.some((node) => keep.some((el) => {
             if (!el || !(node instanceof Node)) return false;
             return node === el || el.contains(node);
@@ -3323,6 +3496,331 @@
         const pool = shuffleInPlace(collectPairs());
         if (enshuAllowDup) return pickSetAllowingDup(n, pool);
         return pool.slice(0, Math.max(1, Math.min(n, pool.length)));
+    }
+
+    function pairKey(l, r) {
+        return `${l}+${r}`;
+    }
+
+    function parsePairKey(key) {
+        const [l, r] = String(key).split('+').map(Number);
+        return [l, r];
+    }
+
+    function isValidAddPair(l, r) {
+        return Number.isInteger(l) && Number.isInteger(r) && l >= 1 && l <= 9 && r >= 1 && r <= 9;
+    }
+
+    function pairsForSum(sum) {
+        const pairs = [];
+        for (let l = 1; l <= 9; l++) {
+            const r = sum - l;
+            if (r >= 1 && r <= 9) pairs.push([l, r]);
+        }
+        return pairs;
+    }
+
+    function loadWeakPairs() {
+        collectSavedWeakKeys().forEach((key) => weakPairs.add(key));
+        saveWeakPairs();
+        requestWeakPersist();
+    }
+
+    function collectSavedWeakKeys() {
+        const keys = new Set();
+        addWeakKeys(keys, readWeakLocal());
+        addWeakKeys(keys, readWeakCookie());
+        addWeakKeys(keys, readWeakUrl());
+        return keys;
+    }
+
+    function addWeakKeys(target, list) {
+        (list || []).forEach((key) => {
+            const [l, r] = parsePairKey(key);
+            if (isValidAddPair(l, r)) target.add(pairKey(l, r));
+        });
+    }
+
+    function encodeWeakDigits(pairs = sortedWeakPairs()) {
+        return pairs.map(([l, r]) => `${l}${r}`).join('');
+    }
+
+    function decodeWeakDigits(raw) {
+        const digits = String(raw || '').replace(/[^1-9]/g, '');
+        const keys = [];
+        for (let i = 0; i + 1 < digits.length; i += 2) {
+            const l = Number(digits[i]);
+            const r = Number(digits[i + 1]);
+            if (isValidAddPair(l, r)) keys.push(pairKey(l, r));
+        }
+        return keys;
+    }
+
+    function decodeWeakPayload(raw) {
+        const text = String(raw || '').trim();
+        if (!text) return [];
+        try {
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) {
+                return decodeWeakDigits(parsed.map(String).join(''));
+            }
+            if (parsed && Array.isArray(parsed.pairs)) {
+                return decodeWeakDigits(parsed.pairs.map(String).join(''));
+            }
+        } catch (err) {
+            /* not JSON */
+        }
+        const plus = [...text.matchAll(/([1-9])\s*\+\s*([1-9])/g)];
+        if (plus.length) {
+            return plus.map((m) => pairKey(Number(m[1]), Number(m[2])));
+        }
+        return decodeWeakDigits(text);
+    }
+
+    function exportWeakText() {
+        return sortedWeakPairs().map(([l, r]) => `${l}+${r}`).join(',');
+    }
+
+    function readWeakLocal() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(WEAK_STORAGE_KEY) || 'null');
+            return Array.isArray(saved) ? saved : [];
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function canUseLocalStorage() {
+        try {
+            const probe = WEAK_STORAGE_KEY + '-probe';
+            localStorage.setItem(probe, '1');
+            localStorage.removeItem(probe);
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    function readWeakCookie() {
+        try {
+            const prefix = WEAK_COOKIE + '=';
+            const hit = document.cookie.split(';').map((part) => part.trim()).find((part) => part.startsWith(prefix));
+            if (!hit) return [];
+            return decodeWeakDigits(decodeURIComponent(hit.slice(prefix.length)));
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function writeWeakCookie(digits) {
+        try {
+            const maxAge = 60 * 60 * 24 * 365 * 10;
+            const secure = location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie = `${WEAK_COOKIE}=${encodeURIComponent(digits)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
+        } catch (err) {
+            /* ignore */
+        }
+    }
+
+    function readWeakUrl() {
+        try {
+            const url = new URL(location.href);
+            const fromQuery = url.searchParams.get('w');
+            if (fromQuery) return decodeWeakDigits(fromQuery);
+            const hash = url.hash.replace(/^#/, '');
+            const hashParams = new URLSearchParams(hash.includes('=') ? hash : '');
+            const fromHash = hashParams.get('w') || (hash.startsWith('w=') ? hash.slice(2) : '');
+            return decodeWeakDigits(fromHash);
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function writeWeakUrl(digits) {
+        if (location.protocol === 'file:') return;
+        try {
+            const url = new URL(location.href);
+            if (digits) url.searchParams.set('w', digits);
+            else url.searchParams.delete('w');
+            const next = url.pathname + url.search + url.hash;
+            const cur = location.pathname + location.search + location.hash;
+            if (next !== cur) history.replaceState(null, '', next);
+        } catch (err) {
+            /* ignore */
+        }
+    }
+
+    function setWeakSaveStatus(text) {
+        if (weakSaveStatus) weakSaveStatus.textContent = text || '';
+    }
+
+    function requestWeakPersist() {
+        try {
+            if (navigator.storage && navigator.storage.persist) {
+                navigator.storage.persist().catch(() => {});
+            }
+        } catch (err) {
+            /* ignore */
+        }
+    }
+
+    function saveWeakPairs() {
+        const digits = encodeWeakDigits();
+        try {
+            localStorage.setItem(WEAK_STORAGE_KEY, JSON.stringify([...weakPairs]));
+        } catch (err) {
+            /* ignore quota / private mode */
+        }
+        writeWeakCookie(digits);
+        writeWeakUrl(digits);
+        const n = weakPairs.size;
+        if (!n) setWeakSaveStatus('まだ苦手な問題はありません');
+        else if (canUseLocalStorage() && location.protocol !== 'file:') {
+            setWeakSaveStatus(`${n}こ この端末に保存したよ`);
+        } else {
+            setWeakSaveStatus(`${n}こ チェック中。ページを消す前に控えをとってね`);
+        }
+    }
+
+    function importWeakText(raw) {
+        const keys = decodeWeakPayload(raw);
+        if (!keys.length && String(raw || '').trim()) {
+            setWeakSaveStatus('よめなかったよ。1+2,2+1 の形で貼ってね');
+            return false;
+        }
+        weakPairs = new Set(keys);
+        for (const key of [...mustIncludePairs]) {
+            if (!weakPairs.has(key)) mustIncludePairs.delete(key);
+        }
+        saveWeakPairs();
+        renderWeakSumPairs();
+        renderWeakMustList();
+        syncWeakSumButtons();
+        syncWeakEnshuButtons();
+        setWeakSaveStatus(keys.length ? `${keys.length}こ よみこんだよ` : '控えは空だったよ');
+        return true;
+    }
+
+    function showWeakBackupText(text) {
+        if (!weakBackupText) return;
+        weakBackupText.hidden = false;
+        weakBackupText.value = text;
+        weakBackupText.focus();
+        weakBackupText.select();
+    }
+
+    function sortedWeakPairs() {
+        return [...weakPairs]
+            .map(parsePairKey)
+            .filter(([l, r]) => isValidAddPair(l, r))
+            .sort((a, b) => (a[0] + a[1]) - (b[0] + b[1]) || a[0] - b[0] || a[1] - b[1]);
+    }
+
+    function setWeakPairChecked(key, checked) {
+        const [l, r] = parsePairKey(key);
+        if (!isValidAddPair(l, r)) return;
+        const normalized = pairKey(l, r);
+        if (checked) weakPairs.add(normalized);
+        else {
+            weakPairs.delete(normalized);
+            mustIncludePairs.delete(normalized);
+        }
+        saveWeakPairs();
+        renderWeakSumPairs();
+        renderWeakMustList();
+        syncWeakSumButtons();
+        syncWeakEnshuButtons();
+    }
+
+    function setMustIncludeChecked(key, checked) {
+        if (!weakPairs.has(key)) return;
+        if (checked) mustIncludePairs.add(key);
+        else mustIncludePairs.delete(key);
+        renderWeakMustList();
+    }
+
+    function makeWeakPairRow(l, r, checked, onChange) {
+        const label = document.createElement('label');
+        label.className = 'weak-pair-row';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = checked;
+        cb.addEventListener('change', () => onChange(cb.checked));
+        const text = document.createElement('span');
+        text.innerHTML = `<span class="eq-red">${l}</span> + <span class="eq-blue">${r}</span>`;
+        label.appendChild(cb);
+        label.appendChild(text);
+        return label;
+    }
+
+    function renderWeakSumPairs() {
+        if (!weakSumPairs) return;
+        weakSumPairs.innerHTML = '';
+        if (!weakSumSelected) {
+            weakSumPairs.hidden = true;
+            return;
+        }
+        const pairs = pairsForSum(weakSumSelected);
+        weakSumPairs.hidden = pairs.length === 0;
+        pairs.forEach(([l, r]) => {
+            const key = pairKey(l, r);
+            weakSumPairs.appendChild(makeWeakPairRow(l, r, weakPairs.has(key), (checked) => {
+                setWeakPairChecked(key, checked);
+            }));
+        });
+    }
+
+    function renderWeakMustList() {
+        if (!weakMustList) return;
+        weakMustList.innerHTML = '';
+        const pairs = sortedWeakPairs();
+        if (!pairs.length) {
+            const empty = document.createElement('p');
+            empty.className = 'weak-empty';
+            empty.textContent = 'まだ苦手な問題はありません';
+            weakMustList.appendChild(empty);
+            return;
+        }
+        pairs.forEach(([l, r]) => {
+            const key = pairKey(l, r);
+            weakMustList.appendChild(makeWeakPairRow(l, r, mustIncludePairs.has(key), (checked) => {
+                setMustIncludeChecked(key, checked);
+            }));
+        });
+    }
+
+    function syncWeakSumButtons() {
+        if (!weakSumGrid) return;
+        weakSumGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+            const n = Number(btn.dataset.n);
+            const hasWeak = pairsForSum(n).some(([l, r]) => weakPairs.has(pairKey(l, r)));
+            btn.classList.toggle('active', weakSumSelected === n);
+            btn.classList.toggle('has-weak', hasWeak);
+        });
+    }
+
+    function syncWeakEnshuButtons() {
+        if (!weakEnshuGrid) return;
+        const empty = weakPairs.size === 0;
+        weakEnshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
+            btn.disabled = empty;
+            btn.classList.toggle('active', weakDrillMode && drillCount === Number(btn.dataset.n));
+        });
+    }
+
+    function pickWeakSet(n) {
+        const weak = sortedWeakPairs();
+        if (!weak.length) return [];
+        const must = [];
+        const rest = [];
+        for (const pair of weak) {
+            if (mustIncludePairs.has(pairKey(pair[0], pair[1]))) must.push(pair);
+            else rest.push(pair);
+        }
+        const take = Math.min(Math.max(1, n), weak.length);
+        if (must.length >= take) return shuffleInPlace(must.slice()).slice(0, take);
+        shuffleInPlace(rest);
+        return shuffleInPlace(must.concat(rest.slice(0, take - must.length)));
     }
 
     function allAddendPairs() {
@@ -3471,7 +3969,8 @@
             return;
         }
         if (drillCount !== null) {
-            startDrill(drillCount);
+            if (weakDrillMode) startWeakDrill(drillCount);
+            else startDrill(drillCount);
             return;
         }
         initGame();
@@ -3502,10 +4001,11 @@
     }
 
     function startDrill(n) {
-        if (addBarOpen === 'enshu') {
+        if (addBarOpen) {
             addBarOpen = null;
             syncAddBarOpen();
         }
+        weakDrillMode = false;
         clearShiftMode();
         clearChangeMode();
         clearCountMode();
@@ -3551,6 +4051,41 @@
         applyDisplayMode();
     }
 
+    function startWeakDrill(n) {
+        const pairs = pickWeakSet(n);
+        if (!pairs.length) return;
+        if (addBarOpen) {
+            addBarOpen = null;
+            syncAddBarOpen();
+        }
+        clearShiftMode();
+        clearChangeMode();
+        clearCountMode();
+        clearFourPlusMode();
+        huntTarget = null;
+        huntItems = [];
+        huntFocus = null;
+        huntView = 'list';
+        abortBunkaiAnim();
+        weakDrillMode = true;
+        drillCount = n;
+        drillView = 'list';
+        drillFocus = null;
+        busy = false;
+        solved = false;
+        hintPhase = 0;
+        drillItems = pairs.map(([l, r]) => ({
+            left: l,
+            right: r,
+            solved: false
+        }));
+        nextBtn.classList.add('hidden');
+        choicesEl.classList.add('hidden');
+        setChoicesEnabled(true);
+        renderDrillList();
+        applyDisplayMode();
+    }
+
     function quitActivity() {
         if (busy && !countMode && !isFourPlusCircles()) return;
         document.querySelectorAll('.ball.flying').forEach((el) => el.remove());
@@ -3559,6 +4094,7 @@
         drillView = 'list';
         drillItems = [];
         drillFocus = null;
+        weakDrillMode = false;
         huntTarget = null;
         huntView = 'list';
         huntItems = [];
@@ -3581,6 +4117,7 @@
         drillItems = [];
         drillFocus = null;
         drillView = 'list';
+        weakDrillMode = false;
         huntTarget = target;
         huntView = 'list';
         huntFocus = null;
@@ -3731,6 +4268,8 @@
         printDateEl.textContent = `${y}/${m}/${d}　計算練習`;
         if (huntTarget !== null) {
             printSettingsEl.textContent = `たから ${huntTarget}、${sideSettingLabel()}`;
+        } else if (weakDrillMode) {
+            printSettingsEl.textContent = 'にがてえんしゅう';
         } else {
             printSettingsEl.textContent = drillSettingsLabel();
         }
@@ -3739,7 +4278,7 @@
     function renderDrillList() {
         updatePrintMeta();
         const solvedCount = drillItems.filter((item) => item.solved).length;
-        drillTitle.textContent = `えんしゅう  ${solvedCount} / ${drillItems.length}`;
+        drillTitle.textContent = `${weakDrillMode ? 'にがてえんしゅう' : 'えんしゅう'}  ${solvedCount} / ${drillItems.length}`;
         drillList.classList.remove('hunt-board');
         drillList.classList.toggle('print-few', drillItems.length <= 4);
         drillList.classList.toggle('print-many', drillItems.length >= 11);
@@ -5725,6 +6264,7 @@
         drillCount = null;
         drillItems = [];
         drillFocus = null;
+        weakDrillMode = false;
         huntTarget = null;
         huntItems = [];
         huntFocus = null;
@@ -6608,6 +7148,41 @@
         }
     }
 
+    function buildWeakSumButtons() {
+        if (!weakSumGrid) return;
+        weakSumGrid.innerHTML = '';
+        for (let n = 2; n <= 18; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => {
+                weakSumSelected = weakSumSelected === n ? null : n;
+                renderWeakSumPairs();
+                syncWeakSumButtons();
+                markAddBarInteract();
+            });
+            weakSumGrid.appendChild(btn);
+        }
+        syncWeakSumButtons();
+    }
+
+    function buildWeakEnshuButtons() {
+        if (!weakEnshuGrid) return;
+        weakEnshuGrid.innerHTML = '';
+        for (let n = 1; n <= 20; n++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sum-btn';
+            btn.dataset.n = String(n);
+            btn.textContent = String(n);
+            btn.addEventListener('click', () => startWeakDrill(n));
+            weakEnshuGrid.appendChild(btn);
+        }
+        syncWeakEnshuButtons();
+    }
+
     function buildHuntButtons() {
         huntGrid.innerHTML = '';
         for (let n = 1; n <= 18; n++) {
@@ -6634,7 +7209,71 @@
     if (sumMenuBtn) sumMenuBtn.addEventListener('click', () => setAddBarOpen('sum'));
     if (sideMenuBtn) sideMenuBtn.addEventListener('click', () => setAddBarOpen('side'));
     if (enshuMenuBtn) enshuMenuBtn.addEventListener('click', () => setAddBarOpen('enshu'));
-    [sumMenuPanel, sideMenuPanel, enshuMenuPanel].forEach((panel) => {
+    if (weakMenuBtn) weakMenuBtn.addEventListener('click', () => setAddBarOpen('weak'));
+    if (weakEnshuBtn) {
+        weakEnshuBtn.addEventListener('click', () => {
+            weakDrillOpen = !weakDrillOpen;
+            syncAddBarOpen();
+            markAddBarInteract();
+        });
+    }
+    if (weakExportBtn) {
+        weakExportBtn.addEventListener('click', async () => {
+            const text = exportWeakText();
+            if (!text) {
+                setWeakSaveStatus('まだ苦手な問題はありません');
+                return;
+            }
+            showWeakBackupText(text);
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: '苦手リストの控え', text });
+                    setWeakSaveStatus('メモやファイルに保存すると、ずっと残るよ');
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+            }
+            try {
+                await navigator.clipboard.writeText(text);
+                setWeakSaveStatus('控えをコピーしたよ。メモアプリに貼って残してね');
+            } catch (err) {
+                setWeakSaveStatus('枠の中を長押ししてコピーしてね');
+            }
+        });
+    }
+    if (weakImportBtn) {
+        weakImportBtn.addEventListener('click', () => {
+            if (weakBackupText && !weakBackupText.hidden && weakBackupText.value.trim()) {
+                importWeakText(weakBackupText.value);
+                return;
+            }
+            if (weakBackupText) {
+                showWeakBackupText(weakBackupText.value || '');
+                setWeakSaveStatus('控えを貼ったら、もういちど「控えを入れる」を押してね');
+                return;
+            }
+            const pasted = window.prompt('苦手リストの控えを貼ってね', '');
+            if (pasted == null) return;
+            importWeakText(pasted);
+        });
+    }
+    if (weakFileBtn && weakImportFile) {
+        weakFileBtn.addEventListener('click', () => weakImportFile.click());
+        weakImportFile.addEventListener('change', async (event) => {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = '';
+            if (!file) return;
+            try {
+                const text = await file.text();
+                importWeakText(text);
+                showWeakBackupText(text);
+            } catch (err) {
+                setWeakSaveStatus('ファイルがよめなかったよ');
+            }
+        });
+    }
+    [sumMenuPanel, sideMenuPanel, enshuMenuPanel, weakMenuPanel].forEach((panel) => {
         if (!panel) return;
         panel.addEventListener('pointerdown', (event) => {
             event.stopPropagation();
@@ -6913,10 +7552,14 @@
     if (bunkaiDrill8Btn) bunkaiDrill8Btn.addEventListener('click', () => startBunkaiTokkun('drill8'));
     if (bunkaiDrill9Btn) bunkaiDrill9Btn.addEventListener('click', () => startBunkaiTokkun('drill9'));
     loadState();
+    loadWeakPairs();
     refreshOrchard();
     buildFixButtons();
     buildSumButtons();
     buildEnshuButtons();
+    buildWeakSumButtons();
+    buildWeakEnshuButtons();
+    renderWeakMustList();
     buildHuntButtons();
     buildChoiceButtons();
     buildBunkaiSumButtons();
