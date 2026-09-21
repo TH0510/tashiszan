@@ -364,13 +364,6 @@
         font-weight: bold;
         color: #90a4ae;
     }
-    .weak-save-status {
-        margin: 8px 0 0;
-        font-size: 13px;
-        font-weight: bold;
-        color: #6a1b9a;
-        min-height: 1.2em;
-    }
     .weak-right .weak-enshu-btn {
         width: 100%;
         min-width: 0;
@@ -2401,9 +2394,7 @@
                             <button type="button" class="enshu-make-btn weak-enshu-btn" id="weak-enshu-btn">苦手演習作成</button>
                         </div>
                     </div>
-                    <p class="weak-save-status" id="weak-save-status"></p>
-                    <input type="file" id="weak-save-picker" hidden>
-                    <input type="file" id="weak-export-picker" hidden>
+                    <input type="file" id="weak-import-file" hidden>
                 </div>
             </div>
             <div id="message" class="message"></div>
@@ -2528,12 +2519,6 @@
     const STORAGE_KEY = 'tashizan-kai-v1';
     const WEAK_STORAGE_KEY = 'tashizan-kai-weak-v1';
     const WEAK_COOKIE = 'tashizan_kai_weak';
-    const WEAK_FILE_NAME = '苦手リスト.txt';
-    const WEAK_FILE_DB = 'tashizan-kai-files';
-    const WEAK_FILE_TYPES = [{
-        description: 'テキスト',
-        accept: { 'text/plain': ['.txt'] }
-    }];
     const APPLE_SPOTS = [
         { x: 14, y: 36 }, { x: 32, y: 16 }, { x: 50, y: 8 }, { x: 68, y: 14 }, { x: 84, y: 30 },
         { x: 8, y: 52 }, { x: 26, y: 44 }, { x: 44, y: 32 }, { x: 62, y: 36 }, { x: 78, y: 46 },
@@ -2620,9 +2605,7 @@
     const weakSelectAllBtn = document.getElementById('weak-select-all-btn');
     const weakExportBtn = document.getElementById('weak-export-btn');
     const weakFileBtn = document.getElementById('weak-file-btn');
-    const weakSaveStatus = document.getElementById('weak-save-status');
-    const weakSavePicker = document.getElementById('weak-save-picker');
-    const weakExportPicker = document.getElementById('weak-export-picker');
+    const weakImportFile = document.getElementById('weak-import-file');
     const enshuDupBtn = document.getElementById('enshu-dup-btn');
     const hintBtn = document.getElementById('hint-btn');
     const resetHintBtn = document.getElementById('reset-hint-btn');
@@ -2672,8 +2655,6 @@
     let mustIncludePairs = new Set();
     let weakSumSelected = null;
     let weakDrillMode = false;
-    let weakFileHandle = null;
-    let pendingWeakFileText = '';
     let sumMode = 'random';
     let selectedSums = new Set();
     let busy = false;
@@ -3536,7 +3517,6 @@
         });
         saveWeakPairs();
         requestWeakPersist();
-        restoreWeakFileHandle();
     }
 
     function collectSavedWeakKeys() {
@@ -3590,153 +3570,78 @@
         return decodeWeakDigits(text);
     }
 
+    function importWeakText(raw) {
+        const keys = decodeWeakPayload(raw);
+        if (!keys.length) return false;
+        weakPairs = new Set(keys);
+        mustIncludePairs = new Set(keys);
+        saveWeakPairs();
+        renderWeakSumPairs();
+        renderWeakMustList();
+        syncWeakSumButtons();
+        return true;
+    }
+
     function exportWeakText() {
         return sortedWeakPairs().map(([l, r]) => `${l}+${r}`).join(',');
     }
 
-    function openWeakFileDb() {
-        return new Promise((resolve, reject) => {
-            const req = indexedDB.open(WEAK_FILE_DB, 1);
-            req.onupgradeneeded = () => {
-                if (!req.result.objectStoreNames.contains('handles')) {
-                    req.result.createObjectStore('handles');
-                }
-            };
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject(req.error);
-        });
+    function isIosDevice() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent)
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     }
 
-    async function restoreWeakFileHandle() {
-        if (!window.showSaveFilePicker) return;
-        try {
-            const db = await openWeakFileDb();
-            const handle = await new Promise((resolve) => {
-                const tx = db.transaction('handles', 'readonly');
-                const get = tx.objectStore('handles').get('weak');
-                get.onsuccess = () => resolve(get.result || null);
-                get.onerror = () => resolve(null);
-            });
-            if (handle) weakFileHandle = handle;
-        } catch (err) {
-            /* ignore */
-        }
-    }
-
-    async function rememberWeakFileHandle(handle) {
-        weakFileHandle = handle;
-        try {
-            const db = await openWeakFileDb();
-            await new Promise((resolve) => {
-                const tx = db.transaction('handles', 'readwrite');
-                tx.objectStore('handles').put(handle, 'weak');
-                tx.oncomplete = () => resolve();
-                tx.onerror = () => resolve();
-            });
-        } catch (err) {
-            /* ignore */
-        }
-    }
-
-    async function writeWeakFileHandle(handle, text) {
-        const opts = { mode: 'readwrite' };
-        if (handle.queryPermission && (await handle.queryPermission(opts)) !== 'granted') {
-            if (!handle.requestPermission || (await handle.requestPermission(opts)) !== 'granted') {
-                throw new Error('permission');
-            }
-        }
-        const writable = await handle.createWritable();
-        await writable.write(text);
-        await writable.close();
-    }
-
-    function downloadWeakNamedFile(text, filename = WEAK_FILE_NAME) {
-        const blob = new Blob([text.endsWith('\n') ? text : `${text}\n`], { type: 'text/plain;charset=utf-8' });
+    function downloadWeakFile(blob, fileName) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = filename || WEAK_FILE_NAME;
+        a.download = fileName;
+        a.rel = 'noopener';
         document.body.appendChild(a);
         a.click();
         a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
     }
 
-    function openWeakFileInput(input, text) {
-        pendingWeakFileText = text;
-        if (!input) {
-            downloadWeakNamedFile(text);
-            setWeakSaveStatus('「苦手リスト.txt」として保存してね');
-            return;
-        }
-        input.value = '';
-        input.click();
-    }
+    async function saveWeakToDevice() {
+        const text = exportWeakText();
+        if (!text) return;
+        const fileName = '苦手リスト.txt';
+        const body = text.endsWith('\n') ? text : `${text}\n`;
+        const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
+        const file = new File([blob], fileName, { type: 'text/plain' });
 
-    async function writePickedWeakFile(text, mode) {
-        if (mode === 'save' && window.showOpenFilePicker) {
+        if (isIosDevice()) {
             try {
-                const picked = await window.showOpenFilePicker({
-                    multiple: false,
-                    types: WEAK_FILE_TYPES
-                });
-                const handle = picked && picked[0];
-                if (handle) {
-                    await rememberWeakFileHandle(handle);
-                    await writeWeakFileHandle(handle, text);
-                    setWeakSaveStatus('選んだファイルに保存したよ');
-                    return true;
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: '苦手リスト' });
+                    return;
+                }
+                if (navigator.share) {
+                    await navigator.share({ title: '苦手リスト', text });
+                    return;
                 }
             } catch (err) {
-                if (err && err.name === 'AbortError') return true;
+                if (err && err.name === 'AbortError') return;
             }
         }
-        if (window.showSaveFilePicker) {
+
+        if (typeof window.showSaveFilePicker === 'function') {
             try {
                 const handle = await window.showSaveFilePicker({
-                    suggestedName: WEAK_FILE_NAME,
-                    types: WEAK_FILE_TYPES
+                    suggestedName: fileName,
+                    types: [{ description: 'テキスト', accept: { 'text/plain': ['.txt'] } }]
                 });
-                if (mode === 'save') await rememberWeakFileHandle(handle);
-                await writeWeakFileHandle(handle, text);
-                setWeakSaveStatus(mode === 'save' ? '選んだファイルに保存したよ' : '選んだ場所に出力したよ');
-                return true;
+                const writable = await handle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                return;
             } catch (err) {
-                if (err && err.name === 'AbortError') return true;
+                if (err && err.name === 'AbortError') return;
             }
         }
-        return false;
-    }
 
-    function canUseNativeFilePicker() {
-        return typeof window.showOpenFilePicker === 'function' || typeof window.showSaveFilePicker === 'function';
-    }
-
-    async function saveWeakNamedFile(text) {
-        if (canUseNativeFilePicker()) {
-            if (await writePickedWeakFile(text, 'save')) return;
-        }
-        openWeakFileInput(weakSavePicker, text);
-        setWeakSaveStatus('苦手リストのファイルを選んでね');
-    }
-
-    async function exportWeakNamedFile(text) {
-        if (canUseNativeFilePicker()) {
-            if (await writePickedWeakFile(text, 'export')) return;
-        }
-        openWeakFileInput(weakExportPicker, text);
-        setWeakSaveStatus('出力先のファイルを選んでね');
-    }
-
-    function finishWeakFilePick(file, mode) {
-        const text = pendingWeakFileText;
-        pendingWeakFileText = '';
-        if (!file || !text) return;
-        const name = file.name || WEAK_FILE_NAME;
-        downloadWeakNamedFile(text, name);
-        setWeakSaveStatus(mode === 'save'
-            ? `「${name}」として保存してね。同じ名前なら上書きできるよ`
-            : `「${name}」を出力したよ`);
+        downloadWeakFile(blob, fileName);
     }
 
     function readWeakLocal() {
@@ -3806,10 +3711,6 @@
         } catch (err) {
             /* ignore */
         }
-    }
-
-    function setWeakSaveStatus(text) {
-        if (weakSaveStatus) weakSaveStatus.textContent = text || '';
     }
 
     function requestWeakPersist() {
@@ -4185,10 +4086,7 @@
 
     function startWeakDrill() {
         const pairs = pickWeakDrillPairs();
-        if (!pairs.length) {
-            setWeakSaveStatus('右側で出したい問題にチェックしてね');
-            return;
-        }
+        if (!pairs.length) return;
         if (addBarOpen) {
             addBarOpen = null;
             syncAddBarOpen();
@@ -7339,37 +7237,22 @@
         weakSelectAllBtn.addEventListener('click', () => toggleWeakSelectAll());
     }
     if (weakExportBtn) {
-        weakExportBtn.addEventListener('click', async () => {
-            const text = exportWeakText();
-            if (!text) {
-                setWeakSaveStatus('まだ苦手な問題はありません');
-                return;
-            }
-            await saveWeakNamedFile(text);
+        weakExportBtn.addEventListener('click', () => {
+            saveWeakToDevice();
         });
     }
-    if (weakFileBtn) {
-        weakFileBtn.addEventListener('click', async () => {
-            const text = exportWeakText();
-            if (!text) {
-                setWeakSaveStatus('まだ苦手な問題はありません');
-                return;
-            }
-            await exportWeakNamedFile(text);
-        });
-    }
-    if (weakSavePicker) {
-        weakSavePicker.addEventListener('change', (event) => {
+    if (weakFileBtn && weakImportFile) {
+        weakFileBtn.addEventListener('click', () => weakImportFile.click());
+        weakImportFile.addEventListener('change', async (event) => {
             const file = event.target.files && event.target.files[0];
             event.target.value = '';
-            finishWeakFilePick(file, 'save');
-        });
-    }
-    if (weakExportPicker) {
-        weakExportPicker.addEventListener('change', (event) => {
-            const file = event.target.files && event.target.files[0];
-            event.target.value = '';
-            finishWeakFilePick(file, 'export');
+            if (!file) return;
+            try {
+                const text = await file.text();
+                importWeakText(text);
+            } catch (err) {
+                /* ignore */
+            }
         });
     }
     [sumMenuPanel, sideMenuPanel, enshuMenuPanel, weakMenuPanel].forEach((panel) => {
