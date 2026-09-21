@@ -3591,11 +3591,10 @@
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     }
 
-    function downloadWeakFile(blob, fileName) {
+    function downloadWeakFile(blob) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = fileName;
         a.rel = 'noopener';
         document.body.appendChild(a);
         a.click();
@@ -3606,19 +3605,28 @@
     async function saveWeakToDevice() {
         const text = exportWeakText();
         if (!text) return;
-        const fileName = '苦手リスト.txt';
         const body = text.endsWith('\n') ? text : `${text}\n`;
         const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
-        const file = new File([blob], fileName, { type: 'text/plain' });
 
         if (isIosDevice()) {
             try {
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: '苦手リスト' });
+                if (navigator.share) {
+                    await navigator.share({ text: body });
                     return;
                 }
-                if (navigator.share) {
-                    await navigator.share({ title: '苦手リスト', text });
+            } catch (err) {
+                if (err && err.name === 'AbortError') return;
+            }
+        }
+
+        if (typeof window.showOpenFilePicker === 'function') {
+            try {
+                const picked = await window.showOpenFilePicker({ multiple: false });
+                const handle = picked && picked[0];
+                if (handle) {
+                    const writable = await handle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
                     return;
                 }
             } catch (err) {
@@ -3628,10 +3636,7 @@
 
         if (typeof window.showSaveFilePicker === 'function') {
             try {
-                const handle = await window.showSaveFilePicker({
-                    suggestedName: fileName,
-                    types: [{ description: 'テキスト', accept: { 'text/plain': ['.txt'] } }]
-                });
+                const handle = await window.showSaveFilePicker();
                 const writable = await handle.createWritable();
                 await writable.write(blob);
                 await writable.close();
@@ -3641,7 +3646,7 @@
             }
         }
 
-        downloadWeakFile(blob, fileName);
+        downloadWeakFile(blob);
     }
 
     function readWeakLocal() {
