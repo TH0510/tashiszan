@@ -2402,6 +2402,8 @@
                         </div>
                     </div>
                     <p class="weak-save-status" id="weak-save-status"></p>
+                    <input type="file" id="weak-save-picker" hidden>
+                    <input type="file" id="weak-export-picker" hidden>
                 </div>
             </div>
             <div id="message" class="message"></div>
@@ -2528,6 +2530,10 @@
     const WEAK_COOKIE = 'tashizan_kai_weak';
     const WEAK_FILE_NAME = '苦手リスト.txt';
     const WEAK_FILE_DB = 'tashizan-kai-files';
+    const WEAK_FILE_TYPES = [{
+        description: 'テキスト',
+        accept: { 'text/plain': ['.txt'] }
+    }];
     const APPLE_SPOTS = [
         { x: 14, y: 36 }, { x: 32, y: 16 }, { x: 50, y: 8 }, { x: 68, y: 14 }, { x: 84, y: 30 },
         { x: 8, y: 52 }, { x: 26, y: 44 }, { x: 44, y: 32 }, { x: 62, y: 36 }, { x: 78, y: 46 },
@@ -2615,6 +2621,8 @@
     const weakExportBtn = document.getElementById('weak-export-btn');
     const weakFileBtn = document.getElementById('weak-file-btn');
     const weakSaveStatus = document.getElementById('weak-save-status');
+    const weakSavePicker = document.getElementById('weak-save-picker');
+    const weakExportPicker = document.getElementById('weak-export-picker');
     const enshuDupBtn = document.getElementById('enshu-dup-btn');
     const hintBtn = document.getElementById('hint-btn');
     const resetHintBtn = document.getElementById('reset-hint-btn');
@@ -2665,6 +2673,7 @@
     let weakSumSelected = null;
     let weakDrillMode = false;
     let weakFileHandle = null;
+    let pendingWeakFileText = '';
     let sumMode = 'random';
     let selectedSums = new Set();
     let busy = false;
@@ -3641,73 +3650,93 @@
         await writable.close();
     }
 
-    function downloadWeakNamedFile(text) {
+    function downloadWeakNamedFile(text, filename = WEAK_FILE_NAME) {
         const blob = new Blob([text.endsWith('\n') ? text : `${text}\n`], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = WEAK_FILE_NAME;
+        a.download = filename || WEAK_FILE_NAME;
         document.body.appendChild(a);
         a.click();
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1500);
     }
 
-    async function shareWeakNamedFile(text) {
-        const file = new File([text.endsWith('\n') ? text : `${text}\n`], WEAK_FILE_NAME, { type: 'text/plain' });
-        if (!(navigator.canShare && navigator.canShare({ files: [file] }))) return false;
-        await navigator.share({ files: [file], title: '苦手リスト' });
-        return true;
+    function openWeakFileInput(input, text) {
+        pendingWeakFileText = text;
+        if (!input) {
+            downloadWeakNamedFile(text);
+            setWeakSaveStatus('「苦手リスト.txt」として保存してね');
+            return;
+        }
+        input.value = '';
+        input.click();
     }
 
-    async function saveWeakNamedFile(text, { pickNew = false } = {}) {
-        if (!pickNew && weakFileHandle) {
+    async function writePickedWeakFile(text, mode) {
+        if (mode === 'save' && window.showOpenFilePicker) {
             try {
-                await writeWeakFileHandle(weakFileHandle, text);
-                setWeakSaveStatus('苦手リスト に上書き保存したよ');
-                return true;
+                const picked = await window.showOpenFilePicker({
+                    multiple: false,
+                    types: WEAK_FILE_TYPES
+                });
+                const handle = picked && picked[0];
+                if (handle) {
+                    await rememberWeakFileHandle(handle);
+                    await writeWeakFileHandle(handle, text);
+                    setWeakSaveStatus('選んだファイルに保存したよ');
+                    return true;
+                }
             } catch (err) {
-                weakFileHandle = null;
+                if (err && err.name === 'AbortError') return true;
             }
         }
         if (window.showSaveFilePicker) {
             try {
                 const handle = await window.showSaveFilePicker({
                     suggestedName: WEAK_FILE_NAME,
-                    types: [{ description: 'テキスト', accept: { 'text/plain': ['.txt'] } }]
+                    types: WEAK_FILE_TYPES
                 });
-                await rememberWeakFileHandle(handle);
+                if (mode === 'save') await rememberWeakFileHandle(handle);
                 await writeWeakFileHandle(handle, text);
-                setWeakSaveStatus('苦手リスト に保存したよ。次からは上書きできるよ');
+                setWeakSaveStatus(mode === 'save' ? '選んだファイルに保存したよ' : '選んだ場所に出力したよ');
                 return true;
             } catch (err) {
-                if (err && err.name === 'AbortError') return false;
+                if (err && err.name === 'AbortError') return true;
             }
         }
-        try {
-            if (await shareWeakNamedFile(text)) {
-                setWeakSaveStatus('ファイルに保存するとき、同じ「苦手リスト」を選ぶと上書きできるよ');
-                return true;
-            }
-        } catch (err) {
-            if (err && err.name === 'AbortError') return false;
-        }
-        downloadWeakNamedFile(text);
-        setWeakSaveStatus('「苦手リスト.txt」を保存してね。同じ名前なら上書きできるよ');
         return false;
     }
 
-    async function exportWeakNamedFile(text) {
-        try {
-            if (await shareWeakNamedFile(text)) {
-                setWeakSaveStatus('出力したよ');
-                return;
-            }
-        } catch (err) {
-            if (err && err.name === 'AbortError') return;
+    function canUseNativeFilePicker() {
+        return typeof window.showOpenFilePicker === 'function' || typeof window.showSaveFilePicker === 'function';
+    }
+
+    async function saveWeakNamedFile(text) {
+        if (canUseNativeFilePicker()) {
+            if (await writePickedWeakFile(text, 'save')) return;
         }
-        downloadWeakNamedFile(text);
-        setWeakSaveStatus('「苦手リスト.txt」を出力したよ');
+        openWeakFileInput(weakSavePicker, text);
+        setWeakSaveStatus('苦手リストのファイルを選んでね');
+    }
+
+    async function exportWeakNamedFile(text) {
+        if (canUseNativeFilePicker()) {
+            if (await writePickedWeakFile(text, 'export')) return;
+        }
+        openWeakFileInput(weakExportPicker, text);
+        setWeakSaveStatus('出力先のファイルを選んでね');
+    }
+
+    function finishWeakFilePick(file, mode) {
+        const text = pendingWeakFileText;
+        pendingWeakFileText = '';
+        if (!file || !text) return;
+        const name = file.name || WEAK_FILE_NAME;
+        downloadWeakNamedFile(text, name);
+        setWeakSaveStatus(mode === 'save'
+            ? `「${name}」として保存してね。同じ名前なら上書きできるよ`
+            : `「${name}」を出力したよ`);
     }
 
     function readWeakLocal() {
@@ -7327,6 +7356,20 @@
                 return;
             }
             await exportWeakNamedFile(text);
+        });
+    }
+    if (weakSavePicker) {
+        weakSavePicker.addEventListener('change', (event) => {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = '';
+            finishWeakFilePick(file, 'save');
+        });
+    }
+    if (weakExportPicker) {
+        weakExportPicker.addEventListener('change', (event) => {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = '';
+            finishWeakFilePick(file, 'export');
         });
     }
     [sumMenuPanel, sideMenuPanel, enshuMenuPanel, weakMenuPanel].forEach((panel) => {
