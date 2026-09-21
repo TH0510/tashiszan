@@ -281,22 +281,56 @@
     .add-bar-panel.weak-panel {
         max-height: min(72vh, 680px);
         overflow-y: auto;
+        text-align: left;
+    }
+    .weak-top-btns {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .weak-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(200px, 0.85fr);
+        gap: 12px 18px;
+        align-items: start;
+    }
+    .weak-left .sum-grid,
+    .add-bar-panel.weak-panel .sum-grid {
+        margin: 8px 0 0;
+        max-width: 380px;
+        grid-template-columns: repeat(9, minmax(28px, 1fr));
     }
     .weak-caption {
         margin: 0 0 8px;
         font-size: 13px;
         font-weight: bold;
         color: #78909c;
+        text-align: left;
+    }
+    .weak-count {
+        margin: 0 0 8px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #6a1b9a;
+        text-align: left;
     }
     .weak-pair-list {
         display: flex;
         flex-direction: column;
         gap: 4px;
         max-width: 280px;
-        margin: 10px auto 4px;
+        margin: 10px 0 4px;
         max-height: 220px;
         overflow-y: auto;
         text-align: left;
+    }
+    .weak-right .weak-pair-list {
+        max-width: none;
+        max-height: min(36vh, 280px);
+        margin: 8px 0 10px;
     }
     .weak-pair-row {
         display: flex;
@@ -319,23 +353,16 @@
         accent-color: #8e24aa;
         cursor: pointer;
         flex-shrink: 0;
+        margin-left: auto;
+    }
+    .weak-left .weak-pair-row input[type="checkbox"] {
+        margin-left: 0;
     }
     .weak-empty {
         margin: 8px 0 0;
         font-size: 14px;
         font-weight: bold;
         color: #90a4ae;
-    }
-    .weak-backup {
-        margin-top: 12px;
-        padding-top: 10px;
-        border-top: 1px dashed #e1bee7;
-    }
-    .weak-backup-btns {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
     }
     .weak-save-status {
         margin: 8px 0 0;
@@ -344,34 +371,14 @@
         color: #6a1b9a;
         min-height: 1.2em;
     }
-    .weak-backup-text {
-        display: block;
-        width: min(100%, 360px);
-        margin: 8px auto 0;
-        min-height: 72px;
-        border: 1px solid #ce93d8;
-        border-radius: 10px;
-        padding: 8px;
-        font-family: inherit;
-        font-size: 16px;
-        resize: vertical;
+    .weak-right .weak-enshu-btn {
+        width: 100%;
+        min-width: 0;
     }
-    .weak-backup-text[hidden] {
-        display: none;
-    }
-    .weak-drill-actions {
-        display: flex;
-        justify-content: center;
-        margin-top: 12px;
-    }
-    .weak-drill-setup {
-        display: none;
-        margin-top: 12px;
-        padding-top: 10px;
-        border-top: 1px solid #eceff1;
-    }
-    .weak-drill-setup.open {
-        display: block;
+    @media (max-width: 640px) {
+        .weak-layout {
+            grid-template-columns: 1fr;
+        }
     }
     .add-bar-panel {
         display: none;
@@ -2377,28 +2384,24 @@
                     <div class="enshu-grid" id="enshu-grid"></div>
                 </div>
                 <div class="add-bar-panel weak-panel" id="weak-menu-panel">
-                    <p class="weak-caption">和</p>
-                    <div class="sum-grid" id="weak-sum-grid"></div>
-                    <div class="weak-pair-list" id="weak-sum-pairs" hidden></div>
-                    <div class="weak-backup">
-                        <p class="weak-caption">ページを消しても残す</p>
-                        <div class="weak-backup-btns">
-                            <button type="button" class="ctrl-btn" id="weak-export-btn">控えをとる</button>
-                            <button type="button" class="ctrl-btn" id="weak-import-btn">控えを入れる</button>
-                            <button type="button" class="ctrl-btn" id="weak-file-btn">ファイルから</button>
+                    <div class="weak-top-btns">
+                        <button type="button" class="ctrl-btn" id="weak-export-btn">保存</button>
+                        <button type="button" class="ctrl-btn" id="weak-file-btn">出力</button>
+                    </div>
+                    <div class="weak-layout">
+                        <div class="weak-left">
+                            <p class="weak-caption">和</p>
+                            <div class="sum-grid" id="weak-sum-grid"></div>
+                            <div class="weak-pair-list" id="weak-sum-pairs" hidden></div>
                         </div>
-                        <p class="weak-save-status" id="weak-save-status"></p>
-                        <textarea id="weak-backup-text" class="weak-backup-text" hidden rows="3"></textarea>
-                        <input type="file" id="weak-import-file" accept=".txt,.json,text/plain,application/json" hidden>
+                        <div class="weak-right">
+                            <p class="weak-count" id="weak-count-label">苦手項目 0</p>
+                            <button type="button" class="ctrl-btn" id="weak-select-all-btn">すべて選択</button>
+                            <div class="weak-pair-list" id="weak-must-list"></div>
+                            <button type="button" class="enshu-make-btn weak-enshu-btn" id="weak-enshu-btn">苦手演習作成</button>
+                        </div>
                     </div>
-                    <div class="weak-drill-actions">
-                        <button type="button" class="enshu-make-btn weak-enshu-btn" id="weak-enshu-btn">苦手演習作成</button>
-                    </div>
-                    <div class="weak-drill-setup" id="weak-drill-setup">
-                        <div class="enshu-grid" id="weak-enshu-grid"></div>
-                        <p class="weak-caption">苦手問題（チェックすると必ず出る）</p>
-                        <div class="weak-pair-list" id="weak-must-list"></div>
-                    </div>
+                    <p class="weak-save-status" id="weak-save-status"></p>
                 </div>
             </div>
             <div id="message" class="message"></div>
@@ -2523,6 +2526,8 @@
     const STORAGE_KEY = 'tashizan-kai-v1';
     const WEAK_STORAGE_KEY = 'tashizan-kai-weak-v1';
     const WEAK_COOKIE = 'tashizan_kai_weak';
+    const WEAK_FILE_NAME = '苦手リスト.txt';
+    const WEAK_FILE_DB = 'tashizan-kai-files';
     const APPLE_SPOTS = [
         { x: 14, y: 36 }, { x: 32, y: 16 }, { x: 50, y: 8 }, { x: 68, y: 14 }, { x: 84, y: 30 },
         { x: 8, y: 52 }, { x: 26, y: 44 }, { x: 44, y: 32 }, { x: 62, y: 36 }, { x: 78, y: 46 },
@@ -2604,14 +2609,11 @@
     const weakSumGrid = document.getElementById('weak-sum-grid');
     const weakSumPairs = document.getElementById('weak-sum-pairs');
     const weakEnshuBtn = document.getElementById('weak-enshu-btn');
-    const weakDrillSetup = document.getElementById('weak-drill-setup');
-    const weakEnshuGrid = document.getElementById('weak-enshu-grid');
     const weakMustList = document.getElementById('weak-must-list');
+    const weakCountLabel = document.getElementById('weak-count-label');
+    const weakSelectAllBtn = document.getElementById('weak-select-all-btn');
     const weakExportBtn = document.getElementById('weak-export-btn');
-    const weakImportBtn = document.getElementById('weak-import-btn');
     const weakFileBtn = document.getElementById('weak-file-btn');
-    const weakImportFile = document.getElementById('weak-import-file');
-    const weakBackupText = document.getElementById('weak-backup-text');
     const weakSaveStatus = document.getElementById('weak-save-status');
     const enshuDupBtn = document.getElementById('enshu-dup-btn');
     const hintBtn = document.getElementById('hint-btn');
@@ -2661,8 +2663,8 @@
     let weakPairs = new Set();
     let mustIncludePairs = new Set();
     let weakSumSelected = null;
-    let weakDrillOpen = false;
     let weakDrillMode = false;
+    let weakFileHandle = null;
     let sumMode = 'random';
     let selectedSums = new Set();
     let busy = false;
@@ -3047,7 +3049,7 @@
         }
         if (enshuDupBtn) enshuDupBtn.classList.toggle('active', enshuAllowDup);
         syncWeakSumButtons();
-        syncWeakEnshuButtons();
+        updateWeakCountLabel();
         if (bunkaiEnshuGrid) {
             bunkaiEnshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
                 btn.classList.toggle('active', playMode === 'bunkai' && drillCount === Number(btn.dataset.n));
@@ -3344,8 +3346,6 @@
         if (sideMenuPanel) sideMenuPanel.classList.toggle('open', addBarOpen === 'side');
         if (enshuMenuPanel) enshuMenuPanel.classList.toggle('open', addBarOpen === 'enshu');
         if (weakMenuPanel) weakMenuPanel.classList.toggle('open', addBarOpen === 'weak');
-        if (weakEnshuBtn) weakEnshuBtn.classList.toggle('open', weakDrillOpen);
-        if (weakDrillSetup) weakDrillSetup.classList.toggle('open', weakDrillOpen);
     }
 
     function setAddBarOpen(which) {
@@ -3521,9 +3521,13 @@
     }
 
     function loadWeakPairs() {
-        collectSavedWeakKeys().forEach((key) => weakPairs.add(key));
+        collectSavedWeakKeys().forEach((key) => {
+            weakPairs.add(key);
+            mustIncludePairs.add(key);
+        });
         saveWeakPairs();
         requestWeakPersist();
+        restoreWeakFileHandle();
     }
 
     function collectSavedWeakKeys() {
@@ -3579,6 +3583,131 @@
 
     function exportWeakText() {
         return sortedWeakPairs().map(([l, r]) => `${l}+${r}`).join(',');
+    }
+
+    function openWeakFileDb() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open(WEAK_FILE_DB, 1);
+            req.onupgradeneeded = () => {
+                if (!req.result.objectStoreNames.contains('handles')) {
+                    req.result.createObjectStore('handles');
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function restoreWeakFileHandle() {
+        if (!window.showSaveFilePicker) return;
+        try {
+            const db = await openWeakFileDb();
+            const handle = await new Promise((resolve) => {
+                const tx = db.transaction('handles', 'readonly');
+                const get = tx.objectStore('handles').get('weak');
+                get.onsuccess = () => resolve(get.result || null);
+                get.onerror = () => resolve(null);
+            });
+            if (handle) weakFileHandle = handle;
+        } catch (err) {
+            /* ignore */
+        }
+    }
+
+    async function rememberWeakFileHandle(handle) {
+        weakFileHandle = handle;
+        try {
+            const db = await openWeakFileDb();
+            await new Promise((resolve) => {
+                const tx = db.transaction('handles', 'readwrite');
+                tx.objectStore('handles').put(handle, 'weak');
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => resolve();
+            });
+        } catch (err) {
+            /* ignore */
+        }
+    }
+
+    async function writeWeakFileHandle(handle, text) {
+        const opts = { mode: 'readwrite' };
+        if (handle.queryPermission && (await handle.queryPermission(opts)) !== 'granted') {
+            if (!handle.requestPermission || (await handle.requestPermission(opts)) !== 'granted') {
+                throw new Error('permission');
+            }
+        }
+        const writable = await handle.createWritable();
+        await writable.write(text);
+        await writable.close();
+    }
+
+    function downloadWeakNamedFile(text) {
+        const blob = new Blob([text.endsWith('\n') ? text : `${text}\n`], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = WEAK_FILE_NAME;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    async function shareWeakNamedFile(text) {
+        const file = new File([text.endsWith('\n') ? text : `${text}\n`], WEAK_FILE_NAME, { type: 'text/plain' });
+        if (!(navigator.canShare && navigator.canShare({ files: [file] }))) return false;
+        await navigator.share({ files: [file], title: '苦手リスト' });
+        return true;
+    }
+
+    async function saveWeakNamedFile(text, { pickNew = false } = {}) {
+        if (!pickNew && weakFileHandle) {
+            try {
+                await writeWeakFileHandle(weakFileHandle, text);
+                setWeakSaveStatus('苦手リスト に上書き保存したよ');
+                return true;
+            } catch (err) {
+                weakFileHandle = null;
+            }
+        }
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: WEAK_FILE_NAME,
+                    types: [{ description: 'テキスト', accept: { 'text/plain': ['.txt'] } }]
+                });
+                await rememberWeakFileHandle(handle);
+                await writeWeakFileHandle(handle, text);
+                setWeakSaveStatus('苦手リスト に保存したよ。次からは上書きできるよ');
+                return true;
+            } catch (err) {
+                if (err && err.name === 'AbortError') return false;
+            }
+        }
+        try {
+            if (await shareWeakNamedFile(text)) {
+                setWeakSaveStatus('ファイルに保存するとき、同じ「苦手リスト」を選ぶと上書きできるよ');
+                return true;
+            }
+        } catch (err) {
+            if (err && err.name === 'AbortError') return false;
+        }
+        downloadWeakNamedFile(text);
+        setWeakSaveStatus('「苦手リスト.txt」を保存してね。同じ名前なら上書きできるよ');
+        return false;
+    }
+
+    async function exportWeakNamedFile(text) {
+        try {
+            if (await shareWeakNamedFile(text)) {
+                setWeakSaveStatus('出力したよ');
+                return;
+            }
+        } catch (err) {
+            if (err && err.name === 'AbortError') return;
+        }
+        downloadWeakNamedFile(text);
+        setWeakSaveStatus('「苦手リスト.txt」を出力したよ');
     }
 
     function readWeakLocal() {
@@ -3673,40 +3802,7 @@
         }
         writeWeakCookie(digits);
         writeWeakUrl(digits);
-        const n = weakPairs.size;
-        if (!n) setWeakSaveStatus('まだ苦手な問題はありません');
-        else if (canUseLocalStorage() && location.protocol !== 'file:') {
-            setWeakSaveStatus(`${n}こ この端末に保存したよ`);
-        } else {
-            setWeakSaveStatus(`${n}こ チェック中。ページを消す前に控えをとってね`);
-        }
-    }
-
-    function importWeakText(raw) {
-        const keys = decodeWeakPayload(raw);
-        if (!keys.length && String(raw || '').trim()) {
-            setWeakSaveStatus('よめなかったよ。1+2,2+1 の形で貼ってね');
-            return false;
-        }
-        weakPairs = new Set(keys);
-        for (const key of [...mustIncludePairs]) {
-            if (!weakPairs.has(key)) mustIncludePairs.delete(key);
-        }
-        saveWeakPairs();
-        renderWeakSumPairs();
-        renderWeakMustList();
-        syncWeakSumButtons();
-        syncWeakEnshuButtons();
-        setWeakSaveStatus(keys.length ? `${keys.length}こ よみこんだよ` : '控えは空だったよ');
-        return true;
-    }
-
-    function showWeakBackupText(text) {
-        if (!weakBackupText) return;
-        weakBackupText.hidden = false;
-        weakBackupText.value = text;
-        weakBackupText.focus();
-        weakBackupText.select();
+        updateWeakCountLabel();
     }
 
     function sortedWeakPairs() {
@@ -3720,8 +3816,10 @@
         const [l, r] = parsePairKey(key);
         if (!isValidAddPair(l, r)) return;
         const normalized = pairKey(l, r);
-        if (checked) weakPairs.add(normalized);
-        else {
+        if (checked) {
+            weakPairs.add(normalized);
+            mustIncludePairs.add(normalized);
+        } else {
             weakPairs.delete(normalized);
             mustIncludePairs.delete(normalized);
         }
@@ -3729,7 +3827,6 @@
         renderWeakSumPairs();
         renderWeakMustList();
         syncWeakSumButtons();
-        syncWeakEnshuButtons();
     }
 
     function setMustIncludeChecked(key, checked) {
@@ -3739,7 +3836,7 @@
         renderWeakMustList();
     }
 
-    function makeWeakPairRow(l, r, checked, onChange) {
+    function makeWeakPairRow(l, r, checked, onChange, checkboxFirst) {
         const label = document.createElement('label');
         label.className = 'weak-pair-row';
         const cb = document.createElement('input');
@@ -3748,9 +3845,34 @@
         cb.addEventListener('change', () => onChange(cb.checked));
         const text = document.createElement('span');
         text.innerHTML = `<span class="eq-red">${l}</span> + <span class="eq-blue">${r}</span>`;
-        label.appendChild(cb);
-        label.appendChild(text);
+        if (checkboxFirst) {
+            label.appendChild(cb);
+            label.appendChild(text);
+        } else {
+            label.appendChild(text);
+            label.appendChild(cb);
+        }
         return label;
+    }
+
+    function allWeakSelected() {
+        return weakPairs.size > 0 && [...weakPairs].every((key) => mustIncludePairs.has(key));
+    }
+
+    function updateWeakCountLabel() {
+        if (weakCountLabel) weakCountLabel.textContent = `苦手項目 ${weakPairs.size}`;
+        if (weakSelectAllBtn) {
+            weakSelectAllBtn.disabled = weakPairs.size === 0;
+            weakSelectAllBtn.textContent = allWeakSelected() ? 'すべて解除' : 'すべて選択';
+        }
+        if (weakEnshuBtn) weakEnshuBtn.disabled = mustIncludePairs.size === 0;
+    }
+
+    function toggleWeakSelectAll() {
+        if (!weakPairs.size) return;
+        if (allWeakSelected()) mustIncludePairs.clear();
+        else [...weakPairs].forEach((key) => mustIncludePairs.add(key));
+        renderWeakMustList();
     }
 
     function renderWeakSumPairs() {
@@ -3766,13 +3888,14 @@
             const key = pairKey(l, r);
             weakSumPairs.appendChild(makeWeakPairRow(l, r, weakPairs.has(key), (checked) => {
                 setWeakPairChecked(key, checked);
-            }));
+            }, true));
         });
     }
 
     function renderWeakMustList() {
         if (!weakMustList) return;
         weakMustList.innerHTML = '';
+        updateWeakCountLabel();
         const pairs = sortedWeakPairs();
         if (!pairs.length) {
             const empty = document.createElement('p');
@@ -3799,28 +3922,8 @@
         });
     }
 
-    function syncWeakEnshuButtons() {
-        if (!weakEnshuGrid) return;
-        const empty = weakPairs.size === 0;
-        weakEnshuGrid.querySelectorAll('.sum-btn').forEach((btn) => {
-            btn.disabled = empty;
-            btn.classList.toggle('active', weakDrillMode && drillCount === Number(btn.dataset.n));
-        });
-    }
-
-    function pickWeakSet(n) {
-        const weak = sortedWeakPairs();
-        if (!weak.length) return [];
-        const must = [];
-        const rest = [];
-        for (const pair of weak) {
-            if (mustIncludePairs.has(pairKey(pair[0], pair[1]))) must.push(pair);
-            else rest.push(pair);
-        }
-        const take = Math.min(Math.max(1, n), weak.length);
-        if (must.length >= take) return shuffleInPlace(must.slice()).slice(0, take);
-        shuffleInPlace(rest);
-        return shuffleInPlace(must.concat(rest.slice(0, take - must.length)));
+    function pickWeakDrillPairs() {
+        return sortedWeakPairs().filter(([l, r]) => mustIncludePairs.has(pairKey(l, r)));
     }
 
     function allAddendPairs() {
@@ -3969,7 +4072,7 @@
             return;
         }
         if (drillCount !== null) {
-            if (weakDrillMode) startWeakDrill(drillCount);
+            if (weakDrillMode) startWeakDrill();
             else startDrill(drillCount);
             return;
         }
@@ -4051,9 +4154,12 @@
         applyDisplayMode();
     }
 
-    function startWeakDrill(n) {
-        const pairs = pickWeakSet(n);
-        if (!pairs.length) return;
+    function startWeakDrill() {
+        const pairs = pickWeakDrillPairs();
+        if (!pairs.length) {
+            setWeakSaveStatus('右側で出したい問題にチェックしてね');
+            return;
+        }
         if (addBarOpen) {
             addBarOpen = null;
             syncAddBarOpen();
@@ -4068,7 +4174,7 @@
         huntView = 'list';
         abortBunkaiAnim();
         weakDrillMode = true;
-        drillCount = n;
+        drillCount = pairs.length;
         drillView = 'list';
         drillFocus = null;
         busy = false;
@@ -7168,21 +7274,6 @@
         syncWeakSumButtons();
     }
 
-    function buildWeakEnshuButtons() {
-        if (!weakEnshuGrid) return;
-        weakEnshuGrid.innerHTML = '';
-        for (let n = 1; n <= 20; n++) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'sum-btn';
-            btn.dataset.n = String(n);
-            btn.textContent = String(n);
-            btn.addEventListener('click', () => startWeakDrill(n));
-            weakEnshuGrid.appendChild(btn);
-        }
-        syncWeakEnshuButtons();
-    }
-
     function buildHuntButtons() {
         huntGrid.innerHTML = '';
         for (let n = 1; n <= 18; n++) {
@@ -7212,10 +7303,11 @@
     if (weakMenuBtn) weakMenuBtn.addEventListener('click', () => setAddBarOpen('weak'));
     if (weakEnshuBtn) {
         weakEnshuBtn.addEventListener('click', () => {
-            weakDrillOpen = !weakDrillOpen;
-            syncAddBarOpen();
-            markAddBarInteract();
+            startWeakDrill();
         });
+    }
+    if (weakSelectAllBtn) {
+        weakSelectAllBtn.addEventListener('click', () => toggleWeakSelectAll());
     }
     if (weakExportBtn) {
         weakExportBtn.addEventListener('click', async () => {
@@ -7224,53 +7316,17 @@
                 setWeakSaveStatus('まだ苦手な問題はありません');
                 return;
             }
-            showWeakBackupText(text);
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title: '苦手リストの控え', text });
-                    setWeakSaveStatus('メモやファイルに保存すると、ずっと残るよ');
-                    return;
-                } catch (err) {
-                    if (err && err.name === 'AbortError') return;
-                }
-            }
-            try {
-                await navigator.clipboard.writeText(text);
-                setWeakSaveStatus('控えをコピーしたよ。メモアプリに貼って残してね');
-            } catch (err) {
-                setWeakSaveStatus('枠の中を長押ししてコピーしてね');
-            }
+            await saveWeakNamedFile(text);
         });
     }
-    if (weakImportBtn) {
-        weakImportBtn.addEventListener('click', () => {
-            if (weakBackupText && !weakBackupText.hidden && weakBackupText.value.trim()) {
-                importWeakText(weakBackupText.value);
+    if (weakFileBtn) {
+        weakFileBtn.addEventListener('click', async () => {
+            const text = exportWeakText();
+            if (!text) {
+                setWeakSaveStatus('まだ苦手な問題はありません');
                 return;
             }
-            if (weakBackupText) {
-                showWeakBackupText(weakBackupText.value || '');
-                setWeakSaveStatus('控えを貼ったら、もういちど「控えを入れる」を押してね');
-                return;
-            }
-            const pasted = window.prompt('苦手リストの控えを貼ってね', '');
-            if (pasted == null) return;
-            importWeakText(pasted);
-        });
-    }
-    if (weakFileBtn && weakImportFile) {
-        weakFileBtn.addEventListener('click', () => weakImportFile.click());
-        weakImportFile.addEventListener('change', async (event) => {
-            const file = event.target.files && event.target.files[0];
-            event.target.value = '';
-            if (!file) return;
-            try {
-                const text = await file.text();
-                importWeakText(text);
-                showWeakBackupText(text);
-            } catch (err) {
-                setWeakSaveStatus('ファイルがよめなかったよ');
-            }
+            await exportWeakNamedFile(text);
         });
     }
     [sumMenuPanel, sideMenuPanel, enshuMenuPanel, weakMenuPanel].forEach((panel) => {
@@ -7558,7 +7614,6 @@
     buildSumButtons();
     buildEnshuButtons();
     buildWeakSumButtons();
-    buildWeakEnshuButtons();
     renderWeakMustList();
     buildHuntButtons();
     buildChoiceButtons();
